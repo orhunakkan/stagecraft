@@ -9,5 +9,7 @@ describe('HomePage', () => {
 
     expect(screen.getByRole('heading', { name: 'Stagecraft' })).toBeVisible();
     expect(screen.getByText(/practice modern playwright test automation skills/i)).toBeVisible();
+    expect(screen.getByRole('heading', { name: /choose a challenge/i })).toBeVisible();
+    expect(screen.getByRole('heading', { name: /practice areas/i })).toBeVisible();
   });
 });

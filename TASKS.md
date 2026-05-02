@@ -181,6 +181,8 @@ Draft pending human review and approval. No implementation should begin until th
 
 ### Task 7: Build app shell, navigation, homepage, and theme toggle
 
+**Status:** Completed.
+
 **Description:** Create the core layout with accessible navigation, homepage content, and user-controllable theme switching.
 
 **Acceptance criteria:**
