@@ -224,6 +224,8 @@ Draft pending human review and approval. No implementation should begin until th
 
 ### Task 8: Define challenge domain model and metadata validation
 
+**Status:** Completed.
+
 **Description:** Create typed models for challenges, labs, objectives, hints, tags, difficulty, and acceptance criteria.
 
 **Acceptance criteria:**
