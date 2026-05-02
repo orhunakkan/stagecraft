@@ -276,6 +276,8 @@ Draft pending human review and approval. No implementation should begin until th
 
 ### Task 10: Build challenge catalog UI with search and filters
 
+**Status:** Completed.
+
 **Description:** Implement catalog page with colorful challenge cards, difficulty filters, concept filters, and search.
 
 **Acceptance criteria:**
