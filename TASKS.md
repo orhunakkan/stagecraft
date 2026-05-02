@@ -407,16 +407,18 @@ Draft pending human review and approval. No implementation should begin until th
 
 ### Task 14: Implement Accessible Locators Lab
 
+**Status:** Completed.
+
 **Description:** Build a lab for practicing roles, labels, headings, buttons, links, alt text, titles, and accessible names.
 
 **Acceptance criteria:**
-- [ ] Lab route is reachable from its challenge.
-- [ ] Page includes diverse accessible targets for role, label, text, alt text, and title practice.
-- [ ] E2E verification uses user-facing locators only.
+- [x] Lab route is reachable from its challenge.
+- [x] Page includes diverse accessible targets for role, label, text, alt text, and title practice.
+- [x] E2E verification uses user-facing locators only.
 
 **Verification:**
-- [ ] `npm test -- --coverage`
-- [ ] `npm run test:e2e -- --grep "Accessible Locators"`
+- [x] `npm test -- --coverage`
+- [x] `npm run test:e2e -- --grep "Accessible Locators"`
 
 **Dependencies:** Task 13
 
