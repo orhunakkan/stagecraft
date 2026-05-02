@@ -250,6 +250,8 @@ Draft pending human review and approval. No implementation should begin until th
 
 ### Task 9: Create initial documentation-backed challenge metadata
 
+**Status:** Completed.
+
 **Description:** Add initial challenge records for the six MVP labs and broad Playwright topic tags informed by local docs.
 
 **Acceptance criteria:**

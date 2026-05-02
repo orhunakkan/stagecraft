@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
+import { challenges } from './challenge-data';
 import type { Challenge } from './challenge-types';
 import { validateChallenges } from './challenge-validation';
 
@@ -31,6 +32,13 @@ function createChallenge(overrides: Partial<Challenge> = {}): Challenge {
 }
 
 describe('validateChallenges', () => {
+  it('accepts the initial documentation-backed challenge metadata', () => {
+    const result = validateChallenges(challenges);
+
+    expect(result.valid).toBe(true);
+    expect(result.errors).toEqual([]);
+  });
+
   it('accepts a complete challenge model required by the spec', () => {
     const result = validateChallenges([createChallenge()]);
 
