@@ -592,15 +592,17 @@ Draft pending human review and approval. No implementation should begin until th
 
 ### Task 20: Create documentation-backed curriculum matrix
 
+**Status:** Completed.
+
 **Description:** Build an internal topic matrix mapping local Playwright docs to existing and planned challenge coverage.
 
 **Acceptance criteria:**
-- [ ] Matrix lists major docs-backed Playwright topics.
-- [ ] Each topic is marked as covered, partially covered, planned, or out-of-scope for MVP.
-- [ ] Matrix remains internal contributor documentation, not app-rendered official docs.
+- [x] Matrix lists major docs-backed Playwright topics.
+- [x] Each topic is marked as covered, partially covered, planned, or out-of-scope for MVP.
+- [x] Matrix remains internal contributor documentation, not app-rendered official docs.
 
 **Verification:**
-- [ ] Manual review against `docs/guides/` file list.
+- [x] Manual review against `docs/guides/` file list.
 
 **Dependencies:** Checkpoint 3
 
