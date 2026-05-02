@@ -10,7 +10,7 @@
     "typecheck": "tsc --noEmit",
     "lint": "eslint . --max-warnings=0",
     "format:check": "prettier . --check",
-    "test": "node -e \"throw new Error('tests are not configured yet')\"",
+    "test": "vitest run",
     "test:e2e": "node -e \"throw new Error('e2e tests are not configured yet')\"",
     "test:e2e:ui": "node -e \"throw new Error('e2e UI mode is not configured yet')\"",
     "verify": "npm run lint && npm run typecheck && npm test -- --coverage && npm run test:e2e && npm run build"
@@ -21,14 +21,21 @@
     "react-dom": "^19.2.5"
   },
   "devDependencies": {
+    "@testing-library/jest-dom": "^6.9.1",
+    "@testing-library/react": "^16.3.2",
+    "@testing-library/user-event": "^14.6.1",
     "@types/node": "^24.10.0",
     "@types/react": "^19.2.7",
     "@types/react-dom": "^19.2.3",
+    "@vitejs/plugin-react": "^6.0.1",
+    "@vitest/coverage-v8": "^4.1.5",
     "eslint": "^9.39.4",
     "eslint-config-next": "^16.2.4",
     "jiti": "^2.6.1",
+    "jsdom": "^29.1.1",
     "prettier": "^3.8.3",
-    "typescript": "^6.0.3"
+    "typescript": "^6.0.3",
+    "vitest": "^4.1.5"
   },
   "overrides": {
     "postcss": "^8.5.13"

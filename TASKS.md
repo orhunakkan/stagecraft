@@ -99,6 +99,8 @@ Draft pending human review and approval. No implementation should begin until th
 
 ### Task 4: Configure Vitest and React Testing Library
 
+**Status:** Completed.
+
 **Description:** Set up unit/component test infrastructure for TypeScript and React.
 
 **Acceptance criteria:**
