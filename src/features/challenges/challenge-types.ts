@@ -33,6 +33,7 @@ export interface PracticeLabSummary {
   labId: string;
   title: string;
   route: string;
+  kind?: 'lab' | 'concept';
 }
 
 export interface ChallengeContent {

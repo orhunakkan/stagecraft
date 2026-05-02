@@ -18,6 +18,9 @@ describe('filterChallenges', () => {
     expect(
       filterChallenges(challenges, { search: 'auth' }).map((challenge) => challenge.id),
     ).toEqual(['fake-auth-session']);
+    expect(
+      filterChallenges(challenges, { search: 'reporting' }).map((challenge) => challenge.id),
+    ).toEqual(['debugging-reporting']);
   });
 
   it('filters by difficulty and concept together', () => {
@@ -39,7 +42,11 @@ describe('getChallengeConceptOptions', () => {
     expect(getChallengeConceptOptions(challenges)).toEqual([
       'Accessible locators',
       'Auto-waiting and async assertions',
+      'Browser events and multi-page flows',
+      'Debugging artifacts and reports',
+      'Emulation and input interactions',
       'Form interactions and validation',
+      'Frames and context isolation',
       'Lists, tables, and scoped assertions',
       'Network observation and API mocking',
       'Session state and protected routes',

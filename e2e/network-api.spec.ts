@@ -73,13 +73,12 @@ test.describe('Network API lab', () => {
   });
 
   test('GET /api/practice/network/items returns items and fetchedAt fields', async ({
-    page,
+    request,
   }) => {
-    const responsePromise = page.waitForResponse('/api/practice/network/items');
-    await page.goto('/practice/network-api');
-    const response = await responsePromise;
+    const response = await request.get('/api/practice/network/items');
     const body = await response.json();
 
+    expect(response.status()).toBe(200);
     expect(body).toHaveProperty('items');
     expect(body).toHaveProperty('fetchedAt');
     expect(body).toHaveProperty('total');
@@ -106,23 +105,30 @@ test.describe('Network API lab', () => {
   });
 
   test('Refresh button is disabled while a request is in flight', async ({ page }) => {
-    // Start navigation so we can catch the button mid-flight
-    const inflightPage = await page.context().newPage();
-    let requestStarted = false;
+    let releaseResponse: () => void = () => undefined;
+    let markRequestStarted: () => void = () => undefined;
+    const requestStarted = new Promise<void>((resolve) => {
+      markRequestStarted = resolve;
+    });
+    const responseGate = new Promise<void>((resolve) => {
+      releaseResponse = resolve;
+    });
 
-    await inflightPage.route('/api/practice/network/items', async (route) => {
-      if (!requestStarted) {
-        requestStarted = true;
-        // Check the button state during the pending request
-        await inflightPage
-          .getByRole('button', { name: /refresh ticket list/i })
-          .isDisabled();
-      }
+    await page.route('/api/practice/network/items', async (route) => {
+      markRequestStarted();
+      await responseGate;
       await route.continue();
     });
 
-    await inflightPage.goto('/practice/network-api');
-    await inflightPage.close();
+    const navigation = page.goto('/practice/network-api');
+    await requestStarted;
+
+    await expect(page.getByRole('button', { name: /refresh ticket list/i })).toBeDisabled();
+
+    releaseResponse();
+    await navigation;
+    await expect(page.getByRole('table', { name: /support tickets/i })).toBeVisible();
+    await page.unrouteAll({ behavior: 'wait' });
   });
 
   // ─── Error simulation ──────────────────────────────────────────────────────

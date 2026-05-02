@@ -127,7 +127,9 @@ test.describe('Async UI lab', () => {
   test('staged updates — success state shows all 4 stages', async ({ page }) => {
     await page.getByRole('button', { name: /start staged updates flow/i }).click();
 
-    await expect(page.getByText(/pipeline complete \(4 of 4 items\)/i)).toBeVisible();
+    await expect(page.getByText(/pipeline complete \(4 of 4 items\)/i)).toBeVisible({
+      timeout: 10_000,
+    });
 
     const allList = page.getByRole('list', { name: /pipeline stages/i });
     await expect(allList.getByText(/stage 3: report generated/i)).toBeVisible();

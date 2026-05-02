@@ -6,12 +6,15 @@ import { challenges } from './challenge-data';
 
 const accessibleLocatorsChallenge = challenges.find((c) => c.id === 'accessible-locators')!;
 const networkApiChallenge = challenges.find((c) => c.id === 'network-api')!;
+const debuggingReportingChallenge = challenges.find((c) => c.id === 'debugging-reporting')!;
 
 describe('ChallengeDetail', () => {
   it('renders the challenge title as the main heading', () => {
     render(<ChallengeDetail challenge={accessibleLocatorsChallenge} />);
 
-    expect(screen.getByRole('heading', { level: 1, name: 'Accessible Locators Lab' })).toBeVisible();
+    expect(
+      screen.getByRole('heading', { level: 1, name: 'Accessible Locators Lab' }),
+    ).toBeVisible();
   });
 
   it('shows difficulty, estimated time, and primary concept', () => {
@@ -82,9 +85,7 @@ describe('ChallengeDetail', () => {
     render(<ChallengeDetail challenge={accessibleLocatorsChallenge} />);
 
     expect(screen.getByRole('heading', { name: /hints/i })).toBeVisible();
-    expect(
-      screen.getByText(/conceptual guidance only — no solution scripts/i),
-    ).toBeVisible();
+    expect(screen.getByText(/conceptual guidance only — no solution scripts/i)).toBeVisible();
 
     const hintsList = screen.getByRole('list', { name: /conceptual hints/i });
     const items = within(hintsList).getAllByRole('listitem');
@@ -129,5 +130,19 @@ describe('ChallengeDetail', () => {
 
     const practiceLink = screen.getByRole('link', { name: /open network api lab/i });
     expect(practiceLink).toHaveAttribute('href', '/practice/network-api');
+  });
+
+  it('uses concept-page copy for non-interactive Playwright practice topics', () => {
+    render(<ChallengeDetail challenge={debuggingReportingChallenge} />);
+
+    expect(
+      screen.getByRole('heading', { level: 1, name: 'Debugging and Reporting Concepts' }),
+    ).toBeVisible();
+    expect(screen.getByText(/open the concept page for a structured checklist/i)).toBeVisible();
+
+    const conceptLink = screen.getByRole('link', {
+      name: /open debugging and reporting concepts/i,
+    });
+    expect(conceptLink).toHaveAttribute('href', '/practice/debugging-reporting');
   });
 });

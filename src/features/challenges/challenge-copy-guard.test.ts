@@ -67,7 +67,7 @@ describe('findChallengeCopyViolations', () => {
 });
 
 describe('initial challenge copy', () => {
-  it('includes all six MVP practice lab routes', () => {
+  it('includes all current practice lab routes', () => {
     expect(challenges.map((challenge) => challenge.practice.route)).toEqual([
       '/practice/accessible-locators',
       '/practice/forms-validation',
@@ -75,6 +75,10 @@ describe('initial challenge copy', () => {
       '/practice/async-ui',
       '/practice/network-api',
       '/practice/fake-auth',
+      '/practice/browser-events',
+      '/practice/frames-contexts',
+      '/practice/emulation-input',
+      '/practice/debugging-reporting',
     ]);
   });
 

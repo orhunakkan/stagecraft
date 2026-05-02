@@ -16,6 +16,11 @@ const difficultyColors = {
 
 export function ChallengeDetail({ challenge }: ChallengeDetailProps) {
   const { content, practice } = challenge;
+  const practiceKind = practice.kind ?? 'lab';
+  const practiceDescription =
+    practiceKind === 'concept'
+      ? 'Open the concept page for a structured checklist of what to practice in your own Playwright project.'
+      : 'Open the interactive lab to explore the UI your tests will automate.';
 
   return (
     <article aria-labelledby="challenge-detail-heading" className="space-y-8">
@@ -128,10 +133,7 @@ export function ChallengeDetail({ challenge }: ChallengeDetailProps) {
             >
               Acceptance criteria
             </h2>
-            <ul
-              className="mt-4 space-y-3"
-              aria-label="Acceptance criteria"
-            >
+            <ul className="mt-4 space-y-3" aria-label="Acceptance criteria">
               {content.acceptanceCriteria.map((criterion, index) => (
                 <li key={index} className="flex gap-3">
                   <span
@@ -152,10 +154,7 @@ export function ChallengeDetail({ challenge }: ChallengeDetailProps) {
             >
               Constraints
             </h2>
-            <ul
-              className="mt-4 space-y-3"
-              aria-label="Constraints"
-            >
+            <ul className="mt-4 space-y-3" aria-label="Constraints">
               {content.constraints.map((constraint, index) => (
                 <li key={index} className="flex gap-3">
                   <span
@@ -179,9 +178,7 @@ export function ChallengeDetail({ challenge }: ChallengeDetailProps) {
             <h2 className="text-xs font-black uppercase tracking-widest text-primary">
               Practice area
             </h2>
-            <p className="mt-2 text-sm leading-6 text-muted-foreground">
-              Open the interactive lab to explore the UI your tests will automate.
-            </p>
+            <p className="mt-2 text-sm leading-6 text-muted-foreground">{practiceDescription}</p>
             <Link
               href={practice.route}
               className="mt-4 inline-flex w-full items-center justify-center rounded-full bg-primary px-4 py-3 text-sm font-black text-primary-foreground transition hover:bg-primary/92 focus-visible:outline focus-visible:outline-3 focus-visible:outline-offset-4 focus-visible:outline-ring"

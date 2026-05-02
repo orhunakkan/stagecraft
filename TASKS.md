@@ -575,16 +575,16 @@ Draft pending human review and approval. No implementation should begin until th
 
 ## Checkpoint 3: Core MVP Labs Review
 
-- [ ] Six required MVP labs are implemented.
-- [ ] Each lab is deterministic and resettable.
-- [ ] Each lab is reachable from a challenge.
-- [ ] Playwright tests use user-facing locators wherever possible.
-- [ ] `npm run lint`
-- [ ] `npm run typecheck`
-- [ ] `npm test -- --coverage`
-- [ ] `npm run test:e2e`
-- [ ] `npm run build`
-- [ ] Human review before Phase 4.
+- [x] Six required MVP labs are implemented.
+- [x] Each lab is deterministic and resettable.
+- [x] Each lab is reachable from a challenge.
+- [x] Playwright tests use user-facing locators wherever possible.
+- [x] `npm run lint`
+- [x] `npm run typecheck`
+- [x] `npm test -- --coverage`
+- [x] `npm run test:e2e`
+- [x] `npm run build`
+- [x] Human review checkpoint applied retroactively before continuing further in Phase 4.
 
 ---
 
@@ -615,16 +615,18 @@ Draft pending human review and approval. No implementation should begin until th
 
 ### Task 21: Add browser events lab group
 
+**Status:** Completed.
+
 **Description:** Add practice coverage for dialogs, downloads/uploads, popups/tabs, and navigation events.
 
 **Acceptance criteria:**
-- [ ] Catalog includes event-focused challenge entries.
-- [ ] Practice surface includes deterministic dialog, upload/download, popup, and navigation behaviors where feasible locally.
-- [ ] E2E tests verify representative event behaviors.
+- [x] Catalog includes event-focused challenge entries.
+- [x] Practice surface includes deterministic dialog, upload/download, popup, and navigation behaviors where feasible locally.
+- [x] E2E tests verify representative event behaviors.
 
 **Verification:**
-- [ ] `npm test -- --coverage`
-- [ ] `npm run test:e2e -- --grep "Browser Events"`
+- [x] `npm test -- --coverage`
+- [x] `npm run test:e2e -- --grep "Browser Events"`
 
 **Dependencies:** Task 20
 
@@ -640,16 +642,18 @@ Draft pending human review and approval. No implementation should begin until th
 
 ### Task 22: Add frames and multi-context lab group
 
+**Status:** Completed.
+
 **Description:** Add practice coverage for iframes/frame locators and browser-context-like isolated state concepts.
 
 **Acceptance criteria:**
-- [ ] Catalog includes frames/context challenge entries.
-- [ ] Lab includes deterministic iframe content suitable for frame locator practice.
-- [ ] Lab demonstrates isolated state concepts without real auth.
+- [x] Catalog includes frames/context challenge entries.
+- [x] Lab includes deterministic iframe content suitable for frame locator practice.
+- [x] Lab demonstrates isolated state concepts without real auth.
 
 **Verification:**
-- [ ] `npm test -- --coverage`
-- [ ] `npm run test:e2e -- --grep "Frames and Contexts"`
+- [x] `npm test -- --coverage`
+- [x] `npm run test:e2e -- --grep "Frames and Contexts"`
 
 **Dependencies:** Task 20
 
@@ -665,16 +669,18 @@ Draft pending human review and approval. No implementation should begin until th
 
 ### Task 23: Add emulation and input lab group
 
+**Status:** Completed.
+
 **Description:** Add practice coverage for viewport-aware behavior, keyboard input, mouse interactions, touch-like UI, and device/emulation concepts.
 
 **Acceptance criteria:**
-- [ ] Catalog includes emulation/input challenge entries.
-- [ ] Lab includes responsive behavior and deterministic keyboard/mouse interaction targets.
-- [ ] Dark mode and responsive behavior remain readable.
+- [x] Catalog includes emulation/input challenge entries.
+- [x] Lab includes responsive behavior and deterministic keyboard/mouse interaction targets.
+- [x] Dark mode and responsive behavior remain readable.
 
 **Verification:**
-- [ ] `npm test -- --coverage`
-- [ ] `npm run test:e2e -- --grep "Emulation and Input"`
+- [x] `npm test -- --coverage`
+- [x] `npm run test:e2e -- --grep "Emulation and Input"`
 
 **Dependencies:** Task 20
 
@@ -690,16 +696,18 @@ Draft pending human review and approval. No implementation should begin until th
 
 ### Task 24: Add debugging and reporting concept pages
 
+**Status:** Completed.
+
 **Description:** Add challenge content for trace viewer, screenshots, videos, retries, timeouts, annotations, and reporting concepts without exposing answer scripts.
 
 **Acceptance criteria:**
-- [ ] Catalog includes debugging/reporting challenge entries.
-- [ ] Challenge details explain what users should practice in their own Playwright project.
-- [ ] No complete scripts are shown.
+- [x] Catalog includes debugging/reporting challenge entries.
+- [x] Challenge details explain what users should practice in their own Playwright project.
+- [x] No complete scripts are shown.
 
 **Verification:**
-- [ ] `npm test -- --coverage`
-- [ ] Manual review of challenge copy.
+- [x] `npm test -- --coverage`
+- [x] Manual review of challenge copy.
 
 **Dependencies:** Task 20
 

@@ -276,4 +276,206 @@ export const challenges = [
       ],
     },
   },
+  {
+    id: 'browser-events',
+    title: 'Browser Events Lab',
+    difficulty: 'intermediate',
+    estimatedMinutes: 30,
+    primaryConcept: 'Browser events and multi-page flows',
+    summary: 'Practice handling native dialogs, uploads/downloads, popups, and navigation events.',
+    tags: ['dialogs', 'downloads', 'uploads', 'tabs', 'assertions'],
+    practice: {
+      labId: 'browser-events',
+      title: 'Browser Events Lab',
+      route: '/practice/browser-events',
+    },
+    content: {
+      scenario:
+        'A settings panel triggers native browser dialogs, offers a file upload form, downloads a generated report, opens a same-origin popup, and links back to challenge detail content.',
+      learningObjective:
+        "Register event and URL waiters before the action that triggers them and verify the outcome using Playwright's dialog, upload, download, popup, and navigation APIs.",
+      instructions: [
+        'Set up a dialog handler before clicking the button that triggers it, then assert the visible result in the UI.',
+        'Upload a file using setInputFiles and verify the filename and size displayed by the page.',
+        'Start waiting for the download event before clicking the download button, then verify the suggested filename.',
+        'Start waiting for the popup event before opening the new tab, then assert the popup URL and visible content.',
+        'Pair navigation-triggering clicks with waitForURL when the expected route matters.',
+      ],
+      acceptanceCriteria: [
+        'A confirmed dialog shows a visible confirmed result; a dismissed dialog shows a visible dismissed result.',
+        'A file selected via setInputFiles produces visible filename and size information on the page.',
+        'A download event is triggered and the suggested filename matches the expected value.',
+        'A popup event is emitted for the same-origin new tab and exposes a stable target URL.',
+        'A local navigation can be observed through the expected challenge detail URL.',
+      ],
+      constraints: [
+        'Register dialog, download, popup, and navigation waiters before the triggering action, not after.',
+        "Do not use real file system paths — use Playwright's FilePayload or a Buffer for setInputFiles.",
+        'Keep each scenario isolated by resetting the lab or navigating back before tests that depend on initial state.',
+      ],
+      hints: [
+        'The dialog handler must be in place before the click that opens it — dialogs block further execution until handled.',
+        'setInputFiles accepts a path, array of paths, or a FilePayload object with name and buffer.',
+        'page.waitForEvent("download") and page.waitForEvent("popup") should be created before the click that triggers them.',
+        'Use page.waitForURL with a specific expected route instead of assuming navigation completed after a click.',
+      ],
+      conceptReferences: [
+        'Native dialog handling (alert, confirm, prompt)',
+        'File upload with setInputFiles',
+        'Download events and suggested filename',
+        'Popup events and same-origin tabs',
+        'Navigation events and waitForURL',
+      ],
+    },
+  },
+  {
+    id: 'frames-contexts',
+    title: 'Frames and Contexts Lab',
+    difficulty: 'intermediate',
+    estimatedMinutes: 30,
+    primaryConcept: 'Frames and context isolation',
+    summary:
+      'Practice iframe interactions and isolated browser state without accounts or credentials.',
+    tags: ['frames', 'fixtures', 'parallelism', 'assertions'],
+    practice: {
+      labId: 'frames-contexts',
+      title: 'Frames and Contexts Lab',
+      route: '/practice/frames-contexts',
+    },
+    content: {
+      scenario:
+        'A QA workspace embeds a task board in an iframe while the host page stores a harmless local context label used to illustrate isolated browser state.',
+      learningObjective:
+        'Move deliberately between host-page content and iframe content, then prove that saved browser state is scoped to the current isolated context.',
+      instructions: [
+        'Interact with the embedded task board from inside its frame and assert the visible frame-level updates.',
+        'Save a harmless context label on the host page and confirm it is visible after a reload in the same context.',
+        'Open the same lab in a separate browser context and verify the saved label does not leak into the fresh context.',
+      ],
+      acceptanceCriteria: [
+        'The iframe exposes deterministic buttons, form fields, and status messages that can be verified from within the frame.',
+        'A saved context label persists for the current browser context and reloads predictably.',
+        'A fresh browser context starts without the previously saved label, demonstrating isolated local storage state.',
+      ],
+      constraints: [
+        'Do not reach into implementation-only React state or generated styling classes.',
+        'Do not use real credentials or authentication tokens for this isolation exercise.',
+        'Keep frame interactions scoped to framed content and context-state checks scoped to the host page.',
+      ],
+      hints: [
+        'A frame-aware locator changes the search area from the main page into the iframe before finding controls inside it.',
+        'Browser contexts act like lightweight isolated profiles with their own local storage, session storage, and cookies.',
+        'When proving isolation, compare user-visible state in separate contexts rather than relying on test execution order.',
+      ],
+      conceptReferences: [
+        'Frame locators and iframe ownership',
+        'Browser context isolation',
+        'Local storage scoped per context',
+        'Independent setup for parallel-safe tests',
+      ],
+    },
+  },
+  {
+    id: 'emulation-input',
+    title: 'Emulation and Input Lab',
+    difficulty: 'intermediate',
+    estimatedMinutes: 30,
+    primaryConcept: 'Emulation and input interactions',
+    summary:
+      'Practice responsive viewport checks, keyboard input, pointer actions, and touch-friendly UI.',
+    tags: ['mobile-emulation', 'configuration', 'assertions', 'locators'],
+    practice: {
+      labId: 'emulation-input',
+      title: 'Emulation and Input Lab',
+      route: '/practice/emulation-input',
+    },
+    content: {
+      scenario:
+        'A release dashboard must remain testable across compact and wide viewports while supporting keyboard, pointer, and touch-like interactions.',
+      learningObjective:
+        'Use emulated browser settings and user-like input actions to verify responsive behavior and input outcomes from the learner-visible UI.',
+      instructions: [
+        'Change the viewport or device profile in your own test project and verify which layout guidance is visible.',
+        'Use keyboard actions to submit and clear the command input, then assert the visible status messages.',
+        'Exercise hover, click, double-click, and touch-friendly controls without relying on generated styling classes.',
+      ],
+      acceptanceCriteria: [
+        'Compact, tablet, and desktop viewport modes expose deterministic visible guidance at the expected widths.',
+        'Keyboard input produces visible submitted and cleared states without inspecting private event handlers.',
+        'Pointer and touch-friendly controls update visible statuses and remain usable in dark mode and responsive layouts.',
+      ],
+      constraints: [
+        'Do not use fixed sleeps to wait for layout changes; assert the visible mode or interaction result.',
+        'Do not bypass user-like input by setting component state directly.',
+        'Keep mobile-emulation checks focused on observable behavior, not browser internals.',
+      ],
+      hints: [
+        'Device and viewport settings affect browser behavior before the page is exercised, so set them up before asserting responsive content.',
+        'Most text input can be driven by filling fields, while key-specific behavior should be checked through keyboard events and visible results.',
+        'Pointer actions are more useful when the page exposes a clear hover, click, or double-click outcome for users.',
+      ],
+      conceptReferences: [
+        'Viewport and device emulation',
+        'Keyboard input and shortcut handling',
+        'Mouse hover, click, and double-click actions',
+        'Touch-friendly target behavior',
+        'Color scheme and responsive UI checks',
+      ],
+    },
+  },
+  {
+    id: 'debugging-reporting',
+    title: 'Debugging and Reporting Concepts',
+    difficulty: 'intermediate',
+    estimatedMinutes: 25,
+    primaryConcept: 'Debugging artifacts and reports',
+    summary:
+      'Plan how traces, screenshots, videos, retries, timeouts, annotations, and reports help diagnose failures.',
+    tags: ['debugging', 'tracing', 'screenshots', 'retries', 'configuration', 'visual'],
+    practice: {
+      labId: 'debugging-reporting',
+      title: 'Debugging and Reporting Concepts',
+      route: '/practice/debugging-reporting',
+      kind: 'concept',
+    },
+    content: {
+      scenario:
+        'A team has a mostly reliable browser test suite, but failures on developer machines and CI are hard to explain after the run has ended.',
+      learningObjective:
+        'Choose the right failure artifact, retry strategy, timeout boundary, annotation, and report format so debugging evidence is captured without hiding product bugs.',
+      instructions: [
+        'Review a recent or intentionally created failing test in your own Playwright project and identify which artifact would make the failure easiest to understand.',
+        'Decide when traces, screenshots, and videos should be collected locally and in CI so successful runs stay lightweight while failed runs leave useful evidence.',
+        'Compare test-level, assertion-level, and suite-level timeouts, then document which boundary should change only after the slow behavior is understood.',
+        'Add meaningful titles, tags, annotations, or named steps in your own project so the report explains the intent of the scenario before someone opens the source file.',
+        'Use retries as a signal for investigation by distinguishing a genuinely fixed pass from a flaky pass that needs follow-up.',
+      ],
+      acceptanceCriteria: [
+        'You can explain which artifact to inspect first for an actionability failure, a visual mismatch, a slow assertion, and a CI-only failure.',
+        'Your own project has a written policy for collecting traces, screenshots, or videos on failure or retry without recording every successful run by default.',
+        'Timeout changes are justified by observed behavior and do not replace web-first assertions or deterministic test setup.',
+        'Reports include enough names, tags, annotations, and failure artifacts for another person to triage the run without asking what the test was meant to prove.',
+      ],
+      constraints: [
+        'Do not paste generated solution scripts into Stagecraft or into learner-facing notes.',
+        'Do not treat a retry that eventually passes as a completed fix without investigating the first failure.',
+        'Do not increase timeouts globally until the slow boundary and user impact are understood.',
+        'Do not publish traces, videos, screenshots, or reports if they may contain private application data.',
+      ],
+      hints: [
+        'A trace is strongest when you need to inspect actions, DOM snapshots, console output, network activity, and source context together after the run.',
+        'Screenshots and videos are useful evidence, but they are artifacts to review, not assertions by themselves.',
+        'Retries reduce noise only when paired with investigation of flaky results and targeted artifacts from retry attempts.',
+        'Short, intentional annotations can make a report easier to scan than comments hidden inside the test file.',
+        'Timeouts describe patience boundaries; they should match realistic user and system behavior rather than mask nondeterminism.',
+      ],
+      conceptReferences: [
+        'Trace viewer actions, snapshots, console, and network panels',
+        'Screenshots, videos, and visual comparison artifacts',
+        'Retry outcomes and flaky test triage',
+        'Test, assertion, action, navigation, fixture, and global timeout boundaries',
+        'Tags, annotations, named steps, and reporter output',
+      ],
+    },
+  },
 ] satisfies readonly Challenge[];

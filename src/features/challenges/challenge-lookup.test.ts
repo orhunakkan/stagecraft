@@ -36,6 +36,10 @@ describe('getChallengeById', () => {
       'async-ui',
       'network-api',
       'fake-auth-session',
+      'browser-events',
+      'frames-contexts',
+      'emulation-input',
+      'debugging-reporting',
     ];
 
     for (const id of expectedIds) {
