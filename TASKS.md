@@ -335,18 +335,20 @@ Draft pending human review and approval. No implementation should begin until th
 
 ### Task 12: Implement self-marked local progress
 
+**Status:** Completed.
+
 **Description:** Add local progress state so learners can mark challenges as not started, in progress, practiced, or completed.
 
 **Acceptance criteria:**
-- [ ] Users can update progress from challenge detail pages.
-- [ ] Progress persists across reloads.
-- [ ] Users can reset all local progress.
-- [ ] UI clearly states progress is self-marked, not graded.
+- [x] Users can update progress from challenge detail pages.
+- [x] Progress persists across reloads.
+- [x] Users can reset all local progress.
+- [x] UI clearly states progress is self-marked, not graded.
 
 **Verification:**
-- [ ] `npm test -- --coverage`
-- [ ] `npm run test:e2e`
-- [ ] Manual check: mark progress, reload, reset.
+- [x] `npm test -- --coverage`
+- [x] `npm run test:e2e`
+- [x] Manual check: mark progress, reload, reset.
 
 **Dependencies:** Task 11
 

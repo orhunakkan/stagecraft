@@ -1,5 +1,7 @@
 import Link from 'next/link';
 
+import { ProgressControls } from '@/features/progress/ProgressControls';
+
 import type { Challenge } from './challenge-types';
 
 interface ChallengeDetailProps {
@@ -169,6 +171,9 @@ export function ChallengeDetail({ challenge }: ChallengeDetailProps) {
 
         {/* Right column: hints, concepts, practice link */}
         <aside className="space-y-5">
+          {/* Progress tracker --------------------------------------------- */}
+          <ProgressControls challengeId={challenge.id} />
+
           {/* Practice link ------------------------------------------------ */}
           <div className="stage-card p-6">
             <h2 className="text-xs font-black uppercase tracking-widest text-primary">
