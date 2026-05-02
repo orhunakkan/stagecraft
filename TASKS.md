@@ -381,16 +381,18 @@ Draft pending human review and approval. No implementation should begin until th
 
 ### Task 13: Create shared practice lab layout and reset pattern
 
+**Status:** Completed.
+
 **Description:** Create reusable lab page structure with objective summary, reset control, deterministic state setup, and navigation back to challenge details.
 
 **Acceptance criteria:**
-- [ ] Practice lab pages share a consistent, accessible layout.
-- [ ] Reset control has a clear accessible name.
-- [ ] Reset behavior pattern is reusable by all labs.
+- [x] Practice lab pages share a consistent, accessible layout.
+- [x] Reset control has a clear accessible name.
+- [x] Reset behavior pattern is reusable by all labs.
 
 **Verification:**
-- [ ] `npm test -- --coverage`
-- [ ] `npm run test:e2e`
+- [x] `npm test -- --coverage`
+- [x] `npm run test:e2e`
 
 **Dependencies:** Task 12
 
