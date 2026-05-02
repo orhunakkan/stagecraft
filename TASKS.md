@@ -72,6 +72,8 @@ Draft pending human review and approval. No implementation should begin until th
 
 ### Task 3: Configure linting and formatting
 
+**Status:** Completed.
+
 **Description:** Add ESLint and Prettier configuration using TypeScript-compatible config where supported.
 
 **Acceptance criteria:**
