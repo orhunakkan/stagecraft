@@ -489,16 +489,18 @@ Draft pending human review and approval. No implementation should begin until th
 
 ### Task 17: Implement Async UI Lab
 
+**Status:** Completed.
+
 **Description:** Build a lab for loading states, delayed UI updates, retry behavior, and web-first assertion practice.
 
 **Acceptance criteria:**
-- [ ] Lab has deterministic delayed states with visible loading, success, retry, and error states.
-- [ ] No arbitrary random timing is required.
-- [ ] E2E tests use Playwright waiting/assertion patterns, not fixed sleeps.
+- [x] Lab has deterministic delayed states with visible loading, success, retry, and error states.
+- [x] No arbitrary random timing is required.
+- [x] E2E tests use Playwright waiting/assertion patterns, not fixed sleeps.
 
 **Verification:**
-- [ ] `npm test -- --coverage`
-- [ ] `npm run test:e2e -- --grep "Async UI"`
+- [x] `npm test -- --coverage`
+- [x] `npm run test:e2e -- --grep "Async UI"`
 
 **Dependencies:** Task 13
 
