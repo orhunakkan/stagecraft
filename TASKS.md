@@ -461,16 +461,18 @@ Draft pending human review and approval. No implementation should begin until th
 
 ### Task 16: Implement Tables and Filtering Lab
 
+**Status:** Completed.
+
 **Description:** Build a lab for search, sort, filter, pagination, empty results, and row-level actions.
 
 **Acceptance criteria:**
-- [ ] Users can search, filter, sort, and paginate deterministic table data.
-- [ ] Empty state appears when no rows match.
-- [ ] Row actions are accessible and scoped to the chosen row.
+- [x] Users can search, filter, sort, and paginate deterministic table data.
+- [x] Empty state appears when no rows match.
+- [x] Row actions are accessible and scoped to the chosen row.
 
 **Verification:**
-- [ ] `npm test -- --coverage`
-- [ ] `npm run test:e2e -- --grep "Tables and Filtering"`
+- [x] `npm test -- --coverage`
+- [x] `npm run test:e2e -- --grep "Tables and Filtering"`
 
 **Dependencies:** Task 13
 
