@@ -517,17 +517,19 @@ Draft pending human review and approval. No implementation should begin until th
 
 ### Task 18: Implement Network/API Lab
 
+**Status:** Completed.
+
 **Description:** Build a deterministic API-backed lab suitable for request/response observation and route mocking practice.
 
 **Acceptance criteria:**
-- [ ] Lab fetches data from local route handlers.
-- [ ] API responses are deterministic and resettable.
-- [ ] UI exposes loading, success, error, and refresh behavior.
-- [ ] E2E test verifies network-backed behavior without external services.
+- [x] Lab fetches data from local route handlers.
+- [x] API responses are deterministic and resettable.
+- [x] UI exposes loading, success, error, and refresh behavior.
+- [x] E2E test verifies network-backed behavior without external services.
 
 **Verification:**
-- [ ] `npm test -- --coverage`
-- [ ] `npm run test:e2e -- --grep "Network API"`
+- [x] `npm test -- --coverage`
+- [x] `npm run test:e2e -- --grep "Network API"`
 
 **Dependencies:** Task 13
 
