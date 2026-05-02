@@ -152,6 +152,8 @@ Draft pending human review and approval. No implementation should begin until th
 
 ### Task 6: Create Tailwind design foundation with light and dark themes
 
+**Status:** Completed.
+
 **Description:** Configure Tailwind and global styles for a colorful light/dark design system.
 
 **Acceptance criteria:**
