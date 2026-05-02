@@ -433,16 +433,18 @@ Draft pending human review and approval. No implementation should begin until th
 
 ### Task 15: Implement Forms and Validation Lab
 
+**Status:** Completed.
+
 **Description:** Build a lab for practicing labels, form controls, validation messages, disabled/enabled states, and successful submission feedback.
 
 **Acceptance criteria:**
-- [ ] Lab includes text input, email input, select, checkbox, radio group, and submit behavior.
-- [ ] Validation messages are accessible and deterministic.
-- [ ] Submit button state changes are observable and testable.
+- [x] Lab includes text input, email input, select, checkbox, radio group, and submit behavior.
+- [x] Validation messages are accessible and deterministic.
+- [x] Submit button state changes are observable and testable.
 
 **Verification:**
-- [ ] `npm test -- --coverage`
-- [ ] `npm run test:e2e -- --grep "Forms and Validation"`
+- [x] `npm test -- --coverage`
+- [x] `npm run test:e2e -- --grep "Forms and Validation"`
 
 **Dependencies:** Task 13
 
