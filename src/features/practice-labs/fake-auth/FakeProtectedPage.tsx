@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { startTransition, useEffect, useState } from 'react';
 
 import { clearSession, readSession, type FakeSession } from './fake-session';
 
@@ -20,9 +20,9 @@ export function FakeProtectedPage() {
   useEffect(() => {
     const session = readSession();
     if (session) {
-      setState({ view: 'authenticated', session });
+      startTransition(() => setState({ view: 'authenticated', session }));
     } else {
-      setState({ view: 'redirecting' });
+      startTransition(() => setState({ view: 'redirecting' }));
       router.replace('/practice/fake-auth');
     }
     // router is stable in Next.js App Router — effect runs once on mount only.

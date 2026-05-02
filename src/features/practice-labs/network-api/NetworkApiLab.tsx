@@ -92,6 +92,8 @@ function NetworkApiContent() {
 
   // Fetch on mount
   useEffect(() => {
+    // fetchTickets is async — setState is called after awaiting, not synchronously here.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     void fetchTickets();
   }, [fetchTickets]);
 

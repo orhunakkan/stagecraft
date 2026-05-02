@@ -95,7 +95,7 @@ function ScenarioPanel({ scenarioId, title, description }: ScenarioPanelProps) {
     }, delay);
 
     return () => clearTimeout(timer);
-  }, [state.step, state.retryAttempts, scenarioId]);
+  }, [state, scenarioId]);
 
   function handleStart() {
     setState({ step: 'loading', retryAttempts: 0 });

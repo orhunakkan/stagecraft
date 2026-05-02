@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { startTransition, useEffect, useState } from 'react';
 
 import { useLabReset } from '../lab-reset';
 import { PracticeLabLayout } from '../PracticeLabLayout';
@@ -53,11 +53,13 @@ function FakeAuthContent() {
   // Read existing session on mount
   useEffect(() => {
     const existing = readSession();
-    if (existing) {
-      setState({ view: 'signed-in', session: existing });
-    } else {
-      setState({ view: 'sign-in-form', error: '' });
-    }
+    startTransition(() => {
+      if (existing) {
+        setState({ view: 'signed-in', session: existing });
+      } else {
+        setState({ view: 'sign-in-form', error: '' });
+      }
+    });
   }, []);
 
   function handleSubmit(e: React.FormEvent) {
