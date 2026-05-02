@@ -11,8 +11,8 @@
     "lint": "eslint . --max-warnings=0",
     "format:check": "prettier . --check",
     "test": "vitest run",
-    "test:e2e": "node -e \"throw new Error('e2e tests are not configured yet')\"",
-    "test:e2e:ui": "node -e \"throw new Error('e2e UI mode is not configured yet')\"",
+    "test:e2e": "playwright test",
+    "test:e2e:ui": "playwright test --ui",
     "verify": "npm run lint && npm run typecheck && npm test -- --coverage && npm run test:e2e && npm run build"
   },
   "dependencies": {
@@ -21,6 +21,7 @@
     "react-dom": "^19.2.5"
   },
   "devDependencies": {
+    "@playwright/test": "^1.59.1",
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.2",
     "@testing-library/user-event": "^14.6.1",

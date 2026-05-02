@@ -24,6 +24,7 @@ export default defineConfig({
       ],
     },
     environment: 'jsdom',
+    exclude: ['.next/**', 'coverage/**', 'e2e/**', 'node_modules/**', 'playwright-report/**'],
     globals: true,
     setupFiles: ['./src/test/setup.ts'],
   },

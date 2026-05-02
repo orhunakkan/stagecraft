@@ -125,6 +125,8 @@ Draft pending human review and approval. No implementation should begin until th
 
 ### Task 5: Configure Playwright Test for local app verification
 
+**Status:** Completed.
+
 **Description:** Add Playwright configuration that can run against the local Stagecraft app using a web server command.
 
 **Acceptance criteria:**
