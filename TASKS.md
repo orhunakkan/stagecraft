@@ -546,17 +546,19 @@ Draft pending human review and approval. No implementation should begin until th
 
 ### Task 19: Implement Fake Auth/Session Lab
 
+**Status:** Completed.
+
 **Description:** Build a fake login/session workflow for practicing redirects, protected pages, logout, and storage-state concepts without real credentials.
 
 **Acceptance criteria:**
-- [ ] Login-like page accepts documented fake learner input without real secrets.
-- [ ] Protected practice page redirects when fake session is absent.
-- [ ] Logout clears fake session state.
-- [ ] E2E tests verify repeatable session behavior.
+- [x] Login-like page accepts documented fake learner input without real secrets.
+- [x] Protected practice page redirects when fake session is absent.
+- [x] Logout clears fake session state.
+- [x] E2E tests verify repeatable session behavior.
 
 **Verification:**
-- [ ] `npm test -- --coverage`
-- [ ] `npm run test:e2e -- --grep "Fake Auth"`
+- [x] `npm test -- --coverage`
+- [x] `npm run test:e2e -- --grep "Fake Auth"`
 
 **Dependencies:** Task 13
 
