@@ -306,18 +306,20 @@ Draft pending human review and approval. No implementation should begin until th
 
 ### Task 11: Build challenge detail pages
 
+**Status:** Completed.
+
 **Description:** Implement challenge detail route with scenario, learning objective, instructions, acceptance criteria, constraints, hints, and practice link.
 
 **Acceptance criteria:**
-- [ ] `/challenges/[id]` renders valid challenge details.
-- [ ] Missing challenge IDs show a friendly not-found state.
-- [ ] Hints are conceptual and do not reveal solution scripts.
-- [ ] Practice route is visible and accessible.
+- [x] `/challenges/[id]` renders valid challenge details.
+- [x] Missing challenge IDs show a friendly not-found state.
+- [x] Hints are conceptual and do not reveal solution scripts.
+- [x] Practice route is visible and accessible.
 
 **Verification:**
-- [ ] `npm test -- --coverage`
-- [ ] `npm run test:e2e`
-- [ ] Manual review: challenge detail copy does not reveal answers.
+- [x] `npm test -- --coverage`
+- [x] `npm run test:e2e`
+- [x] Manual review: challenge detail copy does not reveal answers.
 
 **Dependencies:** Task 10
 
