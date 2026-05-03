@@ -296,14 +296,16 @@ function SuccessPanel({
   );
 }
 
+function formatRetryCount(n: number): string {
+  return n === 1 ? '1 retry attempt' : `${String(n)} retry attempts`;
+}
+
 function successHeading(scenarioId: ScenarioId, retryAttempts: number): string {
   switch (scenarioId) {
     case 'basic-success':
       return 'Workflow complete';
     case 'retry-error':
-      return retryAttempts === 1
-        ? 'Connection restored after 1 retry attempt'
-        : `Connection restored after ${String(retryAttempts)} retry attempts`;
+      return `Connection restored after ${formatRetryCount(retryAttempts)}`;
     case 'staged-updates':
       return 'Pipeline complete (4 of 4 items)';
   }
@@ -325,8 +327,7 @@ function BasicSuccessItems() {
 function RetrySuccessItems({ retryAttempts }: { retryAttempts: number }) {
   return (
     <p className="text-sm text-muted-foreground">
-      Recovered after {retryAttempts === 1 ? '1 retry attempt' : `${String(retryAttempts)} retry attempts`}.
-      The service is now available.
+      Recovered after {formatRetryCount(retryAttempts)}. The service is now available.
     </p>
   );
 }

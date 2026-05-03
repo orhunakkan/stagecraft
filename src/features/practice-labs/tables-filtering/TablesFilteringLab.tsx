@@ -19,6 +19,35 @@ import {
   type TaskStatus,
 } from './table-data';
 
+// ─── Sortable column header ───────────────────────────────────────────────────
+
+interface SortableColumnHeaderProps {
+  field: SortField;
+  label: string;
+  sort: SortState | null;
+  onSort: (field: SortField) => void;
+}
+
+function SortableColumnHeader({ field, label, sort, onSort }: SortableColumnHeaderProps) {
+  const isActive = sort?.field === field;
+  const indicator = isActive ? (sort!.direction === 'asc' ? ' ↑' : ' ↓') : '';
+  const sortDescription = isActive
+    ? ` (sorted ${sort!.direction === 'asc' ? 'ascending' : 'descending'})`
+    : '';
+  return (
+    <th scope="col" className="px-4 py-3 text-left font-black text-card-foreground">
+      <button
+        type="button"
+        onClick={() => onSort(field)}
+        className="inline-flex items-center gap-1 transition hover:text-primary focus-visible:outline focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-ring"
+        aria-label={`Sort by ${label.toLowerCase()}${sortDescription}`}
+      >
+        {label}{indicator}
+      </button>
+    </th>
+  );
+}
+
 const CHALLENGE_ID = 'tables-filtering';
 const OBJECTIVE =
   'Scope checks to the row, list, or table region that matters so tests verify the correct item without relying on fragile DOM traversal.';
@@ -81,11 +110,6 @@ function TablesFilteringContent() {
     setSearch('');
     setStatusFilter('');
     setPage(1);
-  }
-
-  function getSortIndicator(field: SortField): string {
-    if (sort?.field !== field) return '';
-    return sort.direction === 'asc' ? ' ↑' : ' ↓';
   }
 
   return (
@@ -159,26 +183,8 @@ function TablesFilteringContent() {
         <table className="w-full text-sm" aria-label="Release tasks">
           <thead className="border-b border-border">
             <tr>
-              <th scope="col" className="px-4 py-3 text-left font-black text-card-foreground">
-                <button
-                  type="button"
-                  onClick={() => handleSort('name')}
-                  className="inline-flex items-center gap-1 transition hover:text-primary focus-visible:outline focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-ring"
-                  aria-label={`Sort by task${getSortIndicator('name') ? ` (sorted ${sort?.direction === 'asc' ? 'ascending' : 'descending'})` : ''}`}
-                >
-                  Task{getSortIndicator('name')}
-                </button>
-              </th>
-              <th scope="col" className="px-4 py-3 text-left font-black text-card-foreground">
-                <button
-                  type="button"
-                  onClick={() => handleSort('status')}
-                  className="inline-flex items-center gap-1 transition hover:text-primary focus-visible:outline focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-ring"
-                  aria-label={`Sort by status${getSortIndicator('status') ? ` (sorted ${sort?.direction === 'asc' ? 'ascending' : 'descending'})` : ''}`}
-                >
-                  Status{getSortIndicator('status')}
-                </button>
-              </th>
+              <SortableColumnHeader field="name" label="Task" sort={sort} onSort={handleSort} />
+              <SortableColumnHeader field="status" label="Status" sort={sort} onSort={handleSort} />
               <th scope="col" className="px-4 py-3 text-left font-black text-card-foreground">
                 Priority
               </th>
