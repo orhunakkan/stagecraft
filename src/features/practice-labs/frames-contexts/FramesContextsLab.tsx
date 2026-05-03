@@ -221,8 +221,18 @@ function ContextStatePanel() {
   const { labelInput, savedLabel, message } = contextState;
 
   useEffect(() => {
+    // Read from localStorage via startTransition so the update is low-priority
+    // (satisfies react-hooks/set-state-in-effect). The functional setState form
+    // guards against overwriting input the user has already typed, which removes
+    // the race where the deferred transition ran after Playwright filled the input
+    // and reset labelInput back to ''.
+    const existing = readContextLabel();
+    if (!existing) return;
     startTransition(() => {
-      setContextState(createInitialContextState());
+      setContextState((current) => {
+        if (current.labelInput !== '') return current;
+        return { labelInput: existing, savedLabel: existing, message: `Saved label: ${existing}` };
+      });
     });
   }, []);
 
@@ -321,19 +331,6 @@ function ContextStatePanel() {
       </dl>
     </section>
   );
-}
-
-function createInitialContextState(): ContextPanelState {
-  const existingLabel = readContextLabel();
-  if (!existingLabel) {
-    return createEmptyContextState();
-  }
-
-  return {
-    labelInput: existingLabel,
-    savedLabel: existingLabel,
-    message: `Saved label: ${existingLabel}`,
-  };
 }
 
 function createEmptyContextState(): ContextPanelState {

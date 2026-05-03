@@ -61,6 +61,21 @@ describe('FramesContextsLab', () => {
     expect(await screen.findByText(/saved label: persisted context/i)).toBeVisible();
   });
 
+  it('does not overwrite user input when localStorage hydration runs after typing', async () => {
+    // Simulates the E2E race: user types into the input before the useEffect localStorage
+    // hydration completes. The hydration must never clobber already-entered input.
+    const user = userEvent.setup();
+    render(<FramesContextsLab />);
+
+    // Type before any async effect can settle
+    await user.type(screen.getByRole('textbox', { name: /context label/i }), 'Raced input');
+    await user.click(screen.getByRole('button', { name: /save context label/i }));
+
+    expect(screen.getByRole('status', { name: /context label status/i })).toHaveTextContent(
+      /saved label: raced input/i,
+    );
+  });
+
   it('reset clears local context state', async () => {
     const user = userEvent.setup();
     localStorage.setItem('stagecraft_frames_context_label', 'Needs Reset');

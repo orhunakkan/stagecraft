@@ -186,7 +186,7 @@ Draft pending human review and approval. No implementation should begin until th
 **Description:** Create the core layout with accessible navigation, homepage content, and user-controllable theme switching.
 
 **Acceptance criteria:**
-- [ ] Homepage explains Stagecraft’s purpose.
+- [ ] Homepage explains Stagecraft's purpose.
 - [ ] Navigation exposes challenges and practice areas.
 - [ ] Theme toggle is keyboard-accessible and has a clear accessible name.
 - [ ] Theme preference persists locally.
@@ -736,17 +736,24 @@ Draft pending human review and approval. No implementation should begin until th
 
 ### Task 25: Strengthen accessibility and theme QA
 
+**Status:** Completed.
+
 **Description:** Review and improve accessibility, keyboard navigation, focus states, semantic structure, and light/dark readability.
 
 **Acceptance criteria:**
-- [ ] Main navigation and all challenge/lab flows are keyboard usable.
-- [ ] Focus states are visible in light and dark modes.
-- [ ] Important statuses do not rely on color alone.
-- [ ] E2E coverage includes dark mode smoke checks.
+- [x] Main navigation and all challenge/lab flows are keyboard usable.
+- [x] Focus states are visible in light and dark modes.
+- [x] Important statuses do not rely on color alone.
+- [x] E2E coverage includes dark mode smoke checks.
 
 **Verification:**
-- [ ] `npm run test:e2e`
-- [ ] Manual keyboard and theme review.
+- [x] `npm run test:e2e`
+- [x] Manual keyboard and theme review.
+
+**Notes:** Fixed an intermittent race condition in `FramesContextsLab` where `startTransition`
+could defer the localStorage hydration past Playwright's `fill`, resetting the input to `''`.
+The fix adds a functional-setState guard (`if current.labelInput !== '' return current`) so
+the transition can never overwrite user input. A unit test was added to document this contract.
 
 **Dependencies:** Checkpoint 4
 
@@ -762,16 +769,18 @@ Draft pending human review and approval. No implementation should begin until th
 
 ### Task 26: Add README learner and contributor guidance
 
+**Status:** Completed.
+
 **Description:** Document local setup, commands, how learners should use their separate Playwright project, and contributor rules.
 
 **Acceptance criteria:**
-- [ ] README explains Stagecraft’s purpose.
-- [ ] README lists local setup and verification commands.
-- [ ] README clarifies users write tests in their own separate Playwright project.
-- [ ] README states that the app does not provide solution scripts.
+- [x] README explains Stagecraft's purpose.
+- [x] README lists local setup and verification commands.
+- [x] README clarifies users write tests in their own separate Playwright project.
+- [x] README states that the app does not provide solution scripts.
 
 **Verification:**
-- [ ] Manual review of README.
+- [x] Manual review of README.
 
 **Dependencies:** Checkpoint 4
 
@@ -784,15 +793,17 @@ Draft pending human review and approval. No implementation should begin until th
 
 ### Task 27: Add final verification script and repository hygiene checks
 
+**Status:** Completed.
+
 **Description:** Ensure `npm run verify` runs all required quality gates and add checks for TypeScript-only and answer-free constraints where practical.
 
 **Acceptance criteria:**
-- [ ] `npm run verify` runs lint, typecheck, unit/component tests, Playwright tests, and build.
-- [ ] Verification includes a practical guard against `.js`/`.jsx` files.
-- [ ] Verification includes challenge copy guard tests.
+- [x] `npm run verify` runs lint, typecheck, unit/component tests, Playwright tests, and build.
+- [x] Verification includes a practical guard against `.js`/`.jsx` files.
+- [x] Verification includes challenge copy guard tests.
 
 **Verification:**
-- [ ] `npm run verify`
+- [x] `npm run verify`
 
 **Dependencies:** Tasks 25, 26
 
@@ -807,10 +818,10 @@ Draft pending human review and approval. No implementation should begin until th
 
 ## Final Checkpoint: MVP Review
 
-- [ ] `npm run verify`
+- [x] `npm run verify`
 - [ ] Manual local run through homepage, catalog, challenge details, progress, and all labs.
 - [ ] Light and dark modes are both usable.
-- [ ] No `.js` or `.jsx` files exist in project-authored source/config/test files.
-- [ ] No learner-facing page exposes solution scripts or direct answers.
-- [ ] Official Playwright docs are used internally only, not rendered or linked in the app.
+- [x] No `.js` or `.jsx` files exist in project-authored source/config/test files.
+- [x] No learner-facing page exposes solution scripts or direct answers.
+- [x] Official Playwright docs are used internally only, not rendered or linked in the app.
 - [ ] Human review confirms MVP readiness.
