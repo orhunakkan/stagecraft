@@ -5,7 +5,7 @@ test.describe('challenge catalog', () => {
     await page.goto('/challenges');
 
     await expect(page.getByRole('heading', { name: 'Challenge catalog' })).toBeVisible();
-    await expect(page.getByText('10 challenges')).toBeVisible();
+    await expect(page.getByText('19 challenges')).toBeVisible();
     await expect(page.getByRole('heading', { name: 'Accessible Locators Lab' })).toBeVisible();
 
     await page.getByRole('searchbox', { name: /search challenges/i }).fill('network');

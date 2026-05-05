@@ -478,4 +478,446 @@ export const challenges = [
       ],
     },
   },
+  // ─── Clock and Time Control Lab ──────────────────────────────────────────────
+  {
+    id: 'clock-time',
+    title: 'Clock and Time Control Lab',
+    difficulty: 'intermediate',
+    estimatedMinutes: 30,
+    primaryConcept: 'Clock control and time manipulation',
+    summary:
+      'Practice freezing time, fast-forwarding countdowns, and triggering scheduled refreshes without real delays.',
+    tags: ['assertions', 'configuration', 'clock'],
+    practice: {
+      labId: 'clock-time',
+      title: 'Clock and Time Control Lab',
+      route: '/practice/clock-time',
+    },
+    content: {
+      scenario:
+        'A release dashboard shows a live clock, a session countdown timer, and a scheduled auto-refresh panel — all driven by real browser timers that must be controlled to make tests fast and deterministic.',
+      learningObjective:
+        "Use Playwright's clock API to freeze Date.now(), fast-forward setInterval timers, and observe time-dependent UI states without waiting for real seconds or minutes to pass.",
+      instructions: [
+        'Use page.clock.setFixedTime() before navigating to assert a specific date and time on the live clock display.',
+        'Use page.clock.install() and page.clock.fastForward() to skip 5 minutes and trigger the session expiry alert without waiting.',
+        'Advance the clock by 30 seconds twice and verify the auto-refresh counter increments to 2.',
+      ],
+      acceptanceCriteria: [
+        'The live clock display reflects the exact time set by setFixedTime and does not change until the clock advances.',
+        'The session expired alert is visible after fastForward moves the clock past the 5-minute boundary.',
+        'The refresh counter shows 2 and the last-refreshed timestamp is visible after two 30-second advances.',
+      ],
+      constraints: [
+        'Do not use page.waitForTimeout() or fixed sleeps to wait for timer-driven changes.',
+        'Do not read private component state or internal timer references.',
+        'Call page.clock.install() before navigating to ensure all browser globals are controlled from the start.',
+      ],
+      hints: [
+        'setFixedTime is enough when you only need to freeze Date.now() without controlling timers.',
+        'install() must be called before the page loads so all timer globals are replaced from the first tick.',
+        'fastForward fires all timers that would have fired during the elapsed period, in order.',
+      ],
+      conceptReferences: [
+        'page.clock.setFixedTime — freezing Date.now()',
+        'page.clock.install() + fastForward — skipping real time',
+        'page.clock.pauseAt — stopping at a specific moment',
+      ],
+    },
+  },
+
+  // ─── API Request Testing Lab ─────────────────────────────────────────────────
+  {
+    id: 'api-request-testing',
+    title: 'API Request Testing Lab',
+    difficulty: 'advanced',
+    estimatedMinutes: 35,
+    primaryConcept: 'Direct API requests with the request fixture',
+    summary:
+      'Practice GET, POST, and DELETE requests, JSON assertions, status codes, and hybrid API-plus-UI flows.',
+    tags: ['api', 'network', 'assertions', 'fixtures'],
+    practice: {
+      labId: 'api-request-testing',
+      title: 'API Request Testing Lab',
+      route: '/practice/api-request-testing',
+    },
+    content: {
+      scenario:
+        'A test run registry exposes four HTTP endpoints that let you read, create, and delete run records without opening a browser. The same data is displayed in a live UI table.',
+      learningObjective:
+        "Use Playwright's request fixture to send typed HTTP requests, assert response status and JSON shape, and compare API-level state with what the browser UI shows.",
+      instructions: [
+        'Send a GET request to the runs endpoint and assert the status code, the presence of a runs array, and the shape of the first item.',
+        'POST a new run with name and status, assert the 201 response, then GET all runs and confirm the new entry is present.',
+        'DELETE a run by its id and assert the 204 response, then verify the run is absent from a subsequent GET.',
+        'Use the request fixture to create a known run before navigating to the UI, then locate it in the table by name.',
+      ],
+      acceptanceCriteria: [
+        'GET /api/practice/runs returns 200 with a body containing a runs array and a total count.',
+        'POST with a valid name and status returns 201 and the created run; a subsequent GET includes it.',
+        'DELETE returns 204 and the target run no longer appears in a subsequent GET.',
+        'A run created via the request fixture appears in the browser table without page.route() mocking.',
+      ],
+      constraints: [
+        'Do not use page.route() to mock the API when the goal is to verify real server behaviour.',
+        'Do not depend on the order of seed runs — use the returned id or name to identify specific items.',
+        'Clean up any runs you create so subsequent test runs start from a predictable state.',
+      ],
+      hints: [
+        'The request fixture is available alongside page in the test function arguments.',
+        'response.json() returns the parsed body; combine it with expect(...).toHaveProperty() for shape assertions.',
+        'A run created via request.post() is immediately visible in a fresh page.goto() without any mocking.',
+      ],
+      conceptReferences: [
+        'request fixture and APIRequestContext',
+        'Asserting HTTP status codes and JSON bodies',
+        'Hybrid API-plus-UI test patterns',
+      ],
+    },
+  },
+
+  // ─── Page Object Model Lab (concept) ─────────────────────────────────────────
+  {
+    id: 'page-objects',
+    title: 'Page Object Model Lab',
+    difficulty: 'intermediate',
+    estimatedMinutes: 35,
+    primaryConcept: 'Page Object Model and test fixtures',
+    summary:
+      'Plan how page objects, custom fixtures, and reusable helpers reduce duplication and improve test readability.',
+    tags: ['fixtures', 'configuration', 'assertions'],
+    practice: {
+      labId: 'page-objects',
+      title: 'Page Object Model Lab',
+      route: '/practice/page-objects',
+      kind: 'concept',
+    },
+    content: {
+      scenario:
+        'A growing test suite for Stagecraft has started repeating the same selectors and setup steps across multiple spec files. Page objects and custom fixtures offer a structured way to reduce that duplication.',
+      learningObjective:
+        'Identify when a page object is worth extracting, encapsulate locators and actions in a class, connect it to a custom fixture, and keep test code focused on intent rather than implementation.',
+      instructions: [
+        'Pick one Stagecraft lab that has more than three locators repeated across tests. Extract them into a page object class.',
+        'Write a goto() method that navigates and waits for the first stable, user-visible element before returning.',
+        'Create a custom fixture with test.extend() that instantiates the page object so tests receive it directly.',
+        'Refactor a beforeEach block to use the fixture and confirm each test still expresses its intent clearly.',
+      ],
+      acceptanceCriteria: [
+        'The page object class holds all locators for a lab as readonly Locator properties.',
+        'A goto() method navigates, waits for readiness, and can be called from a fixture or a test.',
+        'A custom fixture built with test.extend() instantiates the page object and navigates automatically.',
+        'The test body reads like a story about user behaviour rather than a list of selectors.',
+      ],
+      constraints: [
+        'Do not add public helper functions to page objects that tests call directly outside the object.',
+        'Do not duplicate locators — each selector should appear exactly once inside the page object.',
+        'Keep each fixture focused: one page object per fixture unless two pages are always used together.',
+      ],
+      hints: [
+        'Start with a single page object before worrying about a base class or shared hierarchy.',
+        'A fixture that calls goto() inside its setup means tests never need to repeat the navigation step.',
+        'If a method grows beyond two or three actions, it may be doing too much — consider splitting it.',
+      ],
+      conceptReferences: [
+        'Page Object Model pattern and class structure',
+        'test.extend() for custom fixtures',
+        'Fixture scope: test vs worker',
+      ],
+    },
+  },
+
+  // ─── Mock Browser APIs Lab ───────────────────────────────────────────────────
+  {
+    id: 'mock-browser-apis',
+    title: 'Mock Browser APIs Lab',
+    difficulty: 'intermediate',
+    estimatedMinutes: 30,
+    primaryConcept: 'Browser API mocking with page.addInitScript',
+    summary:
+      'Practice injecting mock geolocation, network status, and user preferences before the page loads.',
+    tags: ['assertions', 'configuration', 'browser-apis'],
+    practice: {
+      labId: 'mock-browser-apis',
+      title: 'Mock Browser APIs Lab',
+      route: '/practice/mock-browser-apis',
+    },
+    content: {
+      scenario:
+        'A device environment dashboard reads geolocation coordinates, network connection details, and user accessibility preferences from native browser APIs. Tests must inject controlled values before the page loads to produce deterministic results regardless of the machine running them.',
+      learningObjective:
+        'Use page.addInitScript() to replace browser globals with deterministic mock implementations before any page script runs, then verify the UI correctly reflects the injected values.',
+      instructions: [
+        'Use page.addInitScript() to inject a mock geolocation implementation that resolves with known coordinates, then click "Request Location" and assert the displayed coordinates.',
+        'Override navigator.onLine and navigator.connection via page.addInitScript(), then click "Check Connection" and verify the displayed network status.',
+        'Inject a mock window.matchMedia function that returns controlled values for prefers-reduced-motion and prefers-color-scheme, then click "Detect Preferences" and assert the displayed preferences.',
+      ],
+      acceptanceCriteria: [
+        'The geolocation panel displays the latitude and longitude values supplied by your mock implementation when the location button is clicked.',
+        'The network status panel reflects the online or offline state and connection type defined in your addInitScript injection.',
+        'The user preferences panel shows the motion and color-scheme values returned by your mock matchMedia function.',
+      ],
+      constraints: [
+        'Call page.addInitScript() before page.goto() so the mock is active before the first line of page script executes.',
+        'Do not use page.evaluate() after navigation as a substitute for addInitScript — the goal is pre-load injection.',
+        'Do not assert implementation details or private function names — verify only the user-visible text and status indicators.',
+      ],
+      hints: [
+        'page.addInitScript() runs in the browser context before any page scripts execute — it is the correct place to replace globals.',
+        'window.matchMedia must return a MediaQueryList-compatible object; at minimum supply a .matches boolean property.',
+        'navigator.onLine is a read-only property, so use Object.defineProperty to override it from within addInitScript.',
+      ],
+      conceptReferences: [
+        'page.addInitScript — injecting code before page scripts run',
+        'Mocking read-only navigator properties with Object.defineProperty',
+        'Mock matchMedia and geolocation patterns',
+      ],
+    },
+  },
+
+  // ─── ARIA Snapshots Lab ───────────────────────────────────────────────────────
+  {
+    id: 'aria-snapshots',
+    title: 'ARIA Snapshots Lab',
+    difficulty: 'intermediate',
+    estimatedMinutes: 25,
+    primaryConcept: 'Structural accessibility tree snapshots',
+    summary:
+      'Practice verifying navigation, feature lists, and collapsible FAQ regions using toMatchAriaSnapshot.',
+    tags: ['accessibility', 'assertions', 'aria-snapshots'],
+    practice: {
+      labId: 'aria-snapshots',
+      title: 'ARIA Snapshots Lab',
+      route: '/practice/aria-snapshots',
+    },
+    content: {
+      scenario:
+        'A documentation portal has a navigation landmark, a feature status registry, and a collapsible FAQ. The team needs structural checks that catch role regressions, missing accessible names, and state changes in the accessibility tree.',
+      learningObjective:
+        'Use toMatchAriaSnapshot() to capture and verify the ARIA tree structure of interactive regions, including expanded and collapsed states and status badge labels.',
+      instructions: [
+        'Write a toMatchAriaSnapshot() assertion scoped to the site navigation region and verify each link name and the current-page indicator.',
+        'Capture the feature status list and confirm each feature name and its status badge label appear in the snapshot template.',
+        'Toggle one or more FAQ sections open and verify that the aria-expanded state is reflected in a snapshot taken after interaction.',
+      ],
+      acceptanceCriteria: [
+        'A snapshot template for the navigation region correctly names each link and identifies the active page link.',
+        'A snapshot template for the feature list captures all feature names and their status labels as accessible text.',
+        'The FAQ accordion snapshot reflects the correct aria-expanded state after toggling one or more items open.',
+      ],
+      constraints: [
+        'Use toMatchAriaSnapshot() for structural checks, not as a replacement for targeted assertions on individual elements.',
+        'Scope each snapshot to the relevant landmark or region using a role-based or label-based locator before calling toMatchAriaSnapshot.',
+        'Write snapshot templates inline as template literals rather than relying on auto-generated snapshot files for this practice exercise.',
+      ],
+      hints: [
+        'The ARIA snapshot YAML format uses role names followed by the accessible text, for example: - link "Dashboard".',
+        'When a disclosure button has aria-expanded set to true, the snapshot shows [expanded] after the role and name.',
+        'Scope your snapshot assertion to a region locator so unrelated page content does not cause false failures.',
+      ],
+      conceptReferences: [
+        'toMatchAriaSnapshot — ARIA tree YAML template format',
+        'Scoping snapshots to landmarks and named regions',
+        'Matching aria-expanded, aria-checked, and aria-selected states in snapshots',
+      ],
+    },
+  },
+
+  // ─── Drag-and-Drop Ordering Lab ───────────────────────────────────────────────
+  {
+    id: 'drag-drop',
+    title: 'Drag-and-Drop Ordering Lab',
+    difficulty: 'advanced',
+    estimatedMinutes: 35,
+    primaryConcept: 'Drag-and-drop with locator.dragTo',
+    summary:
+      'Practice reordering a sortable deployment checklist and moving Kanban cards between columns using locator.dragTo.',
+    tags: ['assertions', 'locators', 'drag-drop'],
+    practice: {
+      labId: 'drag-drop',
+      title: 'Drag-and-Drop Ordering Lab',
+      route: '/practice/drag-drop',
+    },
+    content: {
+      scenario:
+        'A release pipeline board has a sortable deployment checklist and a two-column Kanban view. Automated tests must verify item order after reordering and card column membership after moving cards.',
+      learningObjective:
+        'Use locator.dragTo() to trigger drag-and-drop interactions and verify the resulting list order and column membership using visible user-facing content.',
+      instructions: [
+        'Drag the last deployment step to the first position and verify the visible order changed by reading step names from the list.',
+        'Drag a card from the Backlog column into the Active column and assert the column card counts and the card\'s new placement.',
+        'Chain multiple drags and verify the final ordering or column state matches your expected outcome.',
+      ],
+      acceptanceCriteria: [
+        'After dragging a step to a new position, the list order visibly reflects the change and the original position is occupied by a different step.',
+        'A card dragged from Backlog to Active is no longer present in Backlog and appears in Active.',
+        'Column item counts update to reflect the move without requiring a page reload.',
+      ],
+      constraints: [
+        'Use locator.dragTo() or page.dragAndDrop() rather than dispatching synthetic mouse events manually.',
+        'Do not read internal React state — assert visible text order and column membership from the rendered DOM.',
+        'Run drag tests in Chromium for reliable HTML5 drag event dispatch; note that results may differ across browser engines.',
+      ],
+      hints: [
+        'locator.dragTo() accepts a target locator — use getByText or getByRole to identify items by their visible name.',
+        'After a drag, use locator.all() on a container to collect all items and compare text content to the expected order.',
+        'If a drag does not register, pass { steps: 5 } to interpolate pointer moves and give the drag handler time to respond.',
+      ],
+      conceptReferences: [
+        'locator.dragTo() — drag from source locator to target locator',
+        'page.dragAndDrop() — selector-based drag alternative',
+        'Verifying list order with locator.all() and text content',
+      ],
+    },
+  },
+  // ─── Test Parameterization Lab ───────────────────────────────────────────────
+  {
+    id: 'data-driven-testing',
+    title: 'Test Parameterization Lab',
+    difficulty: 'intermediate',
+    estimatedMinutes: 20,
+    primaryConcept: 'Data-driven testing',
+    summary:
+      'Practice running the same test logic with multiple input data sets to reduce duplication.',
+    tags: ['fixtures', 'parameterization', 'refactoring'],
+    practice: {
+      labId: 'data-driven-testing',
+      title: 'Test Parameterization Lab',
+      route: '/practice/data-driven',
+      kind: 'concept',
+    },
+    content: {
+      scenario:
+        'A badge generation service needs to be tested with several valid combinations of styles and labels. Instead of writing a separate test for each combination, your goal is to write a single, data-driven test that iterates through an array of inputs and expected outcomes, reducing code duplication and improving maintainability.',
+      learningObjective:
+        'Use a loop (like `forEach`) to run a single test block with multiple data sets, giving each test a unique and descriptive title based on the input.',
+      instructions: [
+        'Create an array of test data containing different badge labels and styles (e.g., "Info", "Success", "Warning").',
+        'Use a `forEach` loop to iterate over your data array.',
+        'Inside the loop, create a test block with a dynamic title that describes the current data being tested (e.g., naming it after the badge style and label).',
+        'In the test body, fill the form with the current label and style, click "Generate", and assert that the generated badge has the correct text and visual style.',
+      ],
+      acceptanceCriteria: [
+        'A single test file successfully runs multiple test cases based on the provided data array.',
+        'Each test case in the test report has a unique name that reflects the data it used.',
+        'The test correctly verifies the output for each combination of inputs.',
+      ],
+      constraints: [
+        'Do not write separate, individual test blocks for each data variation.',
+        'The test data should be defined in a clear, easy-to-read array of objects.',
+        'Focus on the test structure; the UI itself is simple and will not have complex edge cases.',
+      ],
+      hints: [
+        'Wrap all your parameterized test blocks inside a `describe` group for better organization.',
+        'Use a template literal string for the test title to embed the current data values dynamically.',
+        'Asserting on a CSS class or a `data-` attribute is a good way to check the badge\'s style.',
+      ],
+      conceptReferences: [
+        'Parameterizing tests',
+        'Using `test.describe` to group tests',
+        'Creating dynamic test titles',
+      ],
+    },
+  },
+
+  // ─── WebSocket Testing Lab ───────────────────────────────────────────────────
+  {
+    id: 'websockets',
+    title: 'WebSocket Testing Lab',
+    difficulty: 'advanced',
+    estimatedMinutes: 30,
+    primaryConcept: 'Mocking real-time communication',
+    summary:
+      'Practice intercepting and mocking WebSocket connections to test real-time UI updates.',
+    tags: ['websockets', 'network', 'api', 'fixtures'],
+    practice: {
+      labId: 'websockets',
+      title: 'WebSocket Testing Lab',
+      route: '/practice/websockets',
+    },
+    content: {
+      scenario:
+        'A live activity feed for a shipping service needs to display real-time status updates. The UI attempts to connect to a WebSocket endpoint and render messages as they arrive. Your task is to test the UI\'s handling of connection states and incoming messages without a live backend.',
+      learningObjective:
+        'Use `page.routeWebSocket()` to intercept a WebSocket connection, mock the server-side communication by sending controlled messages, and verify the UI updates correctly.',
+      instructions: [
+        'Use `page.routeWebSocket()` to intercept the connection attempt made when the "Connect" button is clicked.',
+        'Inside the route handler, listen for an initial client message (e.g., "subscribe"), then use `ws.send()` to push a series of mock status updates to the page.',
+        'Verify that each message sent from your mock server appears correctly in the activity feed.',
+        'In a separate test, use `ws.close()` to simulate a connection failure and assert that the UI displays an appropriate error message.',
+      ],
+      acceptanceCriteria: [
+        'The UI transitions from "Connecting..." to "Connected" when the WebSocket is successfully mocked.',
+        'Messages sent from the mock WebSocket server are displayed in the activity feed list.',
+        'The UI displays a "Disconnected" or error state if the WebSocket connection is closed by the mock server.',
+      ],
+      constraints: [
+        'Do not require a live WebSocket server; all interaction should be mocked using `page.routeWebSocket`.',
+        'Your test should control the timing and content of messages, not depend on real-time events.',
+        'Ensure the route handler is set up *before* the action that triggers the WebSocket connection.',
+      ],
+      hints: [
+        'The `page.routeWebSocket` handler gives you a `ws` object that mimics a real WebSocket server.',
+        'Remember to `await` the `page.routeWebSocket` call to ensure the handler is active.',
+        'You can send JSON payloads by using `JSON.stringify` before calling `ws.send`.',
+      ],
+      conceptReferences: [
+        '`page.routeWebSocket()` for mocking',
+        '`ws.onMessage()` to handle client frames',
+        '`ws.send()` to push frames to the client',
+        '`ws.close()` to terminate the connection',
+      ],
+    },
+  },
+
+  // ─── Visual Comparison Lab ───────────────────────────────────────────────────
+  {
+    id: 'visual-comparison',
+    title: 'Visual Comparison Lab',
+    difficulty: 'intermediate',
+    estimatedMinutes: 25,
+    primaryConcept: 'Visual regression testing',
+    summary:
+      'Practice capturing and comparing screenshots to prevent unintended UI changes.',
+    tags: ['visual', 'screenshots', 'assertions'],
+    practice: {
+      labId: 'visual-comparison',
+      title: 'Visual Comparison Lab',
+      route: '/practice/visual-comparison',
+    },
+    content: {
+      scenario:
+        'A product marketing team needs to ensure their new component library showcase page remains pixel-perfect across releases. Your task is to write screenshot tests that catch unintended visual regressions in layout, styling, and content while ignoring dynamic data like timestamps.',
+      learningObjective:
+        'Use `toHaveScreenshot()` to catch visual regressions, update golden snapshots when changes are intentional, and mask dynamic content to prevent flaky tests.',
+      instructions: [
+        'Run an initial test to generate the first set of "golden" screenshot files and inspect the generated images.',
+        'Write a targeted screenshot assertion against the main showcase card to verify its overall appearance.',
+        'Isolate the dynamic timestamp in the footer and use the `mask` option to exclude it from pixel comparison.',
+        'Introduce an intentional style change via script injection, update the snapshot with `--update-snapshots`, and verify the new baseline.',
+      ],
+      acceptanceCriteria: [
+        'A full-page screenshot matches the golden snapshot, proving the overall layout is correct.',
+        'A component-level screenshot of the showcase card matches its golden snapshot.',
+        'A screenshot of the footer matches even when the timestamp text changes, proving the mask works.',
+        'You can successfully update a snapshot when a deliberate visual change is made.',
+      ],
+      constraints: [
+        'Use `toHaveScreenshot()` for visual assertions; do not manually compare image buffers.',
+        'Run tests in a consistent environment (like the provided Docker container or CI) to avoid font and rendering differences.',
+        'Mask only the parts of the UI that are truly dynamic; do not mask static text or stable images.',
+      ],
+      hints: [
+        'The first run will always "fail" because it needs to create the baseline snapshots. Add them to git.',
+        'The `mask` option takes an array of locators to hide before taking the screenshot.',
+        'Use the trace viewer to inspect the `before` and `after` images when a screenshot assertion fails.',
+      ],
+      conceptReferences: [
+        'Visual comparisons with `toHaveScreenshot()`',
+        'Updating snapshots with `--update-snapshots`',
+        'Masking dynamic elements',
+        'Component-level screenshot testing',
+      ],
+    },
+  },
 ] satisfies readonly Challenge[];

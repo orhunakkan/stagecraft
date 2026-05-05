@@ -79,6 +79,15 @@ describe('initial challenge copy', () => {
       '/practice/frames-contexts',
       '/practice/emulation-input',
       '/practice/debugging-reporting',
+      '/practice/clock-time',
+      '/practice/api-request-testing',
+      '/practice/page-objects',
+      '/practice/mock-browser-apis',
+      '/practice/aria-snapshots',
+      '/practice/drag-drop',
+      '/practice/data-driven',
+      '/practice/websockets',
+      '/practice/visual-comparison',
     ]);
   });
 

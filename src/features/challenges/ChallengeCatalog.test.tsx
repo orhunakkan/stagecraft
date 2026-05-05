@@ -10,7 +10,7 @@ describe('ChallengeCatalog', () => {
     render(<ChallengeCatalog challenges={challenges} />);
 
     expect(screen.getByRole('heading', { name: 'Challenge catalog' })).toBeVisible();
-    expect(screen.getByText('10 challenges')).toBeVisible();
+    expect(screen.getByText('19 challenges')).toBeVisible();
 
     const firstCard = screen.getByRole('article', { name: /accessible locators lab/i });
     expect(within(firstCard).getByText('beginner')).toBeVisible();
@@ -53,7 +53,7 @@ describe('ChallengeCatalog', () => {
 
     await user.click(screen.getByRole('button', { name: /reset filters/i }));
 
-    expect(screen.getByText('10 challenges')).toBeVisible();
+    expect(screen.getByText('19 challenges')).toBeVisible();
     expect(screen.getByRole('heading', { name: 'Accessible Locators Lab' })).toBeVisible();
   });
 });

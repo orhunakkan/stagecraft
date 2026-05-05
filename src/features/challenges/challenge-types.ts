@@ -25,6 +25,13 @@ export const challengeTags = [
   'retries',
   'parallelism',
   'configuration',
+  'clock',
+  'drag-drop',
+  'aria-snapshots',
+  'browser-apis',
+  'websockets',
+  'parameterization',
+  'refactoring',
 ] as const;
 
 export type ChallengeTag = (typeof challengeTags)[number];

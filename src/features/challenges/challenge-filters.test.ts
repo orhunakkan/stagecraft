@@ -13,7 +13,7 @@ describe('filterChallenges', () => {
       filterChallenges(challenges, { search: 'forms' }).map((challenge) => challenge.id),
     ).toEqual(['forms-validation']);
     expect(
-      filterChallenges(challenges, { search: 'mocking' }).map((challenge) => challenge.id),
+      filterChallenges(challenges, { search: 'network observation' }).map((challenge) => challenge.id),
     ).toEqual(['network-api']);
     expect(
       filterChallenges(challenges, { search: 'auth' }).map((challenge) => challenge.id),
@@ -42,14 +42,23 @@ describe('getChallengeConceptOptions', () => {
     expect(getChallengeConceptOptions(challenges)).toEqual([
       'Accessible locators',
       'Auto-waiting and async assertions',
+      'Browser API mocking with page.addInitScript',
       'Browser events and multi-page flows',
+      'Clock control and time manipulation',
+      'Data-driven testing',
       'Debugging artifacts and reports',
+      'Direct API requests with the request fixture',
+      'Drag-and-drop with locator.dragTo',
       'Emulation and input interactions',
       'Form interactions and validation',
       'Frames and context isolation',
       'Lists, tables, and scoped assertions',
+      'Mocking real-time communication',
       'Network observation and API mocking',
+      'Page Object Model and test fixtures',
       'Session state and protected routes',
+      'Structural accessibility tree snapshots',
+      'Visual regression testing',
     ]);
   });
 });
