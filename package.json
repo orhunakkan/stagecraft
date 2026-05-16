@@ -1,47 +1,11 @@
 {
   "name": "stagecraft",
-  "version": "0.1.0",
-  "private": true,
+  "version": "1.0.0",
+  "description": "Advanced playground for Playwright testing framework",
+  "license": "ISC",
+  "author": "Orhun Akkan",
   "type": "module",
-  "scripts": {
-    "dev": "next dev",
-    "build": "next build",
-    "start": "next start",
-    "typecheck": "tsc --noEmit",
-    "lint": "eslint . --max-warnings=0",
-    "format:check": "prettier . --check",
-    "test": "vitest run",
-    "test:e2e": "playwright test",
-    "test:e2e:ui": "playwright test --ui",
-    "verify": "npm run lint && npm run typecheck && npm test -- --coverage && npm run test:e2e && npm run build"
-  },
-  "dependencies": {
-    "next": "^16.2.4",
-    "react": "^19.2.5",
-    "react-dom": "^19.2.5"
-  },
-  "devDependencies": {
-    "@playwright/test": "^1.59.1",
-    "@tailwindcss/postcss": "^4.2.4",
-    "@testing-library/jest-dom": "^6.9.1",
-    "@testing-library/react": "^16.3.2",
-    "@testing-library/user-event": "^14.6.1",
-    "@types/node": "^24.10.0",
-    "@types/react": "^19.2.7",
-    "@types/react-dom": "^19.2.3",
-    "@vitejs/plugin-react": "^6.0.1",
-    "@vitest/coverage-v8": "^4.1.5",
-    "eslint": "^9.39.4",
-    "eslint-config-next": "^16.2.4",
-    "jiti": "^2.6.1",
-    "jsdom": "^29.1.1",
-    "postcss": "^8.5.13",
-    "prettier": "^3.8.3",
-    "tailwindcss": "^4.2.4",
-    "typescript": "^6.0.3",
-    "vitest": "^4.1.5"
-  },
-  "overrides": {
-    "postcss": "^8.5.13"
-  }
+  "scripts": {},
+  "dependencies": {},
+  "devDependencies": {}
 }
