@@ -19,7 +19,7 @@
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui",
     "lint": "npm run lint --workspace=client && npm run lint --workspace=server",
-    "typecheck": "npm run typecheck --workspace=client && npm run typecheck --workspace=server"
+    "typecheck": "tsc --noEmit && npm run typecheck --workspace=client && npm run typecheck --workspace=server"
   },
   "devDependencies": {
     "@playwright/test": "^1.50.0",

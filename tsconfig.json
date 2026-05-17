@@ -1,0 +1,13 @@
+{
+    "extends": "./tsconfig.base.json",
+    "compilerOptions": {
+        "target": "ES2022",
+        "module": "Node16",
+        "moduleResolution": "Node16",
+        "noEmit": true
+    },
+    "include": [
+        "playwright.config.ts",
+        "e2e/**/*.ts"
+    ]
+}

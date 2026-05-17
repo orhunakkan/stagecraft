@@ -1,3 +1,4 @@
+import path from 'node:path';
 import express from 'express';
 import session from 'express-session';
 import cors from 'cors';
@@ -41,5 +42,16 @@ app.get('/health', (_req, res) => {
 
 app.use('/api/notes', notesRouter);
 app.use('/api/auth', authRouter);
+
+// In production Express serves the Vite-built SPA and acts as the only process.
+// Static assets first, then index.html fallback for client-side routing.
+if (process.env.NODE_ENV === 'production') {
+    // __dirname is server/dist at runtime; client/dist sits two levels up from there
+    const clientDist = path.resolve(__dirname, '../../client/dist');
+    app.use(express.static(clientDist));
+    app.use((_req, res) => {
+        res.sendFile(path.join(clientDist, 'index.html'));
+    });
+}
 
 export default app;

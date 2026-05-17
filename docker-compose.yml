@@ -1,0 +1,11 @@
+services:
+  app:
+    build: .
+    ports:
+      - "3001:3001"
+    environment:
+      NODE_ENV: production
+      PORT: 3001
+      # Set SESSION_SECRET in a .env file or via the host environment.
+      # Never commit a real secret here.
+      SESSION_SECRET: ${SESSION_SECRET:?SESSION_SECRET is required}

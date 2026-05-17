@@ -1,0 +1,64 @@
+import { test, expect } from '@playwright/test';
+
+test.describe('Fake Auth lab', () => {
+    test.beforeEach(async ({ page }) => {
+        await page.goto('/practice/fake-auth');
+    });
+
+    test('shows the login form', async ({ page }) => {
+        await expect(page.getByRole('form', { name: 'Login form' })).toBeVisible();
+    });
+
+    test('Sign in button is disabled when fields are empty', async ({ page }) => {
+        await expect(page.getByRole('button', { name: 'Sign in' })).toBeDisabled();
+    });
+
+    test('Sign in button is disabled with only username filled', async ({ page }) => {
+        await page.getByLabel('Username').fill('alice');
+        await expect(page.getByRole('button', { name: 'Sign in' })).toBeDisabled();
+    });
+
+    test('wrong credentials show an error alert', async ({ page }) => {
+        await page.getByLabel('Username').fill('alice');
+        await page.getByLabel('Password').fill('wrongpassword');
+        await page.getByRole('button', { name: 'Sign in' }).click();
+        await expect(page.getByRole('alert')).toContainText('Invalid username or password');
+    });
+
+    test('correct credentials navigate to the dashboard', async ({ page }) => {
+        await page.getByLabel('Username').fill('alice');
+        await page.getByLabel('Password').fill('password123');
+        await page.getByRole('button', { name: 'Sign in' }).click();
+        await expect(page).toHaveURL('/practice/fake-auth/dashboard');
+    });
+
+    test('dashboard shows the authenticated username', async ({ page }) => {
+        await page.getByLabel('Username').fill('alice');
+        await page.getByLabel('Password').fill('password123');
+        await page.getByRole('button', { name: 'Sign in' }).click();
+        await expect(page.getByText('alice')).toBeVisible();
+        await expect(page.getByText('Authenticated')).toBeVisible();
+    });
+
+    test('sign out redirects back to the login page', async ({ page }) => {
+        await page.getByLabel('Username').fill('alice');
+        await page.getByLabel('Password').fill('password123');
+        await page.getByRole('button', { name: 'Sign in' }).click();
+        await page.getByRole('button', { name: 'Sign out' }).click();
+        await expect(page).toHaveURL('/practice/fake-auth');
+        await expect(page.getByRole('form', { name: 'Login form' })).toBeVisible();
+    });
+
+    test('visiting dashboard without a session redirects to login', async ({ page }) => {
+        await page.goto('/practice/fake-auth/dashboard');
+        await expect(page).toHaveURL('/practice/fake-auth');
+    });
+
+    test('second user bob can also log in', async ({ page }) => {
+        await page.getByLabel('Username').fill('bob');
+        await page.getByLabel('Password').fill('letmein');
+        await page.getByRole('button', { name: 'Sign in' }).click();
+        await expect(page).toHaveURL('/practice/fake-auth/dashboard');
+        await expect(page.getByText('bob')).toBeVisible();
+    });
+});
