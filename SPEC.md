@@ -322,12 +322,12 @@ Phase 8: E2E test suite               (needs Phase 4+5)
 
 ### Risks
 
-| Risk                                                                       | Mitigation                                                          |
-| -------------------------------------------------------------------------- | ------------------------------------------------------------------- |
-| WebSocket upgrade conflicts with Express middleware                        | Wire `ws` after all Express routes are registered                   |
+| Risk                                                                       | Mitigation                                                                    |
+| -------------------------------------------------------------------------- | ----------------------------------------------------------------------------- |
+| WebSocket upgrade conflicts with Express middleware                        | Wire `ws` after all Express routes are registered                             |
 | `express-session` cookie not captured by Playwright in `storage-state` lab | Use `sameSite: 'lax'`; Playwright `storageState` can capture httpOnly cookies |
-| Tailwind purge removing dynamic class names from labs                      | Add lab directories to `content` glob in `tailwind.config.ts`       |
-| Vite proxy to Express needed in dev                                        | Configure `server.proxy` in `vite.config.ts` for `/api` and `/ws`   |
+| Tailwind purge removing dynamic class names from labs                      | Add lab directories to `content` glob in `tailwind.config.ts`                 |
+| Vite proxy to Express needed in dev                                        | Configure `server.proxy` in `vite.config.ts` for `/api` and `/ws`             |
 
 ---
 

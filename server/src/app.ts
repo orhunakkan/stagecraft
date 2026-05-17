@@ -13,7 +13,11 @@ const app = express();
 const clientOrigin = process.env.CLIENT_ORIGIN ?? 'http://localhost:5173';
 const isProduction = process.env.NODE_ENV === 'production';
 
-function applySecurityHeaders(_req: express.Request, res: express.Response, next: express.NextFunction) {
+function applySecurityHeaders(
+  _req: express.Request,
+  res: express.Response,
+  next: express.NextFunction,
+) {
   res.setHeader(
     'Content-Security-Policy',
     [
@@ -83,23 +87,25 @@ app.use('/api/tasks', tasksRouter);
 app.use('/api/products', productsRouter);
 app.use('/api/sw-items', swItemsRouter);
 
-app.use((error: unknown, _req: express.Request, res: express.Response, next: express.NextFunction) => {
-  if (res.headersSent) {
-    next(error);
-    return;
-  }
+app.use(
+  (error: unknown, _req: express.Request, res: express.Response, next: express.NextFunction) => {
+    if (res.headersSent) {
+      next(error);
+      return;
+    }
 
-  if (
-    error instanceof SyntaxError &&
-    'status' in error &&
-    (error as { status?: number }).status === 400
-  ) {
-    res.status(400).json({ error: 'Invalid JSON body' });
-    return;
-  }
+    if (
+      error instanceof SyntaxError &&
+      'status' in error &&
+      (error as { status?: number }).status === 400
+    ) {
+      res.status(400).json({ error: 'Invalid JSON body' });
+      return;
+    }
 
-  res.status(500).json({ error: 'Internal server error' });
-});
+    res.status(500).json({ error: 'Internal server error' });
+  },
+);
 
 // In production Express serves the Vite-built SPA and acts as the only process.
 // Static assets first, then index.html fallback for client-side routing.

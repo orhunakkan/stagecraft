@@ -10,7 +10,9 @@ const AccessibleLocators = lazy(() =>
   })),
 );
 const FormsValidation = lazy(() =>
-  import('./pages/practice/FormsValidation').then((module) => ({ default: module.FormsValidation })),
+  import('./pages/practice/FormsValidation').then((module) => ({
+    default: module.FormsValidation,
+  })),
 );
 const AsyncUi = lazy(() =>
   import('./pages/practice/AsyncUi').then((module) => ({ default: module.AsyncUi })),
@@ -27,7 +29,9 @@ const FakeAuthDashboard = lazy(() =>
   })),
 );
 const TablesFiltering = lazy(() =>
-  import('./pages/practice/TablesFiltering').then((module) => ({ default: module.TablesFiltering })),
+  import('./pages/practice/TablesFiltering').then((module) => ({
+    default: module.TablesFiltering,
+  })),
 );
 const BrowserEvents = lazy(() =>
   import('./pages/practice/BrowserEvents').then((module) => ({ default: module.BrowserEvents })),
@@ -126,7 +130,10 @@ export default function App() {
         <Route path="/practice/multi-tab/window" element={lazyElement(MultiTabWindow)} />
         <Route path="/practice/multi-tab/popup" element={lazyElement(MultiTabPopup)} />
         <Route path="/practice/service-workers" element={lazyElement(ServiceWorkers)} />
-        <Route path="/practice/websocket-interception" element={lazyElement(WebSocketInterception)} />
+        <Route
+          path="/practice/websocket-interception"
+          element={lazyElement(WebSocketInterception)}
+        />
         <Route path="/practice/api-request-context" element={lazyElement(ApiRequestContext)} />
         <Route path="/practice/storage-state" element={lazyElement(StorageState)} />
         <Route path="/practice/har-recording" element={lazyElement(HarRecording)} />
