@@ -1,1 +1,14 @@
 stagecraft-guide.md
+
+node_modules/
+dist/
+.env
+*.local
+
+# Playwright
+playwright-report/
+test-results/
+
+# Build outputs
+client/dist/
+server/dist/
