@@ -88,6 +88,18 @@ test.describe('Frames & Contexts lab', () => {
 
         await expect(frame.locator('#count')).toHaveText('1');
     });
+
+    test('fills and submits the login form inside the second iframe', async ({ page }) => {
+        await page.goto('/practice/frames-contexts');
+
+        await page.getByRole('tab', { name: 'Challenge 2' }).click();
+        const frame = page.frameLocator('iframe[title="Login frame"]');
+        await frame.getByLabel('Username').fill('alice');
+        await frame.getByLabel('Password').fill('password123');
+        await frame.getByRole('button', { name: 'Sign in' }).click();
+
+        await expect(frame.getByRole('status')).toHaveText('Signed in as alice');
+    });
 });
 
 test.describe('Emulation & Input lab', () => {
@@ -100,6 +112,21 @@ test.describe('Emulation & Input lab', () => {
         await page.keyboard.press('Enter');
 
         await expect(page.getByRole('status')).toContainText('Executed: Open file');
+    });
+
+    test('shows hover tooltip and reveals the scroll action after scrolling', async ({ page }) => {
+        await page.goto('/practice/emulation-input');
+
+        await page.getByRole('button', { name: 'Hover over me' }).hover();
+        await expect(page.getByRole('tooltip')).toContainText('You found the tooltip!');
+
+        const scroller = page.getByTestId('scroll-container');
+        await scroller.evaluate((element) => {
+            element.scrollTop = 120;
+            element.dispatchEvent(new Event('scroll', { bubbles: true }));
+        });
+
+        await expect(page.getByRole('button', { name: /Scroll to top/ })).toBeVisible();
     });
 });
 
@@ -114,6 +141,17 @@ test.describe('Debugging & Reporting lab', () => {
             'aria-expanded',
             'true',
         );
+    });
+
+    test('shows loading and completion states for the slow operation', async ({ page }) => {
+        await page.goto('/practice/debugging-reporting');
+
+        await page.getByTestId('slow-button').click();
+
+        await expect(page.getByRole('status', { name: 'Loading' })).toBeVisible();
+        await expect(page.getByTestId('slow-result')).toContainText('Operation complete', {
+            timeout: 3000,
+        });
     });
 });
 
@@ -276,6 +314,14 @@ test.describe('Visual Regression lab', () => {
         await expect(page.getByTestId('color-palette')).toContainText('Indigo 600');
         await expect(page.getByTestId('bar-chart')).toBeVisible();
     });
+
+    test('marks dynamic timestamp regions and disables the disabled button variant', async ({ page }) => {
+        await page.goto('/practice/visual-regression');
+
+        await expect(page.getByRole('button', { name: 'Disabled' })).toBeDisabled();
+        await expect(page.getByTestId('dynamic-timestamp')).toHaveCount(3);
+        await expect(page.getByTestId('metric-cards')).toContainText('Updated:');
+    });
 });
 
 test.describe('Drag & Drop lab', () => {
@@ -339,6 +385,21 @@ test.describe('Multi-Tab lab', () => {
         await page.getByRole('button', { name: 'Reload to refresh value' }).click();
 
         await expect(page.getByTestId('shared-storage-value')).toContainText('written-from-tab-');
+    });
+
+    test('captures a popup window and sends a result from the popup', async ({ page }) => {
+        await page.goto('/practice/multi-tab');
+
+        const popupPromise = page.waitForEvent('popup');
+        await page.getByRole('button', { name: 'Open popup window' }).click();
+        const popup = await popupPromise;
+        await expect(popup.getByRole('heading', { name: 'Popup Window' })).toBeVisible();
+
+        await popup.getByLabel('Value to send to opener').fill('Popup result');
+        await popup.getByTestId('send-result').click();
+
+        await expect(popup.getByRole('status')).toContainText('Sent!');
+        await popup.close();
     });
 });
 
