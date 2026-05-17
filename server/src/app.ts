@@ -4,6 +4,9 @@ import session from 'express-session';
 import cors from 'cors';
 import notesRouter from './routes/notes';
 import authRouter from './routes/auth';
+import tasksRouter from './routes/tasks';
+import productsRouter from './routes/products';
+import swItemsRouter from './routes/swItems';
 
 const app = express();
 
@@ -42,6 +45,9 @@ app.get('/health', (_req, res) => {
 
 app.use('/api/notes', notesRouter);
 app.use('/api/auth', authRouter);
+app.use('/api/tasks', tasksRouter);
+app.use('/api/products', productsRouter);
+app.use('/api/sw-items', swItemsRouter);
 
 // In production Express serves the Vite-built SPA and acts as the only process.
 // Static assets first, then index.html fallback for client-side routing.

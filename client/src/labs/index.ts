@@ -31,7 +31,7 @@ export const labs: Lab[] = [
         title: 'Tables & Filtering',
         topic: 'Search, sort, filter, pagination, row actions',
         apis: ['getByRole', 'locator.filter', 'locator.nth', 'locator.getByRole'],
-        status: 'coming-soon',
+        status: 'ready',
         requiresBackend: false,
     },
     {
@@ -63,7 +63,7 @@ export const labs: Lab[] = [
         title: 'Browser Events',
         topic: 'Dialogs, file uploads/downloads, navigation events',
         apis: ['page.on("dialog")', 'page.waitForEvent("download")', 'locator.setInputFiles'],
-        status: 'coming-soon',
+        status: 'ready',
         requiresBackend: false,
     },
     {
@@ -71,7 +71,7 @@ export const labs: Lab[] = [
         title: 'Frames & Contexts',
         topic: 'Iframes, frame locators, isolated context concepts',
         apis: ['page.frameLocator', 'BrowserContext', 'context.newPage'],
-        status: 'coming-soon',
+        status: 'ready',
         requiresBackend: false,
     },
     {
@@ -79,7 +79,7 @@ export const labs: Lab[] = [
         title: 'Emulation & Input',
         topic: 'Keyboard, mouse, viewport, responsive behavior',
         apis: ['page.keyboard', 'page.mouse', 'page.setViewportSize', 'devices'],
-        status: 'coming-soon',
+        status: 'ready',
         requiresBackend: false,
     },
     {
@@ -87,7 +87,7 @@ export const labs: Lab[] = [
         title: 'Debugging & Reporting',
         topic: 'Trace viewer, screenshots, retries, timeout concepts',
         apis: ['context.tracing', 'testInfo.attach', 'test.describe.configure', 'screenshot'],
-        status: 'coming-soon',
+        status: 'ready',
         requiresBackend: false,
     },
     {
@@ -95,7 +95,7 @@ export const labs: Lab[] = [
         title: 'WebSocket Interception',
         topic: 'WebSocket mocking & message interception',
         apis: ['page.routeWebSocket', 'WebSocketRoute.send', 'WebSocketRoute.onMessage'],
-        status: 'coming-soon',
+        status: 'ready',
         requiresBackend: true,
     },
     {
@@ -103,7 +103,7 @@ export const labs: Lab[] = [
         title: 'ARIA Snapshots',
         topic: 'Structural accessibility regression with toMatchAriaSnapshot',
         apis: ['expect(page).toMatchAriaSnapshot', 'accessibility tree', '/children: equal'],
-        status: 'coming-soon',
+        status: 'ready',
         requiresBackend: false,
     },
     {
@@ -111,7 +111,7 @@ export const labs: Lab[] = [
         title: 'Clock & Timers',
         topic: 'Controlling time with page.clock',
         apis: ['page.clock.install', 'clock.tick', 'clock.fastForward', 'clock.setFixedTime'],
-        status: 'coming-soon',
+        status: 'ready',
         requiresBackend: false,
     },
     {
@@ -119,7 +119,7 @@ export const labs: Lab[] = [
         title: 'API Request Context',
         topic: "Playwright's built-in HTTP client (request fixture)",
         apis: ['request.get', 'request.post', 'request.put', 'request.delete', 'APIRequestContext'],
-        status: 'coming-soon',
+        status: 'ready',
         requiresBackend: true,
     },
     {
@@ -127,7 +127,7 @@ export const labs: Lab[] = [
         title: 'Storage State',
         topic: 'Auth state serialization & multi-user contexts',
         apis: ['context.storageState', 'browser.newContext', 'context.addCookies'],
-        status: 'coming-soon',
+        status: 'ready',
         requiresBackend: true,
     },
     {
@@ -135,7 +135,7 @@ export const labs: Lab[] = [
         title: 'Visual Regression',
         topic: 'Screenshot & visual diffing with toHaveScreenshot',
         apis: ['expect(page).toHaveScreenshot', 'expect(locator).toHaveScreenshot', 'maxDiffPixels'],
-        status: 'coming-soon',
+        status: 'ready',
         requiresBackend: false,
     },
     {
@@ -143,7 +143,7 @@ export const labs: Lab[] = [
         title: 'Drag & Drop',
         topic: 'Drag-and-drop, DataTransfer, and drop zones',
         apis: ['locator.dragTo', 'locator.drop', 'DataTransfer', 'dispatchEvent'],
-        status: 'coming-soon',
+        status: 'ready',
         requiresBackend: false,
     },
     {
@@ -151,7 +151,7 @@ export const labs: Lab[] = [
         title: 'HAR Recording',
         topic: 'HAR recording, replay, and network stubs',
         apis: ['page.routeFromHAR', 'tracing.startHar', 'tracing.stopHar'],
-        status: 'coming-soon',
+        status: 'ready',
         requiresBackend: true,
     },
     {
@@ -159,7 +159,7 @@ export const labs: Lab[] = [
         title: 'Multi-Tab',
         topic: 'Multi-page & popup orchestration',
         apis: ['context.waitForEvent("page")', 'page.waitForEvent("popup")', 'context.pages'],
-        status: 'coming-soon',
+        status: 'ready',
         requiresBackend: false,
     },
     {
@@ -167,7 +167,7 @@ export const labs: Lab[] = [
         title: 'Service Workers',
         topic: 'Service worker interception and offline testing',
         apis: ['serviceWorkers: "block"', 'page.route', 'context.setOffline', 'navigator.serviceWorker'],
-        status: 'coming-soon',
+        status: 'ready',
         requiresBackend: false,
     },
 ];

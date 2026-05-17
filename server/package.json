@@ -14,12 +14,14 @@
     "dependencies": {
         "cors": "^2.8.5",
         "express": "^5.0.0",
-        "express-session": "^1.18.0"
+        "express-session": "^1.18.0",
+        "ws": "^8.20.1"
     },
     "devDependencies": {
         "@types/cors": "^2.8.17",
         "@types/express": "^5.0.0",
         "@types/express-session": "^1.18.0",
+        "@types/ws": "^8.18.1",
         "tsx": "^4.19.0",
         "typescript": "^5.7.0",
         "vitest": "^3.0.0"
