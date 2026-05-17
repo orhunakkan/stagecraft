@@ -8,6 +8,9 @@ dist/
 # Playwright
 playwright-report/
 test-results/
+coverage/
+client/coverage/
+server/coverage/
 
 # Build outputs
 client/dist/

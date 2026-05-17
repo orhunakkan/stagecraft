@@ -9,6 +9,29 @@ test.describe('Tables & Filtering lab', () => {
         await expect(page.getByRole('status')).toContainText('1 employees');
         await expect(page.getByRole('cell', { name: 'Alice Chen', exact: true })).toBeVisible();
     });
+
+    test('removes a row from the action menu and updates the result count', async ({ page }) => {
+        await page.goto('/practice/tables-filtering');
+
+        await page.getByRole('button', { name: 'Actions for Alice Chen' }).click();
+        await page.getByRole('menuitem', { name: 'Remove' }).click();
+
+        await expect(page.getByRole('alert')).toContainText('Alice Chen removed.');
+        await expect(page.getByRole('status')).toContainText('22 employees');
+        await expect(page.getByRole('cell', { name: 'Alice Chen', exact: true })).not.toBeVisible();
+    });
+
+    test('department filtering resets pagination to the first page', async ({ page }) => {
+        await page.goto('/practice/tables-filtering');
+
+        await page.getByRole('button', { name: '2' }).click();
+        await expect(page.getByText('Page 2 of 4')).toBeVisible();
+        await page.getByLabel('Department', { exact: true }).selectOption('HR');
+
+        await expect(page.getByText('Page 1 of 1')).toBeVisible();
+        await expect(page.getByRole('status')).toContainText('3 employees');
+        await expect(page.getByRole('cell', { name: 'Iris Johnson', exact: true })).toBeVisible();
+    });
 });
 
 test.describe('Browser Events lab', () => {
@@ -30,6 +53,29 @@ test.describe('Browser Events lab', () => {
         await expect(page.getByRole('status').filter({ hasText: 'Selected:' })).toContainText(
             'stagecraft-upload.txt',
         );
+    });
+
+    test('records a dismissed confirm dialog', async ({ page }) => {
+        await page.goto('/practice/browser-events');
+
+        page.once('dialog', async (dialog) => {
+            expect(dialog.type()).toBe('confirm');
+            await dialog.dismiss();
+        });
+        await page.getByRole('button', { name: 'Trigger confirm' }).click();
+
+        await expect(page.getByRole('status')).toContainText('Last dialog: confirm');
+        await expect(page.getByRole('status')).toContainText('dismissed');
+    });
+
+    test('captures the suggested filename for a download', async ({ page }) => {
+        await page.goto('/practice/browser-events');
+
+        const downloadPromise = page.waitForEvent('download');
+        await page.getByRole('link', { name: 'Download sample.txt' }).click();
+        const download = await downloadPromise;
+
+        expect(download.suggestedFilename()).toBe('stagecraft-sample.txt');
     });
 });
 
@@ -84,6 +130,16 @@ test.describe('WebSocket Interception lab', () => {
 
         await expect(page.getByLabel('WebSocket message log')).toContainText('echo: hello socket');
     });
+
+    test('starts with disconnected-only controls disabled', async ({ page }) => {
+        await page.goto('/practice/websocket-interception');
+
+        await expect(page.getByTestId('ws-status')).toHaveText('disconnected');
+        await expect(page.getByLabel('Message to send')).toBeDisabled();
+        await expect(page.getByTestId('ws-send')).toBeDisabled();
+        await expect(page.getByTestId('ws-disconnect')).toBeDisabled();
+        await expect(page.getByTestId('ws-connect')).toBeEnabled();
+    });
 });
 
 test.describe('ARIA Snapshots lab', () => {
@@ -99,6 +155,22 @@ test.describe('ARIA Snapshots lab', () => {
             'What is an ARIA snapshot? expanded',
         );
     });
+
+    test('moves aria-current through the wizard steps', async ({ page }) => {
+        await page.goto('/practice/aria-snapshots');
+
+        await expect(page.getByRole('button', { name: '1. Account' })).toHaveAttribute(
+            'aria-current',
+            'step',
+        );
+        await page.getByRole('button', { name: 'Next' }).click();
+
+        await expect(page.getByRole('button', { name: '2. Profile' })).toHaveAttribute(
+            'aria-current',
+            'step',
+        );
+        await expect(page.getByRole('form', { name: 'Profile step' })).toBeVisible();
+    });
 });
 
 test.describe('Clock & Timers lab', () => {
@@ -107,6 +179,17 @@ test.describe('Clock & Timers lab', () => {
         await page.goto('/practice/clock-timers');
 
         await expect(page.getByTestId('current-date')).toHaveText('Thursday, January 15, 2026');
+    });
+
+    test('fast-forwards a countdown timer to expiration', async ({ page }) => {
+        await page.clock.install();
+        await page.goto('/practice/clock-timers');
+
+        await page.getByRole('button', { name: 'Start' }).first().click();
+        await page.clock.runFor(60_000);
+
+        await expect(page.getByTestId('countdown')).toHaveText('00:00');
+        await expect(page.getByRole('alert')).toContainText("Time's up!");
     });
 });
 
@@ -119,6 +202,33 @@ test.describe('API Request Context lab', () => {
         await page.getByRole('button', { name: 'Add' }).click();
 
         await expect(page.getByRole('list', { name: 'Task list' })).toContainText(title);
+    });
+
+    test('shows tasks seeded through the request fixture before page load', async ({ request, page }) => {
+        const title = `Seeded task ${Date.now()}`;
+        const response = await request.post('/api/tasks', { data: { title } });
+        expect(response.status()).toBe(201);
+
+        await page.goto('/practice/api-request-context');
+
+        await expect(page.getByRole('list', { name: 'Task list' })).toContainText(title);
+    });
+
+    test('renders and deletes a completed task seeded through the API', async ({ request, page }) => {
+        const title = `Mutable task ${Date.now()}`;
+        const created = await request.post('/api/tasks', { data: { title } });
+        const taskBody = (await created.json()) as { id: number };
+        const updated = await request.put(`/api/tasks/${taskBody.id}`, { data: { done: true } });
+        expect(updated.status()).toBe(200);
+
+        await page.goto('/practice/api-request-context');
+        const task = page.getByRole('listitem').filter({ hasText: title });
+
+        await expect(task.getByRole('checkbox', { name: `Mark "${title}" as incomplete` })).toBeChecked();
+        await expect(task.getByText(title)).toHaveClass(/line-through/);
+        await task.getByRole('button', { name: `Delete ${title}` }).click();
+
+        await expect(page.getByRole('list', { name: 'Task list' })).not.toContainText(title);
     });
 });
 
@@ -134,6 +244,27 @@ test.describe('Storage State lab', () => {
 
         await expect(page.getByTestId('display-name')).toHaveText('Alice Chen');
         await expect(page.getByTestId('admin-panel')).toBeVisible();
+    });
+
+    test('shows the unauthenticated state without a saved session', async ({ page }) => {
+        await page.goto('/practice/storage-state');
+
+        await expect(page.getByTestId('not-authenticated')).toContainText('Not authenticated');
+        await expect(page.getByTestId('admin-panel')).not.toBeVisible();
+    });
+
+    test('hides admin-only content for a regular user session', async ({ page }) => {
+        await page.goto('/practice/fake-auth');
+        await page.getByLabel('Username').fill('bob');
+        await page.getByLabel('Password').fill('letmein');
+        await page.getByRole('button', { name: 'Sign in' }).click();
+        await expect(page).toHaveURL('/practice/fake-auth/dashboard');
+
+        await page.goto('/practice/storage-state');
+
+        await expect(page.getByTestId('display-name')).toHaveText('Robert Smith');
+        await expect(page.getByTestId('user-role')).toHaveText('user');
+        await expect(page.getByTestId('admin-panel')).not.toBeVisible();
     });
 });
 
@@ -158,6 +289,17 @@ test.describe('Drag & Drop lab', () => {
         await expect(done).toContainText('Write Playwright tests');
         await expect(page.getByLabel('To Do column')).not.toContainText('Write Playwright tests');
     });
+
+    test('reorders the sortable list with drag and drop', async ({ page }) => {
+        await page.goto('/practice/drag-and-drop');
+
+        await page.getByTestId('sort-item-alpha').dragTo(page.getByTestId('sort-item-gamma'));
+
+        const items = page.getByRole('list', { name: 'Sortable list' }).getByRole('listitem');
+        await expect
+            .poll(() => items.evaluateAll((nodes) => nodes.map((node) => node.getAttribute('aria-label'))))
+            .toEqual(['Beta', 'Gamma', 'Alpha', 'Delta', 'Epsilon']);
+    });
 });
 
 test.describe('HAR Recording lab', () => {
@@ -166,6 +308,20 @@ test.describe('HAR Recording lab', () => {
 
         await expect(page.getByRole('status')).toContainText('10 products loaded');
         await expect(page.getByTestId('product-1')).toContainText('Mechanical Keyboard');
+    });
+
+    test('renders an error alert when the product API fails', async ({ page }) => {
+        await page.route('/api/products', (route) =>
+            route.fulfill({
+                status: 503,
+                contentType: 'application/json',
+                body: JSON.stringify({ error: 'Unavailable' }),
+            }),
+        );
+
+        await page.goto('/practice/har-recording');
+
+        await expect(page.getByRole('alert')).toContainText('HTTP 503');
     });
 });
 
@@ -196,6 +352,24 @@ test.describe('Service Workers lab', () => {
 
         await expect(page.getByRole('list', { name: 'Fetched items' })).toContainText('Fresh Widget');
         await expect(page.getByTestId('sw-item-1')).toContainText('network');
+        await context.close();
+    });
+
+    test('surfaces fetch failures when the network endpoint errors', async ({ browser }) => {
+        const context = await browser.newContext({ serviceWorkers: 'block' });
+        const page = await context.newPage();
+        await page.route('/api/sw-items', (route) =>
+            route.fulfill({
+                status: 500,
+                contentType: 'application/json',
+                body: JSON.stringify({ error: 'Server error' }),
+            }),
+        );
+        await page.goto('/practice/service-workers');
+
+        await page.getByTestId('fetch-items-btn').click();
+
+        await expect(page.getByRole('alert')).toContainText('HTTP 500');
         await context.close();
     });
 });

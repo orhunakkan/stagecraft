@@ -16,6 +16,7 @@
     "build": "npm run build --workspace=client && npm run build --workspace=server",
     "test": "npm run test --workspace=client && npm run test --workspace=server",
     "test:run": "npm run test:run --workspace=client && npm run test:run --workspace=server",
+    "test:coverage": "npm run test:coverage --workspace=client && npm run test:coverage --workspace=server",
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui",
     "lint": "npm run lint --workspace=client && npm run lint --workspace=server",
@@ -23,6 +24,7 @@
   },
   "devDependencies": {
     "@playwright/test": "^1.50.0",
+    "@vitest/coverage-v8": "^3.2.4",
     "concurrently": "^9.0.0"
   }
 }

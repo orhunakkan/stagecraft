@@ -63,6 +63,25 @@ describe('notes API', () => {
         const deleted = await fetch(`${baseUrl}/api/notes/${created.body.id}`, { method: 'DELETE' });
         expect(deleted.status).toBe(204);
     });
+
+    test('rejects blank note text', async () => {
+        const { response, body } = await json<{ error: string }>('/api/notes', {
+            method: 'POST',
+            body: JSON.stringify({ text: '   ' }),
+        });
+
+        expect(response.status).toBe(400);
+        expect(body.error).toBe('text is required');
+    });
+
+    test('returns not found when deleting a missing note', async () => {
+        const { response, body } = await json<{ error: string }>('/api/notes/999999', {
+            method: 'DELETE',
+        });
+
+        expect(response.status).toBe(404);
+        expect(body.error).toBe('Note not found');
+    });
 });
 
 describe('auth API', () => {
@@ -100,6 +119,40 @@ describe('auth API', () => {
         expect(stats.response.status).toBe(403);
         expect(stats.body.error).toBe('Forbidden');
     });
+
+    test('rejects missing login credentials', async () => {
+        const { response, body } = await json<{ error: string }>('/api/auth/login', {
+            method: 'POST',
+            body: JSON.stringify({ username: 'alice' }),
+        });
+
+        expect(response.status).toBe(400);
+        expect(body.error).toBe('username and password are required');
+    });
+
+    test('rejects invalid login credentials', async () => {
+        const { response, body } = await json<{ error: string }>('/api/auth/login', {
+            method: 'POST',
+            body: JSON.stringify({ username: 'alice', password: 'wrongpassword' }),
+        });
+
+        expect(response.status).toBe(401);
+        expect(body.error).toBe('Invalid credentials');
+    });
+
+    test('requires authentication for the current user endpoint', async () => {
+        const { response, body } = await json<{ error: string }>('/api/auth/me');
+
+        expect(response.status).toBe(401);
+        expect(body.error).toBe('Not authenticated');
+    });
+
+    test('requires authentication for admin stats', async () => {
+        const { response, body } = await json<{ error: string }>('/api/auth/admin/stats');
+
+        expect(response.status).toBe(401);
+        expect(body.error).toBe('Not authenticated');
+    });
 });
 
 describe('tasks API', () => {
@@ -123,6 +176,61 @@ describe('tasks API', () => {
         const deleted = await fetch(`${baseUrl}/api/tasks/${created.body.id}`, { method: 'DELETE' });
         expect(deleted.status).toBe(204);
     });
+
+    test('rejects a blank task title on create', async () => {
+        const { response, body } = await json<{ error: string }>('/api/tasks', {
+            method: 'POST',
+            body: JSON.stringify({ title: '' }),
+        });
+
+        expect(response.status).toBe(400);
+        expect(body.error).toBe('title is required');
+    });
+
+    test('rejects an empty title when updating a task', async () => {
+        const created = await json<{ id: number }>('/api/tasks', {
+            method: 'POST',
+            body: JSON.stringify({ title: `Update validation ${Date.now()}` }),
+        });
+
+        const { response, body } = await json<{ error: string }>(`/api/tasks/${created.body.id}`, {
+            method: 'PUT',
+            body: JSON.stringify({ title: '   ' }),
+        });
+
+        expect(response.status).toBe(400);
+        expect(body.error).toBe('title must be a non-empty string');
+    });
+
+    test('rejects non-boolean done values when updating a task', async () => {
+        const created = await json<{ id: number }>('/api/tasks', {
+            method: 'POST',
+            body: JSON.stringify({ title: `Done validation ${Date.now()}` }),
+        });
+
+        const { response, body } = await json<{ error: string }>(`/api/tasks/${created.body.id}`, {
+            method: 'PUT',
+            body: JSON.stringify({ done: 'yes' }),
+        });
+
+        expect(response.status).toBe(400);
+        expect(body.error).toBe('done must be a boolean');
+    });
+
+    test('returns not found when updating or deleting a missing task', async () => {
+        const updated = await json<{ error: string }>('/api/tasks/999999', {
+            method: 'PUT',
+            body: JSON.stringify({ done: true }),
+        });
+        expect(updated.response.status).toBe(404);
+        expect(updated.body.error).toBe('Task not found');
+
+        const deleted = await json<{ error: string }>('/api/tasks/999999', {
+            method: 'DELETE',
+        });
+        expect(deleted.response.status).toBe(404);
+        expect(deleted.body.error).toBe('Task not found');
+    });
 });
 
 describe('catalog APIs', () => {
@@ -139,5 +247,12 @@ describe('catalog APIs', () => {
 
         expect(response.status).toBe(200);
         expect(body).toContainEqual({ id: 1, name: 'Fresh Widget', source: 'network' });
+    });
+
+    test('returns not found for an unknown product', async () => {
+        const { response, body } = await json<{ error: string }>('/api/products/999999');
+
+        expect(response.status).toBe(404);
+        expect(body.error).toBe('Product not found');
     });
 });
