@@ -13,6 +13,10 @@ const app = express();
 const clientOrigin = process.env.CLIENT_ORIGIN ?? 'http://localhost:5173';
 const isProduction = process.env.NODE_ENV === 'production';
 
+if (isProduction) {
+  app.set('trust proxy', 1);
+}
+
 function applySecurityHeaders(
   _req: express.Request,
   res: express.Response,
