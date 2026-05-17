@@ -9,14 +9,14 @@ test.describe('Home page', () => {
         await expect(page.getByRole('heading', { name: 'Practice Labs', level: 1 })).toBeVisible();
     });
 
-    test('ready labs section contains exactly 5 lab cards', async ({ page }) => {
+    test('ready labs section contains all 20 lab cards', async ({ page }) => {
         const section = page.getByRole('region', { name: 'Ready labs' });
-        await expect(section.getByRole('article')).toHaveCount(5);
+        await expect(section.getByRole('article')).toHaveCount(20);
     });
 
-    test('coming soon section contains 15 lab cards', async ({ page }) => {
+    test('coming soon section contains no lab cards', async ({ page }) => {
         const section = page.getByRole('region', { name: 'Coming soon labs' });
-        await expect(section.getByRole('article')).toHaveCount(15);
+        await expect(section.getByRole('article')).toHaveCount(0);
     });
 
     test('clicking a ready lab card navigates to the lab page', async ({ page }) => {

@@ -24,9 +24,9 @@ describe('lab registry', () => {
         }
     });
 
-    test('exactly 5 labs are ready', () => {
+    test('all labs are ready', () => {
         const ready = labs.filter((l) => l.status === 'ready');
-        expect(ready).toHaveLength(5);
+        expect(ready).toHaveLength(labs.length);
     });
 
     test('every lab has at least one api listed', () => {
