@@ -18,6 +18,7 @@ The app intentionally does not ship answer tests for learners. Its job is to pro
 - [Testing](#testing)
 - [Configuration](#configuration)
 - [Production Build and Docker](#production-build-and-docker)
+- [Azure App Service Free Hosting](#azure-app-service-free-hosting)
 - [Development Guidelines](#development-guidelines)
 - [Troubleshooting](#troubleshooting)
 
@@ -82,6 +83,7 @@ The root `npm run dev` command starts both workspaces concurrently: the Vite cli
 | `npm run test:e2e`      | Run the Playwright E2E suite.                             |
 | `npm run test:e2e:ui`   | Open Playwright UI mode.                                  |
 | `npm run lint`          | Run TypeScript-based lint checks for both workspaces.     |
+| `npm run package:azure` | Build a ZIP package for Azure App Service.                |
 | `npm run typecheck`     | Type-check the root project and both workspaces.          |
 
 Workspace-specific scripts are also available:
@@ -302,6 +304,29 @@ SESSION_SECRET=replace-with-a-long-random-value docker compose up --build
 ```
 
 The production app is then served at `http://localhost:3001`.
+
+## Azure App Service Free Hosting
+
+The cheapest full-app Azure target is Azure App Service on the Linux Free F1 tier. Use this when you want the built React SPA, Express APIs, session cookies, and `/ws` WebSocket endpoint to stay together under one Azure-hosted origin.
+
+Create a deployment ZIP without deploying:
+
+```powershell
+npm run package:azure
+```
+
+The package is written to `.azure-publish/stagecraft-appservice.zip`, which is ignored by git.
+
+When you are ready to create Azure resources, use the detailed checklist in [docs/azure-app-service.md](docs/azure-app-service.md). The required App Service settings are:
+
+| Setting          | Value                                      |
+| ---------------- | ------------------------------------------ |
+| Runtime          | `NODE\|22-lts`                             |
+| Startup command  | `node server/dist/index.js`                |
+| `NODE_ENV`       | `production`                               |
+| `SESSION_SECRET` | A long generated secret stored in Azure    |
+| `CLIENT_ORIGIN`  | `https://<app-name>.azurewebsites.net`     |
+| WebSockets       | Enabled in the App Service configuration   |
 
 ## Development Guidelines
 

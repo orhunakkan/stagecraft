@@ -5,6 +5,9 @@
   "license": "ISC",
   "author": "Orhun Akkan",
   "private": true,
+  "engines": {
+    "node": ">=22"
+  },
   "workspaces": [
     "client",
     "server"
@@ -22,6 +25,8 @@
     "lint": "npm run lint --workspace=client && npm run lint --workspace=server",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
+    "package:azure": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/package-azure-app-service.ps1",
+    "start": "node server/dist/index.js",
     "typecheck": "tsc --noEmit && npm run typecheck --workspace=client && npm run typecheck --workspace=server"
   },
   "devDependencies": {

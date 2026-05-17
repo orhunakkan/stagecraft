@@ -113,8 +113,8 @@ if (isProduction) {
   // __dirname is server/dist at runtime; client/dist sits two levels up from there
   const clientDist = path.resolve(__dirname, '../../client/dist');
   app.use(express.static(clientDist));
-  app.use((_req, res) => {
-    res.sendFile(path.join(clientDist, 'index.html'));
+  app.get(/^(?!\/api\/).*/, (_req, res) => {
+    res.sendFile(path.join(clientDist, 'index.html'), { dotfiles: 'allow' });
   });
 }
 
