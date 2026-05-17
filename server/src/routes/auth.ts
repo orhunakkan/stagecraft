@@ -17,7 +17,7 @@ interface User {
 // Hardcoded test users — this is an intentional learning fixture, not real auth
 const USERS: User[] = [
     { id: 1, username: 'alice', password: 'password123', displayName: 'Alice Chen' },
-    { id: 2, username: 'bob', password: 'letmein', displayName: 'Bob Smith' },
+    { id: 2, username: 'bob', password: 'letmein', displayName: 'Robert Smith' },
 ];
 
 const router = Router();

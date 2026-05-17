@@ -150,7 +150,7 @@ export function AccessibleLocators() {
                         : 'border border-zinc-300 text-zinc-700 hover:bg-zinc-50',
                     ].join(' ')}
                   >
-                    {wishlist.includes(book.id) ? 'Wishlisted' : 'Add to wishlist'}
+                    Add to wishlist
                   </button>
                   <a
                     href={`#book-${book.id}`}

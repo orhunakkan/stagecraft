@@ -79,9 +79,9 @@ export function NetworkApi() {
       </p>
 
       {/* Add note form */}
-      <form onSubmit={(e) => void addNote(e)} className="mb-6 flex gap-2" aria-label="Add note">
+      <form onSubmit={(e) => void addNote(e)} className="mb-6 flex gap-2">
         <label htmlFor="note-input" className="sr-only">
-          New note
+          Add note
         </label>
         <input
           id="note-input"

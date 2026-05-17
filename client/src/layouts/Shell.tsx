@@ -13,6 +13,7 @@ export function Shell() {
             className="flex items-center gap-2 font-semibold tracking-tight text-zinc-900 hover:text-indigo-600 transition-colors"
           >
             <svg
+              aria-hidden="true"
               className="h-5 w-5 text-indigo-600"
               viewBox="0 0 24 24"
               fill="none"

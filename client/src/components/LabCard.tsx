@@ -69,7 +69,7 @@ export function LabCard({ lab, completed = false }: LabCardProps) {
   if (!isReady) return inner;
 
   return (
-    <Link to={`/practice/${lab.slug}`} className="flex flex-col h-full no-underline">
+    <Link to={`/practice/${lab.slug}`} aria-label={lab.title} className="flex flex-col h-full no-underline">
       {inner}
     </Link>
   );
