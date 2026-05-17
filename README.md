@@ -319,14 +319,14 @@ The package is written to `.azure-publish/stagecraft-appservice.zip`, which is i
 
 When you are ready to create Azure resources, use the detailed checklist in [docs/azure-app-service.md](docs/azure-app-service.md). The required App Service settings are:
 
-| Setting          | Value                                      |
-| ---------------- | ------------------------------------------ |
-| Runtime          | `NODE\|22-lts`                             |
-| Startup command  | `node server/dist/index.js`                |
-| `NODE_ENV`       | `production`                               |
-| `SESSION_SECRET` | A long generated secret stored in Azure    |
-| `CLIENT_ORIGIN`  | `https://<app-name>.azurewebsites.net`     |
-| WebSockets       | Enabled in the App Service configuration   |
+| Setting          | Value                                    |
+| ---------------- | ---------------------------------------- |
+| Runtime          | `NODE\|22-lts`                           |
+| Startup command  | `node server/dist/index.js`              |
+| `NODE_ENV`       | `production`                             |
+| `SESSION_SECRET` | A long generated secret stored in Azure  |
+| `CLIENT_ORIGIN`  | `https://<app-name>.azurewebsites.net`   |
+| WebSockets       | Enabled in the App Service configuration |
 
 ## Development Guidelines
 
