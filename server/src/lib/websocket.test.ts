@@ -99,6 +99,30 @@ describe('attachWebSocketServer', () => {
     ).resolves.toBe('echo: hello stagecraft');
   });
 
+  test('closes connections that send oversized messages', async () => {
+    const ws = connect('/ws');
+    await waitForMessage(
+      ws,
+      (message) => message === 'Welcome to the Stagecraft WebSocket server!',
+    );
+
+    ws.send('x'.repeat(16 * 1024 + 1));
+
+    await expect(
+      new Promise<void>((resolve, reject) => {
+        const timeout = setTimeout(() => reject(new Error('connection stayed open')), 1000);
+        ws.once('close', () => {
+          clearTimeout(timeout);
+          resolve();
+        });
+        ws.once('error', () => {
+          clearTimeout(timeout);
+          resolve();
+        });
+      }),
+    ).resolves.toBeUndefined();
+  });
+
   test('rejects upgrade requests outside the /ws path', async () => {
     const ws = connect('/not-ws');
 

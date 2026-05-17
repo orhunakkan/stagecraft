@@ -30,8 +30,10 @@ COPY server/package.json ./server/
 RUN npm ci --omit=dev
 
 # Bring in the build artefacts from the builder stage.
-COPY --from=builder /app/client/dist ./client/dist
-COPY --from=builder /app/server/dist ./server/dist
+COPY --from=builder --chown=node:node /app/client/dist ./client/dist
+COPY --from=builder --chown=node:node /app/server/dist ./server/dist
+
+USER node
 
 EXPOSE 3001
 CMD ["node", "server/dist/index.js"]

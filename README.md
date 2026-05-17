@@ -146,7 +146,7 @@ In production, the client is built to `client/dist`, the server is built to `ser
 
 - Lab completion is stored in browser `localStorage` under `stagecraft:completed`.
 - Fake authentication uses server-side sessions via `express-session`.
-- The fake-auth session cookie is intentionally readable by Playwright so the storage-state lab can demonstrate auth state capture.
+- The fake-auth session cookie is httpOnly; Playwright can still persist it through `storageState` for the auth-state lab.
 - WebSockets are attached to the same HTTP server as Express and are available at `/ws`.
 - Backend data is in-memory and resets when the server restarts.
 

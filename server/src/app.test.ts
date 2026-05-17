@@ -47,6 +47,16 @@ describe('health endpoint', () => {
     expect(response.status).toBe(200);
     expect(body).toEqual({ ok: true });
   });
+
+  test('sets baseline security headers', async () => {
+    const { response } = await json<{ ok: boolean }>('/health');
+
+    expect(response.headers.get('x-powered-by')).toBeNull();
+    expect(response.headers.get('x-content-type-options')).toBe('nosniff');
+    expect(response.headers.get('x-frame-options')).toBe('DENY');
+    expect(response.headers.get('referrer-policy')).toBe('no-referrer');
+    expect(response.headers.get('content-security-policy')).toContain("default-src 'self'");
+  });
 });
 
 describe('notes API', () => {
@@ -96,6 +106,8 @@ describe('auth API', () => {
 
     const cookie = login.response.headers.get('set-cookie');
     expect(cookie).toContain('connect.sid');
+    expect(cookie).toContain('HttpOnly');
+    expect(cookie).toContain('SameSite=Lax');
 
     const me = await json<{ username: string; role: string }>('/api/auth/me', {
       headers: { Cookie: cookie ?? '' },
@@ -138,6 +150,16 @@ describe('auth API', () => {
 
     expect(response.status).toBe(401);
     expect(body.error).toBe('Invalid credentials');
+  });
+
+  test('returns a generic JSON error for malformed request bodies', async () => {
+    const { response, body } = await json<{ error: string }>('/api/auth/login', {
+      method: 'POST',
+      body: '{"username":',
+    });
+
+    expect(response.status).toBe(400);
+    expect(body.error).toBe('Invalid JSON body');
   });
 
   test('requires authentication for the current user endpoint', async () => {

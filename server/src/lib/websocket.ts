@@ -2,8 +2,10 @@ import { WebSocketServer, WebSocket } from 'ws';
 import type { IncomingMessage } from 'node:http';
 import type http from 'node:http';
 
+const MAX_WEBSOCKET_PAYLOAD_BYTES = 16 * 1024;
+
 export function attachWebSocketServer(server: http.Server): void {
-  const wss = new WebSocketServer({ noServer: true });
+  const wss = new WebSocketServer({ noServer: true, maxPayload: MAX_WEBSOCKET_PAYLOAD_BYTES });
 
   server.on('upgrade', (request: IncomingMessage, socket, head) => {
     const url = request.url ?? '';
@@ -30,6 +32,10 @@ export function attachWebSocketServer(server: http.Server): void {
     // Echo messages back
     ws.on('message', (data) => {
       const text = data.toString();
+      if (Buffer.byteLength(text, 'utf8') > MAX_WEBSOCKET_PAYLOAD_BYTES) {
+        ws.close(1009, 'Message too large');
+        return;
+      }
       ws.send(`echo: ${text}`);
     });
 
