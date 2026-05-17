@@ -40,8 +40,8 @@ export function BrowserEvents() {
       <LabHeader lab={lab} />
 
       <p className="mb-8 text-sm text-zinc-500">
-        Browser-level events require dedicated Playwright APIs. Register handlers{' '}
-        <em>before</em> triggering the event, or the handler fires too late.
+        Browser-level events require dedicated Playwright APIs. Register handlers <em>before</em>{' '}
+        triggering the event, or the handler fires too late.
       </p>
 
       <div className="space-y-10">
@@ -52,7 +52,9 @@ export function BrowserEvents() {
           </h2>
           <p className="mb-4 text-sm text-zinc-500">
             Use{' '}
-            <code className="rounded bg-zinc-100 px-1 text-xs">page.on(&apos;dialog&apos;, handler)</code>{' '}
+            <code className="rounded bg-zinc-100 px-1 text-xs">
+              page.on(&apos;dialog&apos;, handler)
+            </code>{' '}
             to intercept each type. The handler must be registered before the button click.
           </p>
 
@@ -97,8 +99,7 @@ export function BrowserEvents() {
             File upload
           </h2>
           <p className="mb-4 text-sm text-zinc-500">
-            Use{' '}
-            <code className="rounded bg-zinc-100 px-1 text-xs">locator.setInputFiles()</code> to
+            Use <code className="rounded bg-zinc-100 px-1 text-xs">locator.setInputFiles()</code> to
             attach files programmatically. The file input does not need to be visible.
           </p>
 
@@ -163,12 +164,8 @@ export function BrowserEvents() {
             Navigation event
           </h2>
           <p className="mb-4 text-sm text-zinc-500">
-            Use{' '}
-            <code className="rounded bg-zinc-100 px-1 text-xs">
-              page.waitForNavigation()
-            </code>{' '}
-            or{' '}
-            <code className="rounded bg-zinc-100 px-1 text-xs">page.waitForURL()</code> when a
+            Use <code className="rounded bg-zinc-100 px-1 text-xs">page.waitForNavigation()</code>{' '}
+            or <code className="rounded bg-zinc-100 px-1 text-xs">page.waitForURL()</code> when a
             click causes a page transition. This link navigates away from the lab.
           </p>
 

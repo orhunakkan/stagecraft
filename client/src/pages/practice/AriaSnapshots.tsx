@@ -36,9 +36,7 @@ export function AriaSnapshots() {
     setOpenSection((prev) => (prev === id ? null : id));
     const section = ACCORDION_SECTIONS.find((s) => s.id === id);
     setAnnouncement(
-      openSection === id
-        ? `${section?.title} collapsed`
-        : `${section?.title} expanded`,
+      openSection === id ? `${section?.title} collapsed` : `${section?.title} expanded`,
     );
   };
 
@@ -118,8 +116,8 @@ export function AriaSnapshots() {
           <p className="mb-4 text-sm text-zinc-500">
             Navigate through the wizard steps. Assert that the{' '}
             <code className="rounded bg-zinc-100 px-1 text-xs">aria-current=&quot;step&quot;</code>{' '}
-            attribute moves to the correct step. Capture before/after snapshots to verify
-            structural transitions.
+            attribute moves to the correct step. Capture before/after snapshots to verify structural
+            transitions.
           </p>
 
           <nav aria-label="Registration wizard steps" className="mb-6">

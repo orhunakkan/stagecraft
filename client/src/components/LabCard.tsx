@@ -30,9 +30,7 @@ export function LabCard({ lab, completed = false }: LabCardProps) {
           <span
             className={[
               'rounded-full px-2 py-0.5 text-xs font-medium',
-              isReady
-                ? 'bg-indigo-50 text-indigo-700'
-                : 'bg-zinc-100 text-zinc-400',
+              isReady ? 'bg-indigo-50 text-indigo-700' : 'bg-zinc-100 text-zinc-400',
             ].join(' ')}
           >
             {isReady ? 'Ready' : 'Soon'}
@@ -69,7 +67,11 @@ export function LabCard({ lab, completed = false }: LabCardProps) {
   if (!isReady) return inner;
 
   return (
-    <Link to={`/practice/${lab.slug}`} aria-label={lab.title} className="flex flex-col h-full no-underline">
+    <Link
+      to={`/practice/${lab.slug}`}
+      aria-label={lab.title}
+      className="flex flex-col h-full no-underline"
+    >
       {inner}
     </Link>
   );

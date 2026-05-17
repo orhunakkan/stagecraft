@@ -100,21 +100,32 @@ export function HarRecording() {
               Reload products
             </button>
             {fetched && (
-              <span role="status" aria-live="polite" className="flex items-center text-xs text-zinc-400">
+              <span
+                role="status"
+                aria-live="polite"
+                className="flex items-center text-xs text-zinc-400"
+              >
                 {products.length} products loaded
               </span>
             )}
           </div>
 
           {loading && (
-            <div role="status" aria-label="Loading products" className="flex items-center gap-2 text-sm text-zinc-500">
+            <div
+              role="status"
+              aria-label="Loading products"
+              className="flex items-center gap-2 text-sm text-zinc-500"
+            >
               <span className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-zinc-300 border-t-indigo-600" />
               Loading…
             </div>
           )}
 
           {error && (
-            <div role="alert" className="mb-4 rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">
+            <div
+              role="alert"
+              className="mb-4 rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700"
+            >
               {error}
             </div>
           )}
@@ -133,9 +144,7 @@ export function HarRecording() {
                     <p className="text-sm font-bold text-zinc-900">${p.price.toFixed(2)}</p>
                     <span
                       className={`rounded px-1.5 py-0.5 text-xs font-medium ${
-                        p.inStock
-                          ? 'bg-emerald-50 text-emerald-700'
-                          : 'bg-red-50 text-red-600'
+                        p.inStock ? 'bg-emerald-50 text-emerald-700' : 'bg-red-50 text-red-600'
                       }`}
                     >
                       {p.inStock ? 'In stock' : 'Out of stock'}

@@ -8,7 +8,10 @@ const BUTTONS = [
   { label: 'Secondary', className: 'border border-zinc-300 text-zinc-700 hover:bg-zinc-50' },
   { label: 'Danger', className: 'bg-red-600 text-white hover:bg-red-700' },
   { label: 'Ghost', className: 'text-indigo-700 hover:bg-indigo-50' },
-  { label: 'Disabled', className: 'border border-zinc-200 text-zinc-400 cursor-not-allowed opacity-50' },
+  {
+    label: 'Disabled',
+    className: 'border border-zinc-200 text-zinc-400 cursor-not-allowed opacity-50',
+  },
 ];
 
 const COLORS = [
@@ -39,9 +42,7 @@ export function VisualRegression() {
         Use{' '}
         <code className="rounded bg-zinc-100 px-1 text-xs">expect(page).toHaveScreenshot()</code>{' '}
         and{' '}
-        <code className="rounded bg-zinc-100 px-1 text-xs">
-          expect(locator).toHaveScreenshot()
-        </code>{' '}
+        <code className="rounded bg-zinc-100 px-1 text-xs">expect(locator).toHaveScreenshot()</code>{' '}
         for pixel-level comparisons. Mask dynamic regions (timestamps, avatars) with the{' '}
         <code className="rounded bg-zinc-100 px-1 text-xs">mask</code> option.
       </p>
@@ -113,7 +114,9 @@ export function VisualRegression() {
           </div>
           <p className="mt-2 text-xs text-zinc-400">
             Tip: mask{' '}
-            <code className="rounded bg-zinc-100 px-1">[data-testid=&quot;dynamic-timestamp&quot;]</code>{' '}
+            <code className="rounded bg-zinc-100 px-1">
+              [data-testid=&quot;dynamic-timestamp&quot;]
+            </code>{' '}
             to prevent timestamp drift from failing the screenshot.
           </p>
         </section>
@@ -125,7 +128,11 @@ export function VisualRegression() {
           </h2>
           <div className="rounded-xl border border-zinc-200 bg-white p-4">
             <p className="mb-4 text-xs font-medium text-zinc-600">Weekly sessions</p>
-            <div className="flex h-32 items-end gap-2" role="img" aria-label="Weekly sessions bar chart">
+            <div
+              className="flex h-32 items-end gap-2"
+              role="img"
+              aria-label="Weekly sessions bar chart"
+            >
               {CHART_DATA.map((pct, i) => (
                 <div key={i} className="flex flex-1 flex-col items-center gap-1">
                   <div
@@ -156,7 +163,8 @@ export function VisualRegression() {
               catching structural regressions (missing headings, changed roles, lost landmarks).
             </p>
             <p className="mt-2">
-              See <code className="rounded bg-indigo-100 px-1 text-xs">/practice/aria-snapshots</code>{' '}
+              See{' '}
+              <code className="rounded bg-indigo-100 px-1 text-xs">/practice/aria-snapshots</code>{' '}
               for the ARIA-focused lab.
             </p>
           </div>

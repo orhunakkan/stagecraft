@@ -15,9 +15,12 @@ export function MultiTabWindow() {
       <h1 className="text-2xl font-bold text-zinc-900">Dashboard (New Tab)</h1>
       <p className="mt-2 text-sm text-zinc-500">
         You are on a page that was opened in a new tab. Playwright can target this page via{' '}
-        <code className="rounded bg-zinc-100 px-1 text-xs">context.pages()</code> or the
-        captured page reference from{' '}
-        <code className="rounded bg-zinc-100 px-1 text-xs">context.waitForEvent(&apos;page&apos;)</code>.
+        <code className="rounded bg-zinc-100 px-1 text-xs">context.pages()</code> or the captured
+        page reference from{' '}
+        <code className="rounded bg-zinc-100 px-1 text-xs">
+          context.waitForEvent(&apos;page&apos;)
+        </code>
+        .
       </p>
 
       <div className="mt-8 space-y-4">

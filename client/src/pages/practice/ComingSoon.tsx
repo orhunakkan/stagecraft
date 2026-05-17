@@ -18,18 +18,13 @@ export function ComingSoon({ lab }: ComingSoonProps) {
 
       <div className="mt-4 flex flex-wrap gap-1.5">
         {lab.apis.map((api) => (
-          <span
-            key={api}
-            className="rounded bg-zinc-100 px-2 py-1 font-mono text-xs text-zinc-600"
-          >
+          <span key={api} className="rounded bg-zinc-100 px-2 py-1 font-mono text-xs text-zinc-600">
             {api}
           </span>
         ))}
       </div>
 
-      <p className="mt-8 text-sm text-zinc-400">
-        This lab is under construction. Check back soon.
-      </p>
+      <p className="mt-8 text-sm text-zinc-400">This lab is under construction. Check back soon.</p>
     </div>
   );
 }

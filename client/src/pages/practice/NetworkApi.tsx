@@ -71,11 +71,10 @@ export function NetworkApi() {
       <LabHeader lab={lab} />
 
       <p className="mb-6 text-sm text-zinc-500">
-        This UI fetches from{' '}
-        <code className="rounded bg-zinc-100 px-1 text-xs">/api/notes</code> on load and after
-        mutations. Use{' '}
-        <code className="rounded bg-zinc-100 px-1 text-xs">page.route()</code> to intercept or
-        mock any of these requests.
+        This UI fetches from <code className="rounded bg-zinc-100 px-1 text-xs">/api/notes</code> on
+        load and after mutations. Use{' '}
+        <code className="rounded bg-zinc-100 px-1 text-xs">page.route()</code> to intercept or mock
+        any of these requests.
       </p>
 
       {/* Add note form */}

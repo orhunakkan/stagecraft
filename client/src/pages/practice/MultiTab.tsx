@@ -9,11 +9,7 @@ export function MultiTab() {
   };
 
   const openPopup = () => {
-    window.open(
-      '/practice/multi-tab/popup',
-      'stagecraft-popup',
-      'width=480,height=360,noopener',
-    );
+    window.open('/practice/multi-tab/popup', 'stagecraft-popup', 'width=480,height=360,noopener');
   };
 
   return (
@@ -22,7 +18,9 @@ export function MultiTab() {
 
       <p className="mb-8 text-sm text-zinc-500">
         When a link or button opens a new tab or popup, Playwright captures it with{' '}
-        <code className="rounded bg-zinc-100 px-1 text-xs">context.waitForEvent(&apos;page&apos;)</code>
+        <code className="rounded bg-zinc-100 px-1 text-xs">
+          context.waitForEvent(&apos;page&apos;)
+        </code>
         . You must set up the listener <em>before</em> triggering the action.
       </p>
 
@@ -34,7 +32,8 @@ export function MultiTab() {
           <p className="mb-4 text-sm text-zinc-500">
             Click the button below. Playwright must capture the new page via{' '}
             <code className="rounded bg-zinc-100 px-1 text-xs">
-              const [newPage] = await Promise.all([context.waitForEvent(&apos;page&apos;), button.click()])
+              const [newPage] = await Promise.all([context.waitForEvent(&apos;page&apos;),
+              button.click()])
             </code>
             . Assert a heading on the new tab, then close it.
           </p>
@@ -53,7 +52,9 @@ export function MultiTab() {
           </h2>
           <p className="mb-4 text-sm text-zinc-500">
             This button opens a popup window (not a tab). Use{' '}
-            <code className="rounded bg-zinc-100 px-1 text-xs">page.waitForEvent(&apos;popup&apos;)</code>{' '}
+            <code className="rounded bg-zinc-100 px-1 text-xs">
+              page.waitForEvent(&apos;popup&apos;)
+            </code>{' '}
             to capture it. The popup can communicate back to the opener via{' '}
             <code className="rounded bg-zinc-100 px-1 text-xs">window.opener.postMessage()</code>.
           </p>
@@ -88,10 +89,7 @@ export function MultiTab() {
             </p>
             <p className="mt-1 text-sm text-zinc-500">
               Current value:{' '}
-              <span
-                data-testid="shared-storage-value"
-                className="font-mono"
-              >
+              <span data-testid="shared-storage-value" className="font-mono">
                 {localStorage.getItem('multi-tab:shared') ?? '(none)'}
               </span>
             </p>

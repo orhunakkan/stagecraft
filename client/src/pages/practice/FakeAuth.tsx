@@ -41,11 +41,7 @@ export function FakeAuth() {
       <LabHeader lab={lab} />
 
       <div className="max-w-sm">
-        <form
-          onSubmit={(e) => void handleSubmit(e)}
-          aria-label="Login form"
-          className="space-y-4"
-        >
+        <form onSubmit={(e) => void handleSubmit(e)} aria-label="Login form" className="space-y-4">
           <div className="flex flex-col gap-1">
             <label htmlFor="username" className="text-sm font-medium text-zinc-700">
               Username

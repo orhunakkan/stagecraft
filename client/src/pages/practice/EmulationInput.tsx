@@ -161,8 +161,7 @@ export function EmulationInput() {
             Mouse — Hover tooltip
           </h2>
           <p className="mb-4 text-sm text-zinc-500">
-            Use{' '}
-            <code className="rounded bg-zinc-100 px-1 text-xs">page.mouse.move()</code> or{' '}
+            Use <code className="rounded bg-zinc-100 px-1 text-xs">page.mouse.move()</code> or{' '}
             <code className="rounded bg-zinc-100 px-1 text-xs">locator.hover()</code> to trigger
             hover states. Assert that the tooltip becomes visible.
           </p>
@@ -196,10 +195,9 @@ export function EmulationInput() {
             Viewport — Responsive layout
           </h2>
           <p className="mb-4 text-sm text-zinc-500">
-            Use{' '}
-            <code className="rounded bg-zinc-100 px-1 text-xs">page.setViewportSize()</code> or
-            Playwright&apos;s <code className="rounded bg-zinc-100 px-1 text-xs">devices</code>{' '}
-            to emulate different screen sizes. This card changes its layout at different widths.
+            Use <code className="rounded bg-zinc-100 px-1 text-xs">page.setViewportSize()</code> or
+            Playwright&apos;s <code className="rounded bg-zinc-100 px-1 text-xs">devices</code> to
+            emulate different screen sizes. This card changes its layout at different widths.
           </p>
           <div
             data-testid="responsive-card"
@@ -224,10 +222,9 @@ export function EmulationInput() {
             Scroll — Sticky action
           </h2>
           <p className="mb-4 text-sm text-zinc-500">
-            Use{' '}
-            <code className="rounded bg-zinc-100 px-1 text-xs">page.mouse.wheel()</code> to
-            scroll the scrollable container below. The &quot;Scroll to top&quot; button appears
-            only after scrolling down.
+            Use <code className="rounded bg-zinc-100 px-1 text-xs">page.mouse.wheel()</code> to
+            scroll the scrollable container below. The &quot;Scroll to top&quot; button appears only
+            after scrolling down.
           </p>
           <div
             ref={scrollRef}

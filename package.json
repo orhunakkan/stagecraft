@@ -20,11 +20,14 @@
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui",
     "lint": "npm run lint --workspace=client && npm run lint --workspace=server",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
     "typecheck": "tsc --noEmit && npm run typecheck --workspace=client && npm run typecheck --workspace=server"
   },
   "devDependencies": {
     "@playwright/test": "^1.50.0",
     "@vitest/coverage-v8": "^3.2.4",
-    "concurrently": "^9.0.0"
+    "concurrently": "^9.0.0",
+    "prettier": "3.8.3"
   }
 }

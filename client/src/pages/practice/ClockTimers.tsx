@@ -116,8 +116,7 @@ function SessionToast() {
           className="mt-3 flex items-center justify-between gap-3 rounded-lg border border-amber-300 bg-amber-50 px-4 py-2.5"
         >
           <p className="text-sm text-amber-800">
-            Session expires in{' '}
-            <strong data-testid="expiry-countdown">{secondsLeft}s</strong>
+            Session expires in <strong data-testid="expiry-countdown">{secondsLeft}s</strong>
           </p>
           <button
             type="button"
@@ -165,12 +164,11 @@ function PollingComponent() {
         Refresh #{count}
       </p>
       <p className="mt-0.5 text-xs text-zinc-400">
-        Last updated:{' '}
-        <span data-testid="last-refresh-ago">{secondsAgo}s ago</span>
+        Last updated: <span data-testid="last-refresh-ago">{secondsAgo}s ago</span>
       </p>
       <p className="mt-2 text-xs text-zinc-500">
-        Use <code className="rounded bg-zinc-100 px-1">clock.tick(30_000)</code> to skip ahead
-        30 s without waiting.
+        Use <code className="rounded bg-zinc-100 px-1">clock.tick(30_000)</code> to skip ahead 30 s
+        without waiting.
       </p>
     </div>
   );
@@ -197,8 +195,8 @@ function DateDisplay() {
         {formatted}
       </p>
       <p className="mt-2 text-xs text-zinc-500">
-        Use <code className="rounded bg-zinc-100 px-1">clock.setFixedTime(date)</code> to
-        control what &quot;today&quot; means in tests.
+        Use <code className="rounded bg-zinc-100 px-1">clock.setFixedTime(date)</code> to control
+        what &quot;today&quot; means in tests.
       </p>
     </div>
   );
@@ -210,8 +208,8 @@ export function ClockTimers() {
       <LabHeader lab={lab} />
 
       <p className="mb-8 text-sm text-zinc-500">
-        <code className="rounded bg-zinc-100 px-1 text-xs">page.clock</code> takes full control
-        of the browser&apos;s notion of time, enabling you to drive time-dependent UIs instantly
+        <code className="rounded bg-zinc-100 px-1 text-xs">page.clock</code> takes full control of
+        the browser&apos;s notion of time, enabling you to drive time-dependent UIs instantly
         without real delays.
       </p>
 
@@ -235,8 +233,8 @@ export function ClockTimers() {
           </h2>
           <p className="mb-4 text-sm text-zinc-500">
             Start the session, then use{' '}
-            <code className="rounded bg-zinc-100 px-1 text-xs">clock.tick(5000)</code> to jump
-            past the 5 s threshold and assert the toast appears with the correct countdown.
+            <code className="rounded bg-zinc-100 px-1 text-xs">clock.tick(5000)</code> to jump past
+            the 5 s threshold and assert the toast appears with the correct countdown.
           </p>
           <SessionToast />
         </section>
@@ -247,8 +245,8 @@ export function ClockTimers() {
           </h2>
           <p className="mb-4 text-sm text-zinc-500">
             The component refreshes every 30 seconds. Use{' '}
-            <code className="rounded bg-zinc-100 px-1 text-xs">clock.fastForward(30_000)</code>{' '}
-            to trigger one cycle and assert the refresh count increments.
+            <code className="rounded bg-zinc-100 px-1 text-xs">clock.fastForward(30_000)</code> to
+            trigger one cycle and assert the refresh count increments.
           </p>
           <PollingComponent />
         </section>
@@ -259,8 +257,8 @@ export function ClockTimers() {
           </h2>
           <p className="mb-4 text-sm text-zinc-500">
             This component renders today&apos;s date on mount. Use{' '}
-            <code className="rounded bg-zinc-100 px-1 text-xs">clock.install()</code> with a
-            fixed time before navigating to assert a specific date.
+            <code className="rounded bg-zinc-100 px-1 text-xs">clock.install()</code> with a fixed
+            time before navigating to assert a specific date.
           </p>
           <DateDisplay />
         </section>

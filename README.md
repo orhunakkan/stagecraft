@@ -23,19 +23,19 @@ The app intentionally does not ship answer tests for learners. Its job is to pro
 
 ## Tech Stack
 
-| Area | Technology |
-| --- | --- |
-| Frontend | React 18, TypeScript, React Router |
-| Frontend build | Vite 6 |
-| Styling | Tailwind CSS 4 via `@tailwindcss/vite` |
-| Backend | Express 5, TypeScript |
-| Sessions | `express-session` |
-| WebSockets | `ws` |
-| Unit/component tests | Vitest, React Testing Library, jsdom |
-| End-to-end tests | Playwright |
-| Package manager | npm workspaces |
-| Runtime | Node.js 22 |
-| Deployment | Single Node process serving the built client and API |
+| Area                 | Technology                                           |
+| -------------------- | ---------------------------------------------------- |
+| Frontend             | React 18, TypeScript, React Router                   |
+| Frontend build       | Vite 6                                               |
+| Styling              | Tailwind CSS 4 via `@tailwindcss/vite`               |
+| Backend              | Express 5, TypeScript                                |
+| Sessions             | `express-session`                                    |
+| WebSockets           | `ws`                                                 |
+| Unit/component tests | Vitest, React Testing Library, jsdom                 |
+| End-to-end tests     | Playwright                                           |
+| Package manager      | npm workspaces                                       |
+| Runtime              | Node.js 22                                           |
+| Deployment           | Single Node process serving the built client and API |
 
 ## Prerequisites
 
@@ -70,19 +70,19 @@ The root `npm run dev` command starts both workspaces concurrently: the Vite cli
 
 ## Available Scripts
 
-| Command | Description |
-| --- | --- |
-| `npm run dev` | Start client and server together for local development. |
-| `npm run dev:client` | Start only the Vite client on `http://localhost:5173`. |
-| `npm run dev:server` | Start only the Express server on `http://localhost:3001`. |
-| `npm run build` | Build both workspaces for production. |
-| `npm run test` | Run client and server Vitest suites in watch mode. |
-| `npm run test:run` | Run client and server Vitest suites once. |
-| `npm run test:coverage` | Run Vitest coverage for both workspaces. |
-| `npm run test:e2e` | Run the Playwright E2E suite. |
-| `npm run test:e2e:ui` | Open Playwright UI mode. |
-| `npm run lint` | Run TypeScript-based lint checks for both workspaces. |
-| `npm run typecheck` | Type-check the root project and both workspaces. |
+| Command                 | Description                                               |
+| ----------------------- | --------------------------------------------------------- |
+| `npm run dev`           | Start client and server together for local development.   |
+| `npm run dev:client`    | Start only the Vite client on `http://localhost:5173`.    |
+| `npm run dev:server`    | Start only the Express server on `http://localhost:3001`. |
+| `npm run build`         | Build both workspaces for production.                     |
+| `npm run test`          | Run client and server Vitest suites in watch mode.        |
+| `npm run test:run`      | Run client and server Vitest suites once.                 |
+| `npm run test:coverage` | Run Vitest coverage for both workspaces.                  |
+| `npm run test:e2e`      | Run the Playwright E2E suite.                             |
+| `npm run test:e2e:ui`   | Open Playwright UI mode.                                  |
+| `npm run lint`          | Run TypeScript-based lint checks for both workspaces.     |
+| `npm run typecheck`     | Type-check the root project and both workspaces.          |
 
 Workspace-specific scripts are also available:
 
@@ -95,13 +95,13 @@ npm run typecheck --workspace=server
 
 ## Application URLs
 
-| URL | Purpose |
-| --- | --- |
-| `http://localhost:5173/` | Lab catalog. |
-| `http://localhost:5173/practice/<slug>` | Individual lab route. |
+| URL                                                  | Purpose                        |
+| ---------------------------------------------------- | ------------------------------ |
+| `http://localhost:5173/`                             | Lab catalog.                   |
+| `http://localhost:5173/practice/<slug>`              | Individual lab route.          |
 | `http://localhost:5173/practice/fake-auth/dashboard` | Protected fake-auth dashboard. |
-| `http://localhost:3001/health` | Server health check. |
-| `ws://localhost:3001/ws` | WebSocket lab endpoint. |
+| `http://localhost:3001/health`                       | Server health check.           |
+| `ws://localhost:3001/ws`                             | WebSocket lab endpoint.        |
 
 In development, Vite proxies `/api` and `/ws` traffic to the backend, so frontend code can call relative URLs such as `/api/auth/me`.
 
@@ -154,28 +154,28 @@ In production, the client is built to `client/dist`, the server is built to `ser
 
 All labs are registered in `client/src/labs/index.ts`. Each registry entry defines the route slug, display title, topic, relevant Playwright APIs, status, and whether the lab needs the backend.
 
-| Slug | Lab | Backend | Focus |
-| --- | --- | --- | --- |
-| `accessible-locators` | Accessible Locators | No | Roles, labels, headings, alt text, accessible names. |
-| `forms-validation` | Forms & Validation | No | Form controls, validation messages, disabled submit states. |
-| `tables-filtering` | Tables & Filtering | No | Search, sort, filter, pagination, row actions. |
-| `async-ui` | Async UI | No | Loading states, retries, delayed UI changes. |
-| `network-api` | Network & API | Yes | API-backed UI and network synchronization. |
-| `fake-auth` | Fake Auth | Yes | Login, protected routes, logout, session state. |
-| `browser-events` | Browser Events | No | Dialogs, files, downloads, browser events. |
-| `frames-contexts` | Frames & Contexts | No | Iframes and browser context concepts. |
-| `emulation-input` | Emulation & Input | No | Keyboard, mouse, viewport, device emulation. |
-| `debugging-reporting` | Debugging & Reporting | No | Trace viewer, screenshots, retries, timeouts. |
-| `websocket-interception` | WebSocket Interception | Yes | WebSocket messages and interception. |
-| `aria-snapshots` | ARIA Snapshots | No | Accessibility tree regression assertions. |
-| `clock-timers` | Clock & Timers | No | Controlling time with Playwright clock APIs. |
-| `api-request-context` | API Request Context | Yes | Using Playwright's HTTP client fixture. |
-| `storage-state` | Storage State | Yes | Auth serialization and multi-user contexts. |
-| `visual-regression` | Visual Regression | No | Screenshots and visual diffing. |
-| `drag-and-drop` | Drag & Drop | No | Drag actions, drop zones, DataTransfer. |
-| `har-recording` | HAR Recording | Yes | HAR recording, replay, and network stubs. |
-| `multi-tab` | Multi-Tab | No | Popups, multiple pages, shared same-origin state. |
-| `service-workers` | Service Workers | Yes | Service worker interception and offline testing. |
+| Slug                     | Lab                    | Backend | Focus                                                       |
+| ------------------------ | ---------------------- | ------- | ----------------------------------------------------------- |
+| `accessible-locators`    | Accessible Locators    | No      | Roles, labels, headings, alt text, accessible names.        |
+| `forms-validation`       | Forms & Validation     | No      | Form controls, validation messages, disabled submit states. |
+| `tables-filtering`       | Tables & Filtering     | No      | Search, sort, filter, pagination, row actions.              |
+| `async-ui`               | Async UI               | No      | Loading states, retries, delayed UI changes.                |
+| `network-api`            | Network & API          | Yes     | API-backed UI and network synchronization.                  |
+| `fake-auth`              | Fake Auth              | Yes     | Login, protected routes, logout, session state.             |
+| `browser-events`         | Browser Events         | No      | Dialogs, files, downloads, browser events.                  |
+| `frames-contexts`        | Frames & Contexts      | No      | Iframes and browser context concepts.                       |
+| `emulation-input`        | Emulation & Input      | No      | Keyboard, mouse, viewport, device emulation.                |
+| `debugging-reporting`    | Debugging & Reporting  | No      | Trace viewer, screenshots, retries, timeouts.               |
+| `websocket-interception` | WebSocket Interception | Yes     | WebSocket messages and interception.                        |
+| `aria-snapshots`         | ARIA Snapshots         | No      | Accessibility tree regression assertions.                   |
+| `clock-timers`           | Clock & Timers         | No      | Controlling time with Playwright clock APIs.                |
+| `api-request-context`    | API Request Context    | Yes     | Using Playwright's HTTP client fixture.                     |
+| `storage-state`          | Storage State          | Yes     | Auth serialization and multi-user contexts.                 |
+| `visual-regression`      | Visual Regression      | No      | Screenshots and visual diffing.                             |
+| `drag-and-drop`          | Drag & Drop            | No      | Drag actions, drop zones, DataTransfer.                     |
+| `har-recording`          | HAR Recording          | Yes     | HAR recording, replay, and network stubs.                   |
+| `multi-tab`              | Multi-Tab              | No      | Popups, multiple pages, shared same-origin state.           |
+| `service-workers`        | Service Workers        | Yes     | Service worker interception and offline testing.            |
 
 ## Backend Fixtures
 
@@ -183,36 +183,36 @@ The backend exists to support realistic Playwright practice. It is not a product
 
 ### Health
 
-| Method | Path | Purpose |
-| --- | --- | --- |
-| `GET` | `/health` | Returns `{ "ok": true }`. |
+| Method | Path      | Purpose                   |
+| ------ | --------- | ------------------------- |
+| `GET`  | `/health` | Returns `{ "ok": true }`. |
 
 ### Auth
 
-| Method | Path | Purpose |
-| --- | --- | --- |
-| `POST` | `/api/auth/login` | Create a fake session. |
-| `GET` | `/api/auth/me` | Return the current session user. |
-| `POST` | `/api/auth/logout` | Destroy the current session. |
-| `GET` | `/api/auth/admin/stats` | Admin-only fixture for storage-state practice. |
+| Method | Path                    | Purpose                                        |
+| ------ | ----------------------- | ---------------------------------------------- |
+| `POST` | `/api/auth/login`       | Create a fake session.                         |
+| `GET`  | `/api/auth/me`          | Return the current session user.               |
+| `POST` | `/api/auth/logout`      | Destroy the current session.                   |
+| `GET`  | `/api/auth/admin/stats` | Admin-only fixture for storage-state practice. |
 
 Fake users:
 
-| Username | Password | Role |
-| --- | --- | --- |
-| `alice` | `password123` | `admin` |
-| `bob` | `letmein` | `user` |
+| Username | Password      | Role    |
+| -------- | ------------- | ------- |
+| `alice`  | `password123` | `admin` |
+| `bob`    | `letmein`     | `user`  |
 
 ### Lab Data APIs
 
-| Method | Path | Purpose |
-| --- | --- | --- |
-| `GET`, `POST`, `DELETE` | `/api/notes` | Mutable notes fixture for network practice. |
-| `GET`, `POST`, `PUT`, `DELETE` | `/api/tasks` | Mutable task fixture for API request context practice. |
-| `GET` | `/api/products` | Product list fixture. |
-| `GET` | `/api/products/:id` | Product detail fixture. |
-| `GET` | `/api/sw-items` | Fresh server data used by the service worker lab. |
-| WebSocket | `/ws` | Sends a welcome message, periodic ticker messages, and echoes client messages. |
+| Method                         | Path                | Purpose                                                                        |
+| ------------------------------ | ------------------- | ------------------------------------------------------------------------------ |
+| `GET`, `POST`, `DELETE`        | `/api/notes`        | Mutable notes fixture for network practice.                                    |
+| `GET`, `POST`, `PUT`, `DELETE` | `/api/tasks`        | Mutable task fixture for API request context practice.                         |
+| `GET`                          | `/api/products`     | Product list fixture.                                                          |
+| `GET`                          | `/api/products/:id` | Product detail fixture.                                                        |
+| `GET`                          | `/api/sw-items`     | Fresh server data used by the service worker lab.                              |
+| WebSocket                      | `/ws`               | Sends a welcome message, periodic ticker messages, and echoes client messages. |
 
 ## Testing
 
@@ -257,12 +257,12 @@ npm run lint
 
 Local development works with defaults. Production and Docker runs should provide explicit environment variables.
 
-| Variable | Default | Required | Description |
-| --- | --- | --- | --- |
-| `PORT` | `3001` | No | Express listen port. |
-| `CLIENT_ORIGIN` | `http://localhost:5173` | No | CORS origin allowed by the API in development. |
-| `SESSION_SECRET` | Development fallback | Yes in production | Secret used to sign session cookies. |
-| `NODE_ENV` | unset | No | Use `production` to serve the built client from Express. |
+| Variable         | Default                 | Required          | Description                                              |
+| ---------------- | ----------------------- | ----------------- | -------------------------------------------------------- |
+| `PORT`           | `3001`                  | No                | Express listen port.                                     |
+| `CLIENT_ORIGIN`  | `http://localhost:5173` | No                | CORS origin allowed by the API in development.           |
+| `SESSION_SECRET` | Development fallback    | Yes in production | Secret used to sign session cookies.                     |
+| `NODE_ENV`       | unset                   | No                | Use `production` to serve the built client from Express. |
 
 PowerShell example:
 

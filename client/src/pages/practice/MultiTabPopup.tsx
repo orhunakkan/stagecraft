@@ -28,11 +28,13 @@ export function MultiTabPopup() {
     <div className="flex min-h-screen flex-col items-center justify-center bg-white p-6">
       <h1 className="text-xl font-bold text-zinc-900">Popup Window</h1>
       <p className="mt-2 max-w-sm text-center text-sm text-zinc-500">
-        This is a popup. After clicking &quot;Send result&quot;, the opener page receives a
-        message via{' '}
-        <code className="rounded bg-zinc-100 px-1 text-xs">window.postMessage</code>. Playwright
+        This is a popup. After clicking &quot;Send result&quot;, the opener page receives a message
+        via <code className="rounded bg-zinc-100 px-1 text-xs">window.postMessage</code>. Playwright
         captures popups with{' '}
-        <code className="rounded bg-zinc-100 px-1 text-xs">page.waitForEvent(&apos;popup&apos;)</code>.
+        <code className="rounded bg-zinc-100 px-1 text-xs">
+          page.waitForEvent(&apos;popup&apos;)
+        </code>
+        .
       </p>
 
       <div className="mt-6 w-full max-w-xs space-y-3">

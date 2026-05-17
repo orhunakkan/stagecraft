@@ -57,7 +57,9 @@ export function DebuggingReporting() {
           </h2>
           <p className="mb-1 text-sm text-zinc-500">
             This button fails every third click. Configure{' '}
-            <code className="rounded bg-zinc-100 px-1 text-xs">test.describe.configure(&#123; retries: 2 &#125;)</code>{' '}
+            <code className="rounded bg-zinc-100 px-1 text-xs">
+              test.describe.configure(&#123; retries: 2 &#125;)
+            </code>{' '}
             and observe how Playwright retries. Use{' '}
             <code className="rounded bg-zinc-100 px-1 text-xs">context.tracing.start()</code> on
             retry to capture a trace.
@@ -144,8 +146,8 @@ export function DebuggingReporting() {
           </h2>
           <p className="mb-4 text-sm text-zinc-500">
             This counter updates every second. A naive{' '}
-            <code className="rounded bg-zinc-100 px-1 text-xs">toHaveText()</code> on the raw
-            number will be flaky. Use{' '}
+            <code className="rounded bg-zinc-100 px-1 text-xs">toHaveText()</code> on the raw number
+            will be flaky. Use{' '}
             <code className="rounded bg-zinc-100 px-1 text-xs">expect.poll()</code> or assert a
             regex that matches any number, not a specific value.
           </p>

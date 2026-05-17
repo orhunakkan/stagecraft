@@ -87,10 +87,9 @@ export function ApiRequestContext() {
       <LabHeader lab={lab} />
 
       <p className="mb-6 text-sm text-zinc-500">
-        Playwright&apos;s{' '}
-        <code className="rounded bg-zinc-100 px-1 text-xs">request</code> fixture operates entirely
-        outside the browser. Use it to call GET, POST, PUT, and DELETE directly — seed data before a
-        UI test, then verify the UI reflects it.
+        Playwright&apos;s <code className="rounded bg-zinc-100 px-1 text-xs">request</code> fixture
+        operates entirely outside the browser. Use it to call GET, POST, PUT, and DELETE directly —
+        seed data before a UI test, then verify the UI reflects it.
       </p>
 
       <div className="mb-4 rounded-xl border border-indigo-100 bg-indigo-50 p-4 text-sm text-indigo-800">
@@ -104,7 +103,10 @@ export function ApiRequestContext() {
       </div>
 
       {error && (
-        <div role="alert" className="mb-4 rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">
+        <div
+          role="alert"
+          className="mb-4 rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700"
+        >
           {error}
         </div>
       )}
@@ -129,14 +131,20 @@ export function ApiRequestContext() {
       </form>
 
       {loading ? (
-        <div role="status" aria-label="Loading tasks" className="flex items-center gap-2 text-sm text-zinc-500">
+        <div
+          role="status"
+          aria-label="Loading tasks"
+          className="flex items-center gap-2 text-sm text-zinc-500"
+        >
           <span className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-zinc-300 border-t-indigo-600" />
           Loading…
         </div>
       ) : (
         <ul aria-label="Task list" className="space-y-2">
           {tasks.length === 0 && (
-            <li className="text-sm text-zinc-400">No tasks yet. Add one above or POST via the request fixture.</li>
+            <li className="text-sm text-zinc-400">
+              No tasks yet. Add one above or POST via the request fixture.
+            </li>
           )}
           {tasks.map((task) => (
             <li

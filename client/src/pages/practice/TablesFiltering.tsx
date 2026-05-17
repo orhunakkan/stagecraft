@@ -14,29 +14,190 @@ interface Employee {
 }
 
 const EMPLOYEES: Employee[] = [
-  { id: 1, name: 'Alice Chen', department: 'Engineering', role: 'Senior Engineer', status: 'Active', joined: '2021-03-15' },
-  { id: 2, name: 'Bob Smith', department: 'Design', role: 'UX Designer', status: 'Active', joined: '2020-07-01' },
-  { id: 3, name: 'Carol Davis', department: 'Engineering', role: 'Tech Lead', status: 'On Leave', joined: '2019-11-20' },
-  { id: 4, name: 'David Lee', department: 'Product', role: 'Product Manager', status: 'Active', joined: '2022-01-10' },
-  { id: 5, name: 'Eva Martinez', department: 'Engineering', role: 'Junior Engineer', status: 'Active', joined: '2023-06-05' },
-  { id: 6, name: 'Frank Wilson', department: 'Sales', role: 'Account Executive', status: 'Terminated', joined: '2018-04-22' },
-  { id: 7, name: 'Grace Kim', department: 'Design', role: 'Visual Designer', status: 'Active', joined: '2021-09-14' },
-  { id: 8, name: 'Hank Patel', department: 'Engineering', role: 'DevOps Engineer', status: 'Active', joined: '2020-02-28' },
-  { id: 9, name: 'Iris Johnson', department: 'HR', role: 'HR Manager', status: 'Active', joined: '2017-08-03' },
-  { id: 10, name: 'Jack Brown', department: 'Product', role: 'Product Analyst', status: 'On Leave', joined: '2022-11-01' },
-  { id: 11, name: 'Karen White', department: 'Engineering', role: 'QA Engineer', status: 'Active', joined: '2021-05-19' },
-  { id: 12, name: 'Leo Garcia', department: 'Sales', role: 'Sales Manager', status: 'Active', joined: '2019-03-07' },
-  { id: 13, name: 'Mia Thompson', department: 'Design', role: 'Brand Designer', status: 'Active', joined: '2023-02-14' },
-  { id: 14, name: 'Noah Anderson', department: 'Engineering', role: 'Backend Engineer', status: 'Active', joined: '2020-10-30' },
-  { id: 15, name: 'Olivia Taylor', department: 'HR', role: 'Recruiter', status: 'Active', joined: '2022-07-22' },
-  { id: 16, name: 'Paul Harris', department: 'Engineering', role: 'Frontend Engineer', status: 'Active', joined: '2021-12-01' },
-  { id: 17, name: 'Quinn Moore', department: 'Product', role: 'UX Researcher', status: 'Terminated', joined: '2018-09-15' },
-  { id: 18, name: 'Rachel Clark', department: 'Sales', role: 'SDR', status: 'Active', joined: '2023-04-03' },
-  { id: 19, name: 'Sam Lewis', department: 'Engineering', role: 'Staff Engineer', status: 'Active', joined: '2016-06-20' },
-  { id: 20, name: 'Tina Robinson', department: 'Design', role: 'Design Lead', status: 'Active', joined: '2020-01-13' },
-  { id: 21, name: 'Uma Scott', department: 'Engineering', role: 'Security Engineer', status: 'On Leave', joined: '2022-03-18' },
-  { id: 22, name: 'Victor Young', department: 'Sales', role: 'Enterprise AE', status: 'Active', joined: '2019-08-09' },
-  { id: 23, name: 'Wendy Hall', department: 'HR', role: 'People Ops', status: 'Active', joined: '2021-11-25' },
+  {
+    id: 1,
+    name: 'Alice Chen',
+    department: 'Engineering',
+    role: 'Senior Engineer',
+    status: 'Active',
+    joined: '2021-03-15',
+  },
+  {
+    id: 2,
+    name: 'Bob Smith',
+    department: 'Design',
+    role: 'UX Designer',
+    status: 'Active',
+    joined: '2020-07-01',
+  },
+  {
+    id: 3,
+    name: 'Carol Davis',
+    department: 'Engineering',
+    role: 'Tech Lead',
+    status: 'On Leave',
+    joined: '2019-11-20',
+  },
+  {
+    id: 4,
+    name: 'David Lee',
+    department: 'Product',
+    role: 'Product Manager',
+    status: 'Active',
+    joined: '2022-01-10',
+  },
+  {
+    id: 5,
+    name: 'Eva Martinez',
+    department: 'Engineering',
+    role: 'Junior Engineer',
+    status: 'Active',
+    joined: '2023-06-05',
+  },
+  {
+    id: 6,
+    name: 'Frank Wilson',
+    department: 'Sales',
+    role: 'Account Executive',
+    status: 'Terminated',
+    joined: '2018-04-22',
+  },
+  {
+    id: 7,
+    name: 'Grace Kim',
+    department: 'Design',
+    role: 'Visual Designer',
+    status: 'Active',
+    joined: '2021-09-14',
+  },
+  {
+    id: 8,
+    name: 'Hank Patel',
+    department: 'Engineering',
+    role: 'DevOps Engineer',
+    status: 'Active',
+    joined: '2020-02-28',
+  },
+  {
+    id: 9,
+    name: 'Iris Johnson',
+    department: 'HR',
+    role: 'HR Manager',
+    status: 'Active',
+    joined: '2017-08-03',
+  },
+  {
+    id: 10,
+    name: 'Jack Brown',
+    department: 'Product',
+    role: 'Product Analyst',
+    status: 'On Leave',
+    joined: '2022-11-01',
+  },
+  {
+    id: 11,
+    name: 'Karen White',
+    department: 'Engineering',
+    role: 'QA Engineer',
+    status: 'Active',
+    joined: '2021-05-19',
+  },
+  {
+    id: 12,
+    name: 'Leo Garcia',
+    department: 'Sales',
+    role: 'Sales Manager',
+    status: 'Active',
+    joined: '2019-03-07',
+  },
+  {
+    id: 13,
+    name: 'Mia Thompson',
+    department: 'Design',
+    role: 'Brand Designer',
+    status: 'Active',
+    joined: '2023-02-14',
+  },
+  {
+    id: 14,
+    name: 'Noah Anderson',
+    department: 'Engineering',
+    role: 'Backend Engineer',
+    status: 'Active',
+    joined: '2020-10-30',
+  },
+  {
+    id: 15,
+    name: 'Olivia Taylor',
+    department: 'HR',
+    role: 'Recruiter',
+    status: 'Active',
+    joined: '2022-07-22',
+  },
+  {
+    id: 16,
+    name: 'Paul Harris',
+    department: 'Engineering',
+    role: 'Frontend Engineer',
+    status: 'Active',
+    joined: '2021-12-01',
+  },
+  {
+    id: 17,
+    name: 'Quinn Moore',
+    department: 'Product',
+    role: 'UX Researcher',
+    status: 'Terminated',
+    joined: '2018-09-15',
+  },
+  {
+    id: 18,
+    name: 'Rachel Clark',
+    department: 'Sales',
+    role: 'SDR',
+    status: 'Active',
+    joined: '2023-04-03',
+  },
+  {
+    id: 19,
+    name: 'Sam Lewis',
+    department: 'Engineering',
+    role: 'Staff Engineer',
+    status: 'Active',
+    joined: '2016-06-20',
+  },
+  {
+    id: 20,
+    name: 'Tina Robinson',
+    department: 'Design',
+    role: 'Design Lead',
+    status: 'Active',
+    joined: '2020-01-13',
+  },
+  {
+    id: 21,
+    name: 'Uma Scott',
+    department: 'Engineering',
+    role: 'Security Engineer',
+    status: 'On Leave',
+    joined: '2022-03-18',
+  },
+  {
+    id: 22,
+    name: 'Victor Young',
+    department: 'Sales',
+    role: 'Enterprise AE',
+    status: 'Active',
+    joined: '2019-08-09',
+  },
+  {
+    id: 23,
+    name: 'Wendy Hall',
+    department: 'HR',
+    role: 'People Ops',
+    status: 'Active',
+    joined: '2021-11-25',
+  },
 ];
 
 const DEPARTMENTS = ['All', 'Engineering', 'Design', 'Product', 'Sales', 'HR'];
@@ -111,10 +272,9 @@ export function TablesFiltering() {
       <LabHeader lab={lab} />
 
       <p className="mb-6 text-sm text-zinc-500">
-        Practice{' '}
-        <code className="rounded bg-zinc-100 px-1 text-xs">getByRole('row').filter()</code>,{' '}
-        <code className="rounded bg-zinc-100 px-1 text-xs">locator.nth()</code>, and asserting sort
-        order across pages.
+        Practice <code className="rounded bg-zinc-100 px-1 text-xs">getByRole('row').filter()</code>
+        , <code className="rounded bg-zinc-100 px-1 text-xs">locator.nth()</code>, and asserting
+        sort order across pages.
       </p>
 
       {/* Toolbar */}
@@ -164,7 +324,11 @@ export function TablesFiltering() {
       </p>
 
       {notification && (
-        <div role="alert" aria-live="polite" className="mb-3 rounded-lg bg-zinc-100 px-3 py-2 text-sm text-zinc-700">
+        <div
+          role="alert"
+          aria-live="polite"
+          className="mb-3 rounded-lg bg-zinc-100 px-3 py-2 text-sm text-zinc-700"
+        >
           {notification}
         </div>
       )}
@@ -232,7 +396,9 @@ export function TablesFiltering() {
                   <td className="px-4 py-3 text-zinc-600">{emp.department}</td>
                   <td className="px-4 py-3 text-zinc-600">{emp.role}</td>
                   <td className="px-4 py-3">
-                    <span className={`rounded px-2 py-0.5 text-xs font-medium ${statusColor[emp.status]}`}>
+                    <span
+                      className={`rounded px-2 py-0.5 text-xs font-medium ${statusColor[emp.status]}`}
+                    >
                       {emp.status}
                     </span>
                   </td>
@@ -285,7 +451,10 @@ export function TablesFiltering() {
       </div>
 
       {/* Pagination */}
-      <nav aria-label="Employee table pagination" className="mt-4 flex items-center justify-between gap-2">
+      <nav
+        aria-label="Employee table pagination"
+        className="mt-4 flex items-center justify-between gap-2"
+      >
         <p className="text-sm text-zinc-500">
           Page {page} of {totalPages}
         </p>

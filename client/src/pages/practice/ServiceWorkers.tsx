@@ -50,8 +50,7 @@ export function ServiceWorkers() {
 
       <p className="mb-8 text-sm text-zinc-500">
         Service workers intercept requests <em>before</em>{' '}
-        <code className="rounded bg-zinc-100 px-1 text-xs">page.route()</code> ever sees them.
-        Use{' '}
+        <code className="rounded bg-zinc-100 px-1 text-xs">page.route()</code> ever sees them. Use{' '}
         <code className="rounded bg-zinc-100 px-1 text-xs">serviceWorkers: &apos;block&apos;</code>{' '}
         in your browser context options to bypass them entirely during tests.
       </p>
@@ -93,8 +92,9 @@ export function ServiceWorkers() {
           </h2>
           <p className="mb-4 text-sm text-zinc-500">
             Click &quot;Fetch items&quot;. If the SW is active, it returns cached stale data. A
-            Playwright test using <code className="rounded bg-zinc-100 px-1 text-xs">page.route()</code>{' '}
-            alone <strong>will not intercept</strong> this request — the SW gets there first.
+            Playwright test using{' '}
+            <code className="rounded bg-zinc-100 px-1 text-xs">page.route()</code> alone{' '}
+            <strong>will not intercept</strong> this request — the SW gets there first.
           </p>
 
           <button
@@ -108,7 +108,11 @@ export function ServiceWorkers() {
           </button>
 
           {loading && (
-            <div role="status" aria-label="Loading" className="mt-3 flex items-center gap-2 text-sm text-zinc-500">
+            <div
+              role="status"
+              aria-label="Loading"
+              className="mt-3 flex items-center gap-2 text-sm text-zinc-500"
+            >
               <span className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-zinc-300 border-t-indigo-600" />
               Loading…
             </div>
@@ -158,14 +162,14 @@ export function ServiceWorkers() {
               when creating the context:
             </p>
             <pre className="mt-2 overflow-x-auto rounded-lg bg-indigo-900 p-3 text-xs text-indigo-100">
-{`const context = await browser.newContext({
+              {`const context = await browser.newContext({
   serviceWorkers: 'block',
 });`}
             </pre>
             <p className="mt-3">
               Now <code className="rounded bg-indigo-100 px-1 text-xs">page.route()</code> will
-              intercept <code className="rounded bg-indigo-100 px-1 text-xs">/api/sw-items</code>{' '}
-              as expected, and you can mock or verify the real server response.
+              intercept <code className="rounded bg-indigo-100 px-1 text-xs">/api/sw-items</code> as
+              expected, and you can mock or verify the real server response.
             </p>
           </div>
         </section>

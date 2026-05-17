@@ -28,10 +28,7 @@ export function Shell() {
           </Link>
 
           {!isHome && (
-            <Link
-              to="/"
-              className="text-sm text-zinc-500 hover:text-zinc-900 transition-colors"
-            >
+            <Link to="/" className="text-sm text-zinc-500 hover:text-zinc-900 transition-colors">
               ← All labs
             </Link>
           )}

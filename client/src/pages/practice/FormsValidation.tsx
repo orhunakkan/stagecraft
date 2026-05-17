@@ -50,8 +50,7 @@ export function FormsValidation() {
   const errors = validate(form);
   const isValid = Object.keys(errors).length === 0;
 
-  const touch = (field: keyof FormState) =>
-    setTouched((prev) => new Set([...prev, field]));
+  const touch = (field: keyof FormState) => setTouched((prev) => new Set([...prev, field]));
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -99,7 +98,10 @@ export function FormsValidation() {
         {/* Full name */}
         <div className="flex flex-col gap-1">
           <label htmlFor="full-name" className="text-sm font-medium text-zinc-700">
-            Full name <span aria-hidden="true" className="text-red-500">*</span>
+            Full name{' '}
+            <span aria-hidden="true" className="text-red-500">
+              *
+            </span>
           </label>
           <input
             id="full-name"
@@ -127,7 +129,10 @@ export function FormsValidation() {
         {/* Email */}
         <div className="flex flex-col gap-1">
           <label htmlFor="email-address" className="text-sm font-medium text-zinc-700">
-            Email address <span aria-hidden="true" className="text-red-500">*</span>
+            Email address{' '}
+            <span aria-hidden="true" className="text-red-500">
+              *
+            </span>
           </label>
           <input
             id="email-address"
@@ -155,7 +160,10 @@ export function FormsValidation() {
         {/* Category */}
         <div className="flex flex-col gap-1">
           <label htmlFor="topic-category" className="text-sm font-medium text-zinc-700">
-            Topic category <span aria-hidden="true" className="text-red-500">*</span>
+            Topic category{' '}
+            <span aria-hidden="true" className="text-red-500">
+              *
+            </span>
           </label>
           <select
             id="topic-category"
@@ -187,7 +195,10 @@ export function FormsValidation() {
         {/* Frequency */}
         <fieldset>
           <legend className="text-sm font-medium text-zinc-700">
-            Email frequency <span aria-hidden="true" className="text-red-500">*</span>
+            Email frequency{' '}
+            <span aria-hidden="true" className="text-red-500">
+              *
+            </span>
           </legend>
           <div className="mt-2 flex flex-col gap-2">
             {(['Daily', 'Weekly', 'Monthly'] as const).map((freq) => (
@@ -217,8 +228,7 @@ export function FormsValidation() {
         {/* File upload */}
         <div className="flex flex-col gap-1">
           <label htmlFor="profile-picture" className="text-sm font-medium text-zinc-700">
-            Profile picture{' '}
-            <span className="font-normal text-zinc-400">(optional)</span>
+            Profile picture <span className="font-normal text-zinc-400">(optional)</span>
           </label>
           <input
             id="profile-picture"
@@ -227,9 +237,7 @@ export function FormsValidation() {
             onChange={(e) => setForm({ ...form, file: e.target.files?.[0] ?? null })}
             className="text-sm text-zinc-600 file:mr-3 file:rounded-lg file:border-0 file:bg-indigo-50 file:px-3 file:py-1.5 file:text-xs file:font-medium file:text-indigo-700 hover:file:bg-indigo-100"
           />
-          {form.file && (
-            <p className="text-xs text-zinc-400">Selected: {form.file.name}</p>
-          )}
+          {form.file && <p className="text-xs text-zinc-400">Selected: {form.file.name}</p>}
         </div>
 
         {/* Terms */}
@@ -269,7 +277,10 @@ export function FormsValidation() {
         </button>
 
         <p className="text-xs text-zinc-400">
-          <span aria-hidden="true" className="text-red-500">*</span> Required fields
+          <span aria-hidden="true" className="text-red-500">
+            *
+          </span>{' '}
+          Required fields
         </p>
       </form>
     </div>

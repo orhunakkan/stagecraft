@@ -199,9 +199,9 @@ export function DragAndDrop() {
         Three challenge tiers:{' '}
         <code className="rounded bg-zinc-100 px-1 text-xs">locator.dragTo()</code> for
         element-to-element, <code className="rounded bg-zinc-100 px-1 text-xs">locator.drop()</code>{' '}
-        for file drops with a synthetic <code className="rounded bg-zinc-100 px-1 text-xs">DataTransfer</code>
-        , and raw <code className="rounded bg-zinc-100 px-1 text-xs">dispatchEvent</code> for
-        sortable lists.
+        for file drops with a synthetic{' '}
+        <code className="rounded bg-zinc-100 px-1 text-xs">DataTransfer</code>, and raw{' '}
+        <code className="rounded bg-zinc-100 px-1 text-xs">dispatchEvent</code> for sortable lists.
       </p>
 
       <div className="space-y-10">
@@ -211,8 +211,8 @@ export function DragAndDrop() {
           </h2>
           <p className="mb-4 text-sm text-zinc-500">
             Drag a card from one column to another using{' '}
-            <code className="rounded bg-zinc-100 px-1 text-xs">locator.dragTo()</code>. Assert
-            that the card appears in the destination column and is gone from the source.
+            <code className="rounded bg-zinc-100 px-1 text-xs">locator.dragTo()</code>. Assert that
+            the card appears in the destination column and is gone from the source.
           </p>
           <KanbanBoard />
         </section>
@@ -222,10 +222,11 @@ export function DragAndDrop() {
             Challenge 2 — File drop zone
           </h2>
           <p className="mb-4 text-sm text-zinc-500">
-            Construct a{' '}
-            <code className="rounded bg-zinc-100 px-1 text-xs">DataTransfer</code> with a file
-            buffer in the page context and call{' '}
-            <code className="rounded bg-zinc-100 px-1 text-xs">locator.drop(&#123; dataTransfer &#125;)</code>
+            Construct a <code className="rounded bg-zinc-100 px-1 text-xs">DataTransfer</code> with
+            a file buffer in the page context and call{' '}
+            <code className="rounded bg-zinc-100 px-1 text-xs">
+              locator.drop(&#123; dataTransfer &#125;)
+            </code>
             . Assert the filename appears.
           </p>
           <FileDropZone />

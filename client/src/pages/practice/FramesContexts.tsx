@@ -101,8 +101,7 @@ export function FramesContexts() {
       <LabHeader lab={lab} />
 
       <p className="mb-6 text-sm text-zinc-500">
-        Use{' '}
-        <code className="rounded bg-zinc-100 px-1 text-xs">page.frameLocator(selector)</code> to
+        Use <code className="rounded bg-zinc-100 px-1 text-xs">page.frameLocator(selector)</code> to
         scope all subsequent locator calls inside a specific iframe. Locators outside that frame
         won&apos;t match elements inside it.
       </p>
@@ -140,8 +139,8 @@ export function FramesContexts() {
                 <code className="rounded bg-zinc-100 px-1 text-xs">
                   page.frameLocator(&apos;iframe[title=&quot;Counter frame&quot;]&apos;)
                 </code>{' '}
-                to interact with the counter and assert its value. Try changing the step size
-                before incrementing.
+                to interact with the counter and assert its value. Try changing the step size before
+                incrementing.
               </p>
               <iframe
                 src={counterSrc}
@@ -161,8 +160,8 @@ export function FramesContexts() {
               <p className="mb-4 text-xs text-zinc-500">
                 Scope a locator into the login iframe and fill the username and password fields.
                 Assert the success message that appears after submitting. Notice that{' '}
-                <code className="rounded bg-zinc-100 px-1 text-xs">page.getByLabel()</code>{' '}
-                alone won&apos;t reach inside the frame.
+                <code className="rounded bg-zinc-100 px-1 text-xs">page.getByLabel()</code> alone
+                won&apos;t reach inside the frame.
               </p>
               <iframe
                 src={formSrc}

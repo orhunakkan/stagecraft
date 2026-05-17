@@ -20,7 +20,9 @@ function ts() {
 export function WebSocketInterception() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
-  const [status, setStatus] = useState<'disconnected' | 'connecting' | 'connected' | 'error'>('disconnected');
+  const [status, setStatus] = useState<'disconnected' | 'connecting' | 'connected' | 'error'>(
+    'disconnected',
+  );
   const wsRef = useRef<WebSocket | null>(null);
 
   const connect = () => {
@@ -83,8 +85,7 @@ export function WebSocketInterception() {
       <LabHeader lab={lab} />
 
       <p className="mb-6 text-sm text-zinc-500">
-        Use{' '}
-        <code className="rounded bg-zinc-100 px-1 text-xs">page.routeWebSocket()</code> to fully
+        Use <code className="rounded bg-zinc-100 px-1 text-xs">page.routeWebSocket()</code> to fully
         mock the socket, selectively forward messages, or block specific frames.
       </p>
 
@@ -95,9 +96,10 @@ export function WebSocketInterception() {
             WebSocket connection
           </h2>
           <p className="mb-4 text-sm text-zinc-500">
-            Connect to <code className="rounded bg-zinc-100 px-1 text-xs">ws://localhost:3001/ws</code>.
-            The server sends a welcome message and echoes everything you send back. A ticker
-            message arrives every 3 seconds.
+            Connect to{' '}
+            <code className="rounded bg-zinc-100 px-1 text-xs">ws://localhost:3001/ws</code>. The
+            server sends a welcome message and echoes everything you send back. A ticker message
+            arrives every 3 seconds.
           </p>
 
           <div className="mb-4 flex flex-wrap items-center gap-3">
@@ -138,9 +140,14 @@ export function WebSocketInterception() {
               <p className="text-zinc-400">No messages yet. Connect to start.</p>
             ) : (
               messages.map((msg) => (
-                <div key={msg.id} className={msg.from === 'user' ? 'text-indigo-700' : 'text-zinc-700'}>
+                <div
+                  key={msg.id}
+                  className={msg.from === 'user' ? 'text-indigo-700' : 'text-zinc-700'}
+                >
                   <span className="mr-2 text-zinc-400">[{msg.at}]</span>
-                  <span className="mr-1 font-semibold">{msg.from === 'user' ? 'you' : 'server'}:</span>
+                  <span className="mr-1 font-semibold">
+                    {msg.from === 'user' ? 'you' : 'server'}:
+                  </span>
                   {msg.text}
                 </div>
               ))
@@ -198,10 +205,7 @@ export function WebSocketInterception() {
                 desc: 'Let the connection succeed but block outgoing messages containing the word "block". Assert the server never echoes them back.',
               },
             ].map(({ n, label, desc }) => (
-              <div
-                key={n}
-                className="rounded-xl border border-zinc-200 bg-white p-4"
-              >
+              <div key={n} className="rounded-xl border border-zinc-200 bg-white p-4">
                 <p className="mb-1 text-sm font-semibold text-zinc-800">
                   Challenge {n}: {label}
                 </p>

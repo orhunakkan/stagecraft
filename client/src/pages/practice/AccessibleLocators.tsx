@@ -14,11 +14,35 @@ interface Book {
 
 const BOOKS: Book[] = [
   { id: 1, title: 'Clean Code', author: 'Robert C. Martin', genre: 'Programming', available: true },
-  { id: 2, title: 'The Pragmatic Programmer', author: 'David Thomas', genre: 'Programming', available: false },
-  { id: 3, title: 'Design Patterns', author: 'Gang of Four', genre: 'Architecture', available: true },
+  {
+    id: 2,
+    title: 'The Pragmatic Programmer',
+    author: 'David Thomas',
+    genre: 'Programming',
+    available: false,
+  },
+  {
+    id: 3,
+    title: 'Design Patterns',
+    author: 'Gang of Four',
+    genre: 'Architecture',
+    available: true,
+  },
   { id: 4, title: 'Refactoring', author: 'Martin Fowler', genre: 'Programming', available: true },
-  { id: 5, title: 'The Design of Everyday Things', author: 'Don Norman', genre: 'Design', available: true },
-  { id: 6, title: 'Domain-Driven Design', author: 'Eric Evans', genre: 'Architecture', available: false },
+  {
+    id: 5,
+    title: 'The Design of Everyday Things',
+    author: 'Don Norman',
+    genre: 'Design',
+    available: true,
+  },
+  {
+    id: 6,
+    title: 'Domain-Driven Design',
+    author: 'Eric Evans',
+    genre: 'Architecture',
+    available: false,
+  },
 ];
 
 const GENRES = ['All', 'Programming', 'Architecture', 'Design'];
@@ -45,9 +69,7 @@ export function AccessibleLocators() {
   });
 
   const toggleWishlist = (id: number) =>
-    setWishlist((prev) =>
-      prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id],
-    );
+    setWishlist((prev) => (prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]));
 
   return (
     <div>
@@ -97,7 +119,11 @@ export function AccessibleLocators() {
 
       {/* Wishlist alert */}
       {wishlist.length > 0 && (
-        <p role="alert" aria-live="polite" className="mb-4 rounded-lg bg-indigo-50 px-3 py-2 text-sm text-indigo-700">
+        <p
+          role="alert"
+          aria-live="polite"
+          className="mb-4 rounded-lg bg-indigo-50 px-3 py-2 text-sm text-indigo-700"
+        >
           {wishlist.length} {wishlist.length === 1 ? 'book' : 'books'} in your wishlist
         </p>
       )}
@@ -129,9 +155,7 @@ export function AccessibleLocators() {
                   <span
                     className={[
                       'rounded px-1.5 py-0.5 text-xs',
-                      book.available
-                        ? 'bg-emerald-50 text-emerald-700'
-                        : 'bg-red-50 text-red-600',
+                      book.available ? 'bg-emerald-50 text-emerald-700' : 'bg-red-50 text-red-600',
                     ].join(' ')}
                   >
                     {book.available ? 'Available' : 'Checked out'}

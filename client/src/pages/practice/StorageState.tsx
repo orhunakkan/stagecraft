@@ -80,10 +80,7 @@ export function StorageState() {
         </div>
         <p className="mt-3 text-xs text-zinc-500">
           Log in at{' '}
-          <a
-            href="/practice/fake-auth"
-            className="text-indigo-600 underline hover:text-indigo-800"
-          >
+          <a href="/practice/fake-auth" className="text-indigo-600 underline hover:text-indigo-800">
             /practice/fake-auth
           </a>{' '}
           first to establish a session.
@@ -91,13 +88,20 @@ export function StorageState() {
       </div>
 
       {error && (
-        <div role="alert" className="mb-4 rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">
+        <div
+          role="alert"
+          className="mb-4 rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700"
+        >
           {error}
         </div>
       )}
 
       {loading ? (
-        <div role="status" aria-label="Loading profile" className="flex items-center gap-2 text-sm text-zinc-500">
+        <div
+          role="status"
+          aria-label="Loading profile"
+          className="flex items-center gap-2 text-sm text-zinc-500"
+        >
           <span className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-zinc-300 border-t-indigo-600" />
           Loading…
         </div>

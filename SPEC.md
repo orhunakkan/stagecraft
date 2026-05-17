@@ -7,12 +7,14 @@ Stagecraft is a web application that provides hands-on Playwright practice labs 
 **Target user:** Mid-level frontend/fullstack developers learning Playwright automation.
 
 **Success looks like:**
+
 - A developer can navigate to any of the 20 lab routes and interact with a realistic UI
 - Each lab clearly explains its topic, the Playwright APIs involved, and what the user is expected to test
 - Labs that require API, WebSocket, or auth scenarios have a working Express backend supporting them
 - All 20 labs are scaffolded; at minimum 5 core labs are fully implemented at launch
 
 **User stories:**
+
 - As a learner, I can browse a home page listing all available labs with their topics
 - As a learner, I can navigate to a lab route (`/practice/<slug>`) and see a topic description and interactive UI
 - As a learner, I can interact with the lab UI in my browser while writing Playwright tests in a separate project
@@ -23,16 +25,16 @@ Stagecraft is a web application that provides hands-on Playwright practice labs 
 
 ## Tech Stack
 
-| Layer         | Technology                          | Version  |
-|---------------|-------------------------------------|----------|
-| Frontend      | React + TypeScript                  | React 18 |
-| Frontend Build| Vite                                | ^6       |
-| Backend       | Express.js + TypeScript             | ^5       |
-| Styling       | Tailwind CSS                        | ^4       |
-| Unit Tests    | Vitest + React Testing Library      | ^3       |
-| E2E Tests     | Playwright                          | ^1.50    |
-| Package Mgr   | npm workspaces (monorepo)           | npm 10+  |
-| Runtime       | Node.js                             | ^22      |
+| Layer          | Technology                     | Version  |
+| -------------- | ------------------------------ | -------- |
+| Frontend       | React + TypeScript             | React 18 |
+| Frontend Build | Vite                           | ^6       |
+| Backend        | Express.js + TypeScript        | ^5       |
+| Styling        | Tailwind CSS                   | ^4       |
+| Unit Tests     | Vitest + React Testing Library | ^3       |
+| E2E Tests      | Playwright                     | ^1.50    |
+| Package Mgr    | npm workspaces (monorepo)      | npm 10+  |
+| Runtime        | Node.js                        | ^22      |
 
 ---
 
@@ -133,11 +135,11 @@ All 20 labs are registered in `client/src/labs/index.ts`. Each entry carries:
 
 ```ts
 export interface Lab {
-  slug: string;           // URL path segment, e.g. "accessible-locators"
-  title: string;          // Display title
-  topic: string;          // One-line topic summary
-  apis: string[];         // Key Playwright APIs covered
-  status: "ready" | "coming-soon";
+  slug: string; // URL path segment, e.g. "accessible-locators"
+  title: string; // Display title
+  topic: string; // One-line topic summary
+  apis: string[]; // Key Playwright APIs covered
+  status: 'ready' | 'coming-soon';
   requiresBackend: boolean;
 }
 ```
@@ -150,10 +152,10 @@ Labs that require a backend (`requiresBackend: true`): `network-api`, `fake-auth
 
 **Initial launch status:**
 
-| Status       | Labs |
-|--------------|------|
-| `ready`      | `accessible-locators`, `forms-validation`, `async-ui`, `network-api`, `fake-auth` |
-| `coming-soon`| All remaining 15 labs |
+| Status        | Labs                                                                              |
+| ------------- | --------------------------------------------------------------------------------- |
+| `ready`       | `accessible-locators`, `forms-validation`, `async-ui`, `network-api`, `fake-auth` |
+| `coming-soon` | All remaining 15 labs                                                             |
 
 **Lab completion tracking:** Tracked client-side in `localStorage` as a `Set` of completed slugs (`stagecraft:completed`). No user accounts or backend storage required. The home page reads this on mount to render completion badges.
 
@@ -179,6 +181,7 @@ The app is structured to be platform-agnostic. Any host that can run a Node.js p
 TypeScript is strict everywhere (`"strict": true`). Prefer explicit types on function signatures; let inference work for local variables.
 
 **React components — functional, named exports:**
+
 ```tsx
 // client/src/components/LabCard.tsx
 interface LabCardProps {
@@ -196,6 +199,7 @@ export function LabCard({ lab }: LabCardProps) {
 ```
 
 **Express routes — thin controllers, extracted logic:**
+
 ```ts
 // server/src/routes/auth.ts
 router.post('/login', (req, res) => {
@@ -208,6 +212,7 @@ router.post('/login', (req, res) => {
 ```
 
 **Key conventions:**
+
 - File names: `kebab-case.tsx` for components, `camelCase.ts` for utilities
 - Components: `PascalCase`; hooks: `useNoun`, utilities: `verbNoun`
 - No default exports (except where framework requires, e.g. Vite config)
@@ -230,7 +235,7 @@ router.post('/login', (req, res) => {
 import { labs } from '../../src/labs';
 
 test('every lab has a unique slug', () => {
-  const slugs = labs.map(l => l.slug);
+  const slugs = labs.map((l) => l.slug);
   expect(new Set(slugs).size).toBe(slugs.length);
 });
 ```
@@ -252,6 +257,7 @@ test('form has labeled inputs', async ({ page }) => {
 ```
 
 ### What is NOT tested here
+
 Learners write their own Playwright tests in a separate project. Stagecraft itself does not validate or execute learner tests.
 
 ---
@@ -259,12 +265,14 @@ Learners write their own Playwright tests in a separate project. Stagecraft itse
 ## Boundaries
 
 ### Always do
+
 - Run `npm run typecheck` and `npm run lint` before committing
 - Keep every lab route reachable — use `coming-soon` status, never remove routes
 - Validate all request bodies in Express routes (use `zod` or manual checks)
 - Keep lab UIs free of real auth tokens, PII, or external API keys
 
 ### Ask first
+
 - Adding a new npm dependency to any workspace
 - Changing the URL structure of existing lab routes
 - Adding a new Express route that changes server port or CORS policy
@@ -272,6 +280,7 @@ Learners write their own Playwright tests in a separate project. Stagecraft itse
 - Enabling any persistent storage (DB, file writes) on the server
 
 ### Never do
+
 - Commit secrets, API keys, or real credentials to the repo
 - Remove or redirect an existing `/practice/<slug>` route
 - Use `any` type in TypeScript source files
@@ -313,12 +322,12 @@ Phase 8: E2E test suite               (needs Phase 4+5)
 
 ### Risks
 
-| Risk | Mitigation |
-|------|-----------|
-| WebSocket upgrade conflicts with Express middleware | Wire `ws` after all Express routes are registered |
+| Risk                                                                       | Mitigation                                                          |
+| -------------------------------------------------------------------------- | ------------------------------------------------------------------- |
+| WebSocket upgrade conflicts with Express middleware                        | Wire `ws` after all Express routes are registered                   |
 | `express-session` cookie not captured by Playwright in `storage-state` lab | Use `sameSite: 'lax'` + `httpOnly: false` so Playwright can read it |
-| Tailwind purge removing dynamic class names from labs | Add lab directories to `content` glob in `tailwind.config.ts` |
-| Vite proxy to Express needed in dev | Configure `server.proxy` in `vite.config.ts` for `/api` and `/ws` |
+| Tailwind purge removing dynamic class names from labs                      | Add lab directories to `content` glob in `tailwind.config.ts`       |
+| Vite proxy to Express needed in dev                                        | Configure `server.proxy` in `vite.config.ts` for `/api` and `/ws`   |
 
 ---
 
@@ -461,9 +470,9 @@ Covered inline in Tasks 4.4 and 4.5 above. Separate task for WebSocket:
 
 ## Resolved Decisions
 
-| # | Question | Decision | Rationale |
-|---|----------|----------|-----------|
-| 1 | Auth mechanism for `fake-auth` | `express-session` (cookie-session) | Complements `storage-state` lab — learners capture the session cookie in `storageState` |
-| 2 | WebSocket server | Same-port upgrade via `ws` | Single port, no CORS config, standard Node.js pattern |
-| 3 | Deployment | Platform-agnostic (Docker + env vars) | Platform TBD; Express serves static build in production |
-| 4 | Lab completion tracking | `localStorage` on client | No accounts needed; persists on device; zero backend complexity |
+| #   | Question                       | Decision                              | Rationale                                                                               |
+| --- | ------------------------------ | ------------------------------------- | --------------------------------------------------------------------------------------- |
+| 1   | Auth mechanism for `fake-auth` | `express-session` (cookie-session)    | Complements `storage-state` lab — learners capture the session cookie in `storageState` |
+| 2   | WebSocket server               | Same-port upgrade via `ws`            | Single port, no CORS config, standard Node.js pattern                                   |
+| 3   | Deployment                     | Platform-agnostic (Docker + env vars) | Platform TBD; Express serves static build in production                                 |
+| 4   | Lab completion tracking        | `localStorage` on client              | No accounts needed; persists on device; zero backend complexity                         |

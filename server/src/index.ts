@@ -9,7 +9,7 @@ const server = http.createServer(app);
 attachWebSocketServer(server);
 
 server.listen(PORT, () => {
-    console.log(`[server] listening on http://localhost:${PORT}`);
+  console.log(`[server] listening on http://localhost:${PORT}`);
 });
 
 export { server };

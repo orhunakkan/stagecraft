@@ -96,8 +96,8 @@ export function AsyncUi() {
           </h2>
           <p className="mb-4 text-sm text-zinc-500">
             Load takes ~1.5 s. Practice asserting the loading state and waiting for content to
-            appear. Use <code className="rounded bg-zinc-100 px-1 text-xs">Load with error</code>{' '}
-            to trigger a failure.
+            appear. Use <code className="rounded bg-zinc-100 px-1 text-xs">Load with error</code> to
+            trigger a failure.
           </p>
 
           <div className="mb-4 flex gap-2">
@@ -180,8 +180,7 @@ export function AsyncUi() {
               ${price}
             </p>
             <p className="mt-0.5 text-xs text-zinc-400">
-              Last updated:{' '}
-              <span data-testid="last-updated">{lastUpdated}</span>
+              Last updated: <span data-testid="last-updated">{lastUpdated}</span>
             </p>
           </div>
         </section>
