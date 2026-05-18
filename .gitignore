@@ -13,6 +13,7 @@ test-results/
 coverage/
 client/coverage/
 server/coverage/
+.playwright-mcp
 
 # Build outputs
 client/dist/
