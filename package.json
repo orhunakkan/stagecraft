@@ -28,7 +28,7 @@
     "package:azure": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/package-azure-app-service.ps1",
     "start": "node server/dist/index.js",
     "typecheck": "tsc --noEmit && npm run typecheck --workspace=client && npm run typecheck --workspace=server",
-    "prepare": "husky"
+    "prepare": "husky || true"
   },
   "lint-staged": {
     "*.{ts,tsx}": [
