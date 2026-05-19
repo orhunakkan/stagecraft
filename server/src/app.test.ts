@@ -59,6 +59,38 @@ describe('health endpoint', () => {
   });
 });
 
+describe('API documentation', () => {
+  test('serves the OpenAPI document', async () => {
+    const { response, body } = await json<{
+      openapi: string;
+      paths: Record<string, unknown>;
+    }>('/openapi.json');
+
+    expect(response.status).toBe(200);
+    expect(response.headers.get('content-type')).toContain('application/json');
+    expect(body.openapi).toBe('3.0.3');
+    expect(body.paths).toHaveProperty('/health');
+    expect(body.paths).toHaveProperty('/api/auth/login');
+    expect(body.paths).toHaveProperty('/api/notes');
+    expect(body.paths).toHaveProperty('/api/tasks/{id}');
+    expect(body.paths).toHaveProperty('/api/products/{id}');
+    expect(body.paths).toHaveProperty('/api/sw-items');
+  });
+
+  test('serves Swagger UI for the OpenAPI document', async () => {
+    const response = await fetch(`${baseUrl}/api-docs`);
+    const html = await response.text();
+
+    expect(response.status).toBe(200);
+    expect(response.headers.get('content-type')).toContain('text/html');
+    expect(html).toContain('id="swagger-ui"');
+    expect(html).toContain('Stagecraft API Docs');
+    expect(response.headers.get('content-security-policy')).toContain(
+      "script-src 'self' 'unsafe-inline'",
+    );
+  });
+});
+
 describe('notes API', () => {
   test('creates and deletes a note', async () => {
     const text = `Server note ${Date.now()}`;

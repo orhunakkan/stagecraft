@@ -62,8 +62,7 @@ export function AccessibleLocators() {
 
   const q = query.toLowerCase();
   const filtered = BOOKS.filter((b) => {
-    const matchesQuery =
-      b.title.toLowerCase().includes(q) || b.author.toLowerCase().includes(q);
+    const matchesQuery = b.title.toLowerCase().includes(q) || b.author.toLowerCase().includes(q);
     const matchesGenre = genre === 'All' || b.genre === genre;
     return matchesQuery && matchesGenre;
   });

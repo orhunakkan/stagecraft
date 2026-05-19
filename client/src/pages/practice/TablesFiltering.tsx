@@ -260,7 +260,15 @@ export function TablesFiltering() {
     setTimeout(() => setNotification(null), 2500);
   };
 
-  const SortableHeader = ({ col, label, ariaName }: { col: SortKey; label: string; ariaName: string }) => {
+  const SortableHeader = ({
+    col,
+    label,
+    ariaName,
+  }: {
+    col: SortKey;
+    label: string;
+    ariaName: string;
+  }) => {
     const isActive = sortKey === col;
     const nextDir = isActive && sortDir === 'asc' ? 'descending' : 'ascending';
     return (

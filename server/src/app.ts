@@ -2,11 +2,13 @@ import path from 'node:path';
 import express from 'express';
 import session from 'express-session';
 import cors from 'cors';
+import swaggerUi, { type JsonObject } from 'swagger-ui-express';
 import notesRouter from './routes/notes';
 import authRouter from './routes/auth';
 import tasksRouter from './routes/tasks';
 import productsRouter from './routes/products';
 import swItemsRouter from './routes/swItems';
+import { openApiDocument } from './openapi';
 
 const app = express();
 
@@ -18,24 +20,36 @@ if (isProduction) {
 }
 
 function applySecurityHeaders(
-  _req: express.Request,
+  req: express.Request,
   res: express.Response,
   next: express.NextFunction,
 ) {
-  res.setHeader(
-    'Content-Security-Policy',
-    [
-      "default-src 'self'",
-      "base-uri 'self'",
-      "object-src 'none'",
-      "frame-ancestors 'none'",
-      "form-action 'self'",
-      "script-src 'self'",
-      "style-src 'self' 'unsafe-inline'",
-      "img-src 'self' data:",
-      "connect-src 'self' ws: wss:",
-    ].join('; '),
-  );
+  const contentSecurityPolicy = req.path.startsWith('/api-docs')
+    ? [
+        "default-src 'self'",
+        "base-uri 'self'",
+        "object-src 'none'",
+        "frame-ancestors 'none'",
+        "form-action 'self'",
+        "script-src 'self' 'unsafe-inline'",
+        "style-src 'self' 'unsafe-inline'",
+        "img-src 'self' data:",
+        "font-src 'self' data:",
+        "connect-src 'self'",
+      ]
+    : [
+        "default-src 'self'",
+        "base-uri 'self'",
+        "object-src 'none'",
+        "frame-ancestors 'none'",
+        "form-action 'self'",
+        "script-src 'self'",
+        "style-src 'self' 'unsafe-inline'",
+        "img-src 'self' data:",
+        "connect-src 'self' ws: wss:",
+      ];
+
+  res.setHeader('Content-Security-Policy', contentSecurityPolicy.join('; '));
   res.setHeader('Cross-Origin-Opener-Policy', 'same-origin');
   res.setHeader('Cross-Origin-Resource-Policy', 'same-origin');
   res.setHeader('Referrer-Policy', 'no-referrer');
@@ -84,6 +98,19 @@ app.use(
 app.get('/health', (_req, res) => {
   res.json({ ok: true });
 });
+
+app.get('/openapi.json', (_req, res) => {
+  res.json(openApiDocument);
+});
+
+app.use(
+  '/api-docs',
+  swaggerUi.serve,
+  swaggerUi.setup(openApiDocument as JsonObject, {
+    customSiteTitle: 'Stagecraft API Docs',
+    explorer: true,
+  }),
+);
 
 app.use('/api/notes', notesRouter);
 app.use('/api/auth', authRouter);

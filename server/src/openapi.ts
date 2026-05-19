@@ -1,0 +1,471 @@
+export const openApiDocument = {
+  openapi: '3.0.3',
+  info: {
+    title: 'Stagecraft API',
+    version: '1.0.0',
+    description:
+      'Fixture HTTP APIs for the Stagecraft Playwright practice application. Data is in-memory and resets when the server restarts.',
+  },
+  servers: [{ url: '/' }],
+  tags: [
+    { name: 'Health' },
+    { name: 'Auth' },
+    { name: 'Notes' },
+    { name: 'Tasks' },
+    { name: 'Products' },
+    { name: 'Service Workers' },
+  ],
+  paths: {
+    '/health': {
+      get: {
+        tags: ['Health'],
+        summary: 'Check server health',
+        operationId: 'getHealth',
+        responses: {
+          '200': {
+            description: 'Server is healthy.',
+            content: {
+              'application/json': {
+                schema: { $ref: '#/components/schemas/HealthResponse' },
+              },
+            },
+          },
+        },
+      },
+    },
+    '/api/auth/login': {
+      post: {
+        tags: ['Auth'],
+        summary: 'Create a fake session',
+        operationId: 'login',
+        requestBody: {
+          required: true,
+          content: {
+            'application/json': {
+              schema: { $ref: '#/components/schemas/LoginRequest' },
+            },
+          },
+        },
+        responses: {
+          '200': {
+            description: 'Login succeeded.',
+            headers: {
+              'Set-Cookie': {
+                description: 'Session cookie named connect.sid.',
+                schema: { type: 'string' },
+              },
+            },
+            content: {
+              'application/json': {
+                schema: { $ref: '#/components/schemas/User' },
+              },
+            },
+          },
+          '400': { $ref: '#/components/responses/BadRequest' },
+          '401': { $ref: '#/components/responses/Unauthorized' },
+        },
+      },
+    },
+    '/api/auth/me': {
+      get: {
+        tags: ['Auth'],
+        summary: 'Return the current session user',
+        operationId: 'getCurrentUser',
+        security: [{ cookieAuth: [] }],
+        responses: {
+          '200': {
+            description: 'Current user.',
+            content: {
+              'application/json': {
+                schema: { $ref: '#/components/schemas/User' },
+              },
+            },
+          },
+          '401': { $ref: '#/components/responses/Unauthorized' },
+        },
+      },
+    },
+    '/api/auth/logout': {
+      post: {
+        tags: ['Auth'],
+        summary: 'Destroy the current session',
+        operationId: 'logout',
+        security: [{ cookieAuth: [] }],
+        responses: {
+          '204': { description: 'Logout succeeded.' },
+        },
+      },
+    },
+    '/api/auth/admin/stats': {
+      get: {
+        tags: ['Auth'],
+        summary: 'Return admin-only fixture stats',
+        operationId: 'getAdminStats',
+        security: [{ cookieAuth: [] }],
+        responses: {
+          '200': {
+            description: 'Admin stats.',
+            content: {
+              'application/json': {
+                schema: { $ref: '#/components/schemas/AdminStats' },
+              },
+            },
+          },
+          '401': { $ref: '#/components/responses/Unauthorized' },
+          '403': { $ref: '#/components/responses/Forbidden' },
+        },
+      },
+    },
+    '/api/notes': {
+      get: {
+        tags: ['Notes'],
+        summary: 'List notes',
+        operationId: 'listNotes',
+        responses: {
+          '200': {
+            description: 'Notes.',
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'array',
+                  items: { $ref: '#/components/schemas/Note' },
+                },
+              },
+            },
+          },
+        },
+      },
+      post: {
+        tags: ['Notes'],
+        summary: 'Create a note',
+        operationId: 'createNote',
+        requestBody: {
+          required: true,
+          content: {
+            'application/json': {
+              schema: { $ref: '#/components/schemas/CreateNoteRequest' },
+            },
+          },
+        },
+        responses: {
+          '201': {
+            description: 'Created note.',
+            content: {
+              'application/json': {
+                schema: { $ref: '#/components/schemas/Note' },
+              },
+            },
+          },
+          '400': { $ref: '#/components/responses/BadRequest' },
+        },
+      },
+    },
+    '/api/notes/{id}': {
+      delete: {
+        tags: ['Notes'],
+        summary: 'Delete a note',
+        operationId: 'deleteNote',
+        parameters: [{ $ref: '#/components/parameters/NumericId' }],
+        responses: {
+          '204': { description: 'Note deleted.' },
+          '404': { $ref: '#/components/responses/NotFound' },
+        },
+      },
+    },
+    '/api/tasks': {
+      get: {
+        tags: ['Tasks'],
+        summary: 'List tasks',
+        operationId: 'listTasks',
+        responses: {
+          '200': {
+            description: 'Tasks.',
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'array',
+                  items: { $ref: '#/components/schemas/Task' },
+                },
+              },
+            },
+          },
+        },
+      },
+      post: {
+        tags: ['Tasks'],
+        summary: 'Create a task',
+        operationId: 'createTask',
+        requestBody: {
+          required: true,
+          content: {
+            'application/json': {
+              schema: { $ref: '#/components/schemas/CreateTaskRequest' },
+            },
+          },
+        },
+        responses: {
+          '201': {
+            description: 'Created task.',
+            content: {
+              'application/json': {
+                schema: { $ref: '#/components/schemas/Task' },
+              },
+            },
+          },
+          '400': { $ref: '#/components/responses/BadRequest' },
+        },
+      },
+    },
+    '/api/tasks/{id}': {
+      put: {
+        tags: ['Tasks'],
+        summary: 'Update a task',
+        operationId: 'updateTask',
+        parameters: [{ $ref: '#/components/parameters/NumericId' }],
+        requestBody: {
+          required: true,
+          content: {
+            'application/json': {
+              schema: { $ref: '#/components/schemas/UpdateTaskRequest' },
+            },
+          },
+        },
+        responses: {
+          '200': {
+            description: 'Updated task.',
+            content: {
+              'application/json': {
+                schema: { $ref: '#/components/schemas/Task' },
+              },
+            },
+          },
+          '400': { $ref: '#/components/responses/BadRequest' },
+          '404': { $ref: '#/components/responses/NotFound' },
+        },
+      },
+      delete: {
+        tags: ['Tasks'],
+        summary: 'Delete a task',
+        operationId: 'deleteTask',
+        parameters: [{ $ref: '#/components/parameters/NumericId' }],
+        responses: {
+          '204': { description: 'Task deleted.' },
+          '404': { $ref: '#/components/responses/NotFound' },
+        },
+      },
+    },
+    '/api/products': {
+      get: {
+        tags: ['Products'],
+        summary: 'List products',
+        operationId: 'listProducts',
+        responses: {
+          '200': {
+            description: 'Products.',
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'array',
+                  items: { $ref: '#/components/schemas/Product' },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+    '/api/products/{id}': {
+      get: {
+        tags: ['Products'],
+        summary: 'Get a product',
+        operationId: 'getProduct',
+        parameters: [{ $ref: '#/components/parameters/NumericId' }],
+        responses: {
+          '200': {
+            description: 'Product.',
+            content: {
+              'application/json': {
+                schema: { $ref: '#/components/schemas/Product' },
+              },
+            },
+          },
+          '404': { $ref: '#/components/responses/NotFound' },
+        },
+      },
+    },
+    '/api/sw-items': {
+      get: {
+        tags: ['Service Workers'],
+        summary: 'List fresh service worker lab items',
+        operationId: 'listServiceWorkerItems',
+        responses: {
+          '200': {
+            description: 'Fresh server data used by the service worker lab.',
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'array',
+                  items: { $ref: '#/components/schemas/ServiceWorkerItem' },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+  },
+  components: {
+    securitySchemes: {
+      cookieAuth: {
+        type: 'apiKey',
+        in: 'cookie',
+        name: 'connect.sid',
+      },
+    },
+    parameters: {
+      NumericId: {
+        name: 'id',
+        in: 'path',
+        required: true,
+        schema: { type: 'integer', minimum: 1 },
+      },
+    },
+    responses: {
+      BadRequest: {
+        description: 'Bad request.',
+        content: {
+          'application/json': {
+            schema: { $ref: '#/components/schemas/ErrorResponse' },
+          },
+        },
+      },
+      Unauthorized: {
+        description: 'Not authenticated or invalid credentials.',
+        content: {
+          'application/json': {
+            schema: { $ref: '#/components/schemas/ErrorResponse' },
+          },
+        },
+      },
+      Forbidden: {
+        description: 'Authenticated but not authorized.',
+        content: {
+          'application/json': {
+            schema: { $ref: '#/components/schemas/ErrorResponse' },
+          },
+        },
+      },
+      NotFound: {
+        description: 'Resource not found.',
+        content: {
+          'application/json': {
+            schema: { $ref: '#/components/schemas/ErrorResponse' },
+          },
+        },
+      },
+    },
+    schemas: {
+      HealthResponse: {
+        type: 'object',
+        required: ['ok'],
+        properties: {
+          ok: { type: 'boolean', example: true },
+        },
+      },
+      ErrorResponse: {
+        type: 'object',
+        required: ['error'],
+        properties: {
+          error: { type: 'string' },
+        },
+      },
+      LoginRequest: {
+        type: 'object',
+        required: ['username', 'password'],
+        properties: {
+          username: { type: 'string', example: 'alice' },
+          password: { type: 'string', example: 'password123' },
+        },
+      },
+      User: {
+        type: 'object',
+        required: ['id', 'username', 'displayName', 'role'],
+        properties: {
+          id: { type: 'integer', example: 1 },
+          username: { type: 'string', example: 'alice' },
+          displayName: { type: 'string', example: 'Alice Chen' },
+          role: { type: 'string', enum: ['admin', 'user'], example: 'admin' },
+        },
+      },
+      AdminStats: {
+        type: 'object',
+        required: ['totalUsers', 'pendingReviews'],
+        properties: {
+          totalUsers: { type: 'integer', example: 2 },
+          pendingReviews: { type: 'integer', example: 3 },
+        },
+      },
+      Note: {
+        type: 'object',
+        required: ['id', 'text', 'createdAt'],
+        properties: {
+          id: { type: 'integer', example: 1 },
+          text: { type: 'string', example: 'Intercept network requests with page.route()' },
+          createdAt: { type: 'string', format: 'date-time' },
+        },
+      },
+      CreateNoteRequest: {
+        type: 'object',
+        required: ['text'],
+        properties: {
+          text: { type: 'string', example: 'Use waitForResponse() to synchronize on API calls' },
+        },
+      },
+      Task: {
+        type: 'object',
+        required: ['id', 'title', 'done', 'createdAt'],
+        properties: {
+          id: { type: 'integer', example: 1 },
+          title: { type: 'string', example: 'Write a Playwright test' },
+          done: { type: 'boolean', example: false },
+          createdAt: { type: 'string', format: 'date-time' },
+        },
+      },
+      CreateTaskRequest: {
+        type: 'object',
+        required: ['title'],
+        properties: {
+          title: { type: 'string', example: 'Seed data via API before UI test' },
+        },
+      },
+      UpdateTaskRequest: {
+        type: 'object',
+        properties: {
+          title: { type: 'string', example: 'Updated task title' },
+          done: { type: 'boolean', example: true },
+        },
+        minProperties: 1,
+      },
+      Product: {
+        type: 'object',
+        required: ['id', 'name', 'category', 'price', 'inStock'],
+        properties: {
+          id: { type: 'integer', example: 1 },
+          name: { type: 'string', example: 'Mechanical Keyboard' },
+          category: { type: 'string', example: 'Peripherals' },
+          price: { type: 'number', example: 149.99 },
+          inStock: { type: 'boolean', example: true },
+        },
+      },
+      ServiceWorkerItem: {
+        type: 'object',
+        required: ['id', 'name', 'source'],
+        properties: {
+          id: { type: 'integer', example: 1 },
+          name: { type: 'string', example: 'Fresh Widget' },
+          source: { type: 'string', enum: ['network'], example: 'network' },
+        },
+      },
+    },
+  },
+} as const;

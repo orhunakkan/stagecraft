@@ -121,9 +121,12 @@ MCP clients that support repo-local configuration can load it directly. For clie
 | `http://localhost:5173/practice/<slug>`              | Individual lab route.          |
 | `http://localhost:5173/practice/fake-auth/dashboard` | Protected fake-auth dashboard. |
 | `http://localhost:3001/health`                       | Server health check.           |
+| `http://localhost:3001/openapi.json`                 | OpenAPI contract.              |
+| `http://localhost:3001/api-docs`                     | Swagger API documentation.     |
 | `ws://localhost:3001/ws`                             | WebSocket lab endpoint.        |
 
 In development, Vite proxies `/api` and `/ws` traffic to the backend, so frontend code can call relative URLs such as `/api/auth/me`.
+The OpenAPI JSON and Swagger UI are served directly by the backend on port `3001`.
 
 ## Project Structure
 
@@ -200,6 +203,15 @@ All labs are registered in `client/src/labs/index.ts`. Each registry entry defin
 ## Backend Fixtures
 
 The backend exists to support realistic Playwright practice. It is not a production data service.
+
+### API Documentation
+
+| URL                                  | Purpose                               |
+| ------------------------------------ | ------------------------------------- |
+| `http://localhost:3001/openapi.json` | OpenAPI 3.0.3 contract for HTTP APIs. |
+| `http://localhost:3001/api-docs`     | Swagger UI for the OpenAPI contract.  |
+
+The WebSocket fixture remains documented in this README rather than in OpenAPI.
 
 ### Health
 
