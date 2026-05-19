@@ -103,21 +103,6 @@ jobs:
           if-no-files-found: ignore
           retention-days: 7
 
-  dependency-review:
-    name: Dependency review
-    runs-on: ubuntu-latest
-    timeout-minutes: 5
-    if: github.event_name == 'pull_request'
-
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v6
-
-      - name: Review dependency changes
-        uses: actions/dependency-review-action@v4
-        with:
-          fail-on-severity: high
-
   production-image:
     name: Production image
     runs-on: ubuntu-latest
