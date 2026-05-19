@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { LabHeader } from '../../components/LabHeader';
+import { assertOk, getErrorMessage, readJson } from '../../lib/api';
 import { labs } from '../../labs';
 
 const lab = labs.find((l) => l.slug === 'api-request-context')!;
@@ -23,10 +24,9 @@ export function ApiRequestContext() {
     setError(null);
     try {
       const res = await fetch('/api/tasks');
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      setTasks((await res.json()) as Task[]);
+      setTasks(await readJson<Task[]>(res));
     } catch (e) {
-      setError(e instanceof Error ? e.message : 'Unknown error');
+      setError(getErrorMessage(e));
     } finally {
       setLoading(false);
     }
@@ -46,12 +46,11 @@ export function ApiRequestContext() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ title: newTitle.trim() }),
       });
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      const task = (await res.json()) as Task;
+      const task = await readJson<Task>(res);
       setTasks((prev) => [...prev, task]);
       setNewTitle('');
     } catch (e) {
-      setError(e instanceof Error ? e.message : 'Unknown error');
+      setError(getErrorMessage(e));
     } finally {
       setAdding(false);
     }
@@ -64,21 +63,20 @@ export function ApiRequestContext() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ done: !done }),
       });
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      const updated = (await res.json()) as Task;
+      const updated = await readJson<Task>(res);
       setTasks((prev) => prev.map((t) => (t.id === updated.id ? updated : t)));
     } catch (e) {
-      setError(e instanceof Error ? e.message : 'Unknown error');
+      setError(getErrorMessage(e));
     }
   };
 
   const deleteTask = async (id: number) => {
     try {
       const res = await fetch(`/api/tasks/${id}`, { method: 'DELETE' });
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      assertOk(res);
       setTasks((prev) => prev.filter((t) => t.id !== id));
     } catch (e) {
-      setError(e instanceof Error ? e.message : 'Unknown error');
+      setError(getErrorMessage(e));
     }
   };
 

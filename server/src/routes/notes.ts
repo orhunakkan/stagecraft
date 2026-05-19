@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { CreateNoteSchema } from '../lib/schemas';
+import { CreateNoteSchema, firstIssueMessage } from '../lib/schemas';
 
 interface Note {
   id: number;
@@ -31,7 +31,7 @@ router.get('/', (_req, res) => {
 router.post('/', (req, res) => {
   const result = CreateNoteSchema.safeParse(req.body);
   if (!result.success) {
-    res.status(400).json({ error: result.error.issues[0]?.message ?? 'text is required' });
+    res.status(400).json({ error: firstIssueMessage(result.error, 'text is required') });
     return;
   }
   const note: Note = { id: nextId++, text: result.data.text, createdAt: new Date().toISOString() };

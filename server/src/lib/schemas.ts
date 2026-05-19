@@ -1,10 +1,15 @@
 import { z } from 'zod';
+import type { ZodError } from 'zod';
 
 const nonBlankString = (message: string) =>
   z
     .string()
     .transform((s) => s.trim())
     .pipe(z.string().min(1, message));
+
+export function firstIssueMessage(error: ZodError, fallback: string): string {
+  return error.issues[0]?.message ?? fallback;
+}
 
 export const CreateTaskSchema = z.object({
   title: nonBlankString('title is required'),

@@ -26,6 +26,9 @@ export function attachWebSocketServer(server: http.Server): void {
         ws.send(`ticker: ${new Date().toISOString()}`);
       }
     }, 3000);
+    const clearTicker = () => {
+      clearInterval(ticker);
+    };
 
     ws.on('message', (data) => {
       const text = data.toString();
@@ -36,12 +39,7 @@ export function attachWebSocketServer(server: http.Server): void {
       ws.send(`echo: ${text}`);
     });
 
-    ws.on('close', () => {
-      clearInterval(ticker);
-    });
-
-    ws.on('error', () => {
-      clearInterval(ticker);
-    });
+    ws.on('close', clearTicker);
+    ws.on('error', clearTicker);
   });
 }

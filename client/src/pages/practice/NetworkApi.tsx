@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { LabHeader } from '../../components/LabHeader';
+import { assertOk, getErrorMessage, readJson } from '../../lib/api';
 import { labs } from '../../labs';
 
 const lab = labs.find((l) => l.slug === 'network-api')!;
@@ -22,10 +23,9 @@ export function NetworkApi() {
     setError(null);
     try {
       const res = await fetch('/api/notes');
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      setNotes((await res.json()) as Note[]);
+      setNotes(await readJson<Note[]>(res));
     } catch (e) {
-      setError(e instanceof Error ? e.message : 'Unknown error');
+      setError(getErrorMessage(e));
     } finally {
       setLoading(false);
     }
@@ -45,12 +45,11 @@ export function NetworkApi() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ text: newText.trim() }),
       });
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      const note = (await res.json()) as Note;
+      const note = await readJson<Note>(res);
       setNotes((prev) => [...prev, note]);
       setNewText('');
     } catch (e) {
-      setError(e instanceof Error ? e.message : 'Unknown error');
+      setError(getErrorMessage(e));
     } finally {
       setAdding(false);
     }
@@ -59,10 +58,10 @@ export function NetworkApi() {
   const deleteNote = async (id: number) => {
     try {
       const res = await fetch(`/api/notes/${id}`, { method: 'DELETE' });
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      assertOk(res);
       setNotes((prev) => prev.filter((n) => n.id !== id));
     } catch (e) {
-      setError(e instanceof Error ? e.message : 'Unknown error');
+      setError(getErrorMessage(e));
     }
   };
 

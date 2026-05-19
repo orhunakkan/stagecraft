@@ -1,21 +1,18 @@
 import { expect, test } from '@playwright/test';
 
 test.describe('Service Workers lab', () => {
-  test('fetches server items when service workers are blocked', async ({ browser }) => {
-    const context = await browser.newContext({ serviceWorkers: 'block' });
-    const page = await context.newPage();
+  test.use({ serviceWorkers: 'block' });
+
+  test('fetches server items when service workers are blocked', async ({ page }) => {
     await page.goto('/practice/service-workers');
 
     await page.getByTestId('fetch-items-btn').click();
 
     await expect(page.getByRole('list', { name: 'Fetched items' })).toContainText('Fresh Widget');
     await expect(page.getByTestId('sw-item-1')).toContainText('network');
-    await context.close();
   });
 
-  test('surfaces fetch failures when the network endpoint errors', async ({ browser }) => {
-    const context = await browser.newContext({ serviceWorkers: 'block' });
-    const page = await context.newPage();
+  test('surfaces fetch failures when the network endpoint errors', async ({ page }) => {
     await page.route('/api/sw-items', (route) =>
       route.fulfill({
         status: 500,
@@ -28,13 +25,9 @@ test.describe('Service Workers lab', () => {
     await page.getByTestId('fetch-items-btn').click();
 
     await expect(page.getByRole('alert')).toContainText('HTTP 500');
-    await context.close();
   });
 
-  test('fetch items button is disabled while the request is in flight', async ({ browser }) => {
-    const context = await browser.newContext({ serviceWorkers: 'block' });
-    const page = await context.newPage();
-
+  test('fetch items button is disabled while the request is in flight', async ({ page }) => {
     let release: (() => void) | undefined;
     const gate = new Promise<void>((resolve) => {
       release = resolve;
@@ -52,12 +45,9 @@ test.describe('Service Workers lab', () => {
 
     release!();
     await expect(page.getByTestId('fetch-items-btn')).toBeEnabled();
-    await context.close();
   });
 
-  test('can replay a fully mocked items list when SW is blocked', async ({ browser }) => {
-    const context = await browser.newContext({ serviceWorkers: 'block' });
-    const page = await context.newPage();
+  test('can replay a fully mocked items list when SW is blocked', async ({ page }) => {
     await page.route('/api/sw-items', (route) =>
       route.fulfill({
         status: 200,
@@ -70,7 +60,5 @@ test.describe('Service Workers lab', () => {
     await page.getByTestId('fetch-items-btn').click();
     await expect(page.getByTestId('sw-item-42')).toContainText('Mocked Item');
     await expect(page.getByTestId('sw-item-42')).toContainText('cache');
-
-    await context.close();
   });
 });

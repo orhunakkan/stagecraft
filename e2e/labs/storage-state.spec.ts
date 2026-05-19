@@ -1,6 +1,6 @@
-import { expect, test } from '@playwright/test';
+import { expect, test, type Page } from '@playwright/test';
 
-async function loginAs(page: import('@playwright/test').Page, username: string, password: string) {
+async function loginAs(page: Page, username: string, password: string) {
   await page.goto('/practice/fake-auth');
   await page.getByLabel('Username').fill(username);
   await page.getByLabel('Password').fill(password);

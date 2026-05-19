@@ -1,9 +1,11 @@
 import { expect, test } from '@playwright/test';
 
 test.describe('Multi-Tab lab', () => {
-  test('opens a new tab and shares localStorage with the opener', async ({ context, page }) => {
+  test.beforeEach(async ({ page }) => {
     await page.goto('/practice/multi-tab');
+  });
 
+  test('opens a new tab and shares localStorage with the opener', async ({ context, page }) => {
     const newPagePromise = context.waitForEvent('page');
     await page.getByRole('button', { name: 'Open dashboard in new tab' }).click();
     const newPage = await newPagePromise;
@@ -17,8 +19,6 @@ test.describe('Multi-Tab lab', () => {
   });
 
   test('captures a popup window and sends a result from the popup', async ({ page }) => {
-    await page.goto('/practice/multi-tab');
-
     const popupPromise = page.waitForEvent('popup');
     await page.getByRole('button', { name: 'Open popup window' }).click();
     const popup = await popupPromise;
@@ -34,7 +34,6 @@ test.describe('Multi-Tab lab', () => {
   test('shows the shared storage placeholder when nothing has been written yet', async ({
     page,
   }) => {
-    await page.goto('/practice/multi-tab');
     await page.evaluate(() => localStorage.removeItem('multi-tab:shared'));
     await page.getByRole('button', { name: 'Reload to refresh value' }).click();
 
@@ -42,8 +41,6 @@ test.describe('Multi-Tab lab', () => {
   });
 
   test('opening the new tab adds a second page to the context', async ({ context, page }) => {
-    await page.goto('/practice/multi-tab');
-
     const before = context.pages().length;
     const newPagePromise = context.waitForEvent('page');
     await page.getByRole('button', { name: 'Open dashboard in new tab' }).click();

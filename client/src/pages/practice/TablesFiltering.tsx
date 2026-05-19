@@ -211,6 +211,23 @@ const statusColor: Record<Employee['status'], string> = {
   Terminated: 'bg-red-50 text-red-600',
 };
 
+function employeeMatchesSearch(employee: Employee, search: string): boolean {
+  const normalizedSearch = search.toLowerCase();
+  return (
+    employee.name.toLowerCase().includes(normalizedSearch) ||
+    employee.role.toLowerCase().includes(normalizedSearch)
+  );
+}
+
+function compareEmployees(a: Employee, b: Employee, sortKey: SortKey, sortDir: SortDir): number {
+  const left = a[sortKey];
+  const right = b[sortKey];
+  const direction = sortDir === 'asc' ? 1 : -1;
+
+  if (left === right) return 0;
+  return left < right ? -direction : direction;
+}
+
 function SortableHeader({
   col,
   label,
@@ -258,19 +275,10 @@ export function TablesFiltering() {
   const filtered = useMemo(() => {
     let rows = EMPLOYEES.filter((e) => !deleted.has(e.id));
     if (query) {
-      const q = query.toLowerCase();
-      rows = rows.filter(
-        (e) => e.name.toLowerCase().includes(q) || e.role.toLowerCase().includes(q),
-      );
+      rows = rows.filter((employee) => employeeMatchesSearch(employee, query));
     }
     if (dept !== 'All') rows = rows.filter((e) => e.department === dept);
-    rows = [...rows].sort((a, b) => {
-      const av = a[sortKey];
-      const bv = b[sortKey];
-      const cmp = av < bv ? -1 : av > bv ? 1 : 0;
-      return sortDir === 'asc' ? cmp : -cmp;
-    });
-    return rows;
+    return [...rows].sort((a, b) => compareEmployees(a, b, sortKey, sortDir));
   }, [query, dept, sortKey, sortDir, deleted]);
 
   const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
@@ -287,7 +295,11 @@ export function TablesFiltering() {
   };
 
   const handleDelete = (id: number) => {
-    setDeleted((prev) => new Set([...prev, id]));
+    setDeleted((prev) => {
+      const next = new Set(prev);
+      next.add(id);
+      return next;
+    });
     setActionRow(null);
     const emp = EMPLOYEES.find((e) => e.id === id);
     setNotification(`${emp?.name ?? 'Employee'} removed.`);

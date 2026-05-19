@@ -17,6 +17,29 @@ const app = express();
 
 const isProduction = process.env.NODE_ENV === 'production';
 const clientOrigin = process.env.CLIENT_ORIGIN ?? 'http://localhost:5173';
+const ONE_HOUR_MS = 60 * 60 * 1000;
+const BASE_CONTENT_SECURITY_POLICY = [
+  "default-src 'self'",
+  "base-uri 'self'",
+  "object-src 'none'",
+  "frame-ancestors 'none'",
+  "form-action 'self'",
+];
+const APP_CONTENT_SECURITY_POLICY = [
+  ...BASE_CONTENT_SECURITY_POLICY,
+  "script-src 'self'",
+  "style-src 'self' 'unsafe-inline'",
+  "img-src 'self' data:",
+  "connect-src 'self' ws: wss:",
+];
+const API_DOCS_CONTENT_SECURITY_POLICY = [
+  ...BASE_CONTENT_SECURITY_POLICY,
+  "script-src 'self' 'unsafe-inline'",
+  "style-src 'self' 'unsafe-inline'",
+  "img-src 'self' data:",
+  "font-src 'self' data:",
+  "connect-src 'self'",
+];
 
 if (isProduction && clientOrigin.includes('localhost')) {
   throw new Error('CLIENT_ORIGIN must not be localhost in production');
@@ -32,29 +55,8 @@ function applySecurityHeaders(
   next: express.NextFunction,
 ) {
   const contentSecurityPolicy = req.path.startsWith('/api-docs')
-    ? [
-        "default-src 'self'",
-        "base-uri 'self'",
-        "object-src 'none'",
-        "frame-ancestors 'none'",
-        "form-action 'self'",
-        "script-src 'self' 'unsafe-inline'",
-        "style-src 'self' 'unsafe-inline'",
-        "img-src 'self' data:",
-        "font-src 'self' data:",
-        "connect-src 'self'",
-      ]
-    : [
-        "default-src 'self'",
-        "base-uri 'self'",
-        "object-src 'none'",
-        "frame-ancestors 'none'",
-        "form-action 'self'",
-        "script-src 'self'",
-        "style-src 'self' 'unsafe-inline'",
-        "img-src 'self' data:",
-        "connect-src 'self' ws: wss:",
-      ];
+    ? API_DOCS_CONTENT_SECURITY_POLICY
+    : APP_CONTENT_SECURITY_POLICY;
 
   res.setHeader('Content-Security-Policy', contentSecurityPolicy.join('; '));
   res.setHeader('Cross-Origin-Opener-Policy', 'same-origin');
@@ -98,7 +100,7 @@ app.use(
       httpOnly: true,
       sameSite: 'lax',
       secure: isProduction,
-      maxAge: 60 * 60 * 1000,
+      maxAge: ONE_HOUR_MS,
     },
   }),
 );
@@ -146,6 +148,12 @@ app.use(
   },
 );
 
+function shouldServeSpaShell(req: express.Request): boolean {
+  return (
+    ['GET', 'HEAD'].includes(req.method) && req.path !== '/api' && !req.path.startsWith('/api/')
+  );
+}
+
 // In production Express serves the Vite-built SPA and acts as the only process.
 // Static assets first, then index.html fallback for client-side routing.
 if (isProduction) {
@@ -176,11 +184,7 @@ if (isProduction) {
   );
 
   app.use((req, res, next) => {
-    if (
-      !['GET', 'HEAD'].includes(req.method) ||
-      req.path === '/api' ||
-      req.path.startsWith('/api/')
-    ) {
+    if (!shouldServeSpaShell(req)) {
       next();
       return;
     }

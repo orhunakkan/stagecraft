@@ -13,21 +13,10 @@ interface FormState {
   agreed: boolean;
 }
 
-interface FormErrors {
-  name?: string;
-  email?: string;
-  category?: string;
-  frequency?: string;
-  agreed?: string;
-}
+type RequiredField = Exclude<keyof FormState, 'file'>;
+type FormErrors = Partial<Record<RequiredField, string>>;
 
-const REQUIRED_FIELDS: Array<keyof FormState> = [
-  'name',
-  'email',
-  'category',
-  'frequency',
-  'agreed',
-];
+const REQUIRED_FIELDS: RequiredField[] = ['name', 'email', 'category', 'frequency', 'agreed'];
 const TOPIC_CATEGORIES = ['Technology', 'Design', 'Business', 'Science'] as const;
 const EMAIL_FREQUENCIES = ['Daily', 'Weekly', 'Monthly'] as const;
 
@@ -74,16 +63,17 @@ function fieldClassName(hasError: boolean): string {
 
 export function FormsValidation() {
   const [form, setForm] = useState<FormState>(INITIAL);
-  const [touched, setTouched] = useState<Set<keyof FormState>>(new Set());
+  const [touched, setTouched] = useState<Set<RequiredField>>(new Set());
   const [submitted, setSubmitted] = useState(false);
 
   const errors = validate(form);
   const isValid = Object.keys(errors).length === 0;
 
-  const touch = (field: keyof FormState) => setTouched((prev) => new Set([...prev, field]));
+  const touch = (field: RequiredField) => setTouched((prev) => new Set([...prev, field]));
   const updateField = <K extends keyof FormState>(field: K, value: FormState[K]) => {
     setForm((current) => ({ ...current, [field]: value }));
   };
+  const visibleError = (field: RequiredField) => (touched.has(field) ? errors[field] : undefined);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -118,6 +108,12 @@ export function FormsValidation() {
     );
   }
 
+  const nameError = visibleError('name');
+  const emailError = visibleError('email');
+  const categoryError = visibleError('category');
+  const frequencyError = visibleError('frequency');
+  const agreedError = visibleError('agreed');
+
   return (
     <div>
       <LabHeader lab={lab} />
@@ -143,13 +139,13 @@ export function FormsValidation() {
             onChange={(e) => updateField('name', e.target.value)}
             onBlur={() => touch('name')}
             aria-required="true"
-            aria-invalid={touched.has('name') && !!errors.name}
-            aria-describedby={touched.has('name') && errors.name ? 'name-error' : undefined}
-            className={fieldClassName(touched.has('name') && !!errors.name)}
+            aria-invalid={!!nameError}
+            aria-describedby={nameError ? 'name-error' : undefined}
+            className={fieldClassName(!!nameError)}
           />
-          {touched.has('name') && errors.name && (
+          {nameError && (
             <p id="name-error" role="alert" className="text-xs text-red-600">
-              {errors.name}
+              {nameError}
             </p>
           )}
         </div>
@@ -169,13 +165,13 @@ export function FormsValidation() {
             onChange={(e) => updateField('email', e.target.value)}
             onBlur={() => touch('email')}
             aria-required="true"
-            aria-invalid={touched.has('email') && !!errors.email}
-            aria-describedby={touched.has('email') && errors.email ? 'email-error' : undefined}
-            className={fieldClassName(touched.has('email') && !!errors.email)}
+            aria-invalid={!!emailError}
+            aria-describedby={emailError ? 'email-error' : undefined}
+            className={fieldClassName(!!emailError)}
           />
-          {touched.has('email') && errors.email && (
+          {emailError && (
             <p id="email-error" role="alert" className="text-xs text-red-600">
-              {errors.email}
+              {emailError}
             </p>
           )}
         </div>
@@ -194,8 +190,8 @@ export function FormsValidation() {
             onChange={(e) => updateField('category', e.target.value)}
             onBlur={() => touch('category')}
             aria-required="true"
-            aria-invalid={touched.has('category') && !!errors.category}
-            className={fieldClassName(touched.has('category') && !!errors.category)}
+            aria-invalid={!!categoryError}
+            className={fieldClassName(!!categoryError)}
           >
             <option value="">Select a category…</option>
             {TOPIC_CATEGORIES.map((category) => (
@@ -204,9 +200,9 @@ export function FormsValidation() {
               </option>
             ))}
           </select>
-          {touched.has('category') && errors.category && (
+          {categoryError && (
             <p id="category-error" role="alert" className="text-xs text-red-600">
-              {errors.category}
+              {categoryError}
             </p>
           )}
         </div>
@@ -241,9 +237,9 @@ export function FormsValidation() {
               );
             })}
           </div>
-          {touched.has('frequency') && errors.frequency && (
+          {frequencyError && (
             <p id="frequency-error" role="alert" className="mt-1 text-xs text-red-600">
-              {errors.frequency}
+              {frequencyError}
             </p>
           )}
         </fieldset>
@@ -274,7 +270,7 @@ export function FormsValidation() {
                 touch('agreed');
               }}
               aria-required="true"
-              aria-invalid={touched.has('agreed') && !!errors.agreed}
+              aria-invalid={!!agreedError}
               className="mt-0.5 accent-indigo-600"
             />
             <span className="text-sm text-zinc-700">
@@ -284,9 +280,9 @@ export function FormsValidation() {
               </a>
             </span>
           </label>
-          {touched.has('agreed') && errors.agreed && (
+          {agreedError && (
             <p id="agreed-error" role="alert" className="text-xs text-red-600">
-              {errors.agreed}
+              {agreedError}
             </p>
           )}
         </div>

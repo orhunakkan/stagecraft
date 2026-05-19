@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { CreateTaskSchema, UpdateTaskSchema } from '../lib/schemas';
+import { CreateTaskSchema, UpdateTaskSchema, firstIssueMessage } from '../lib/schemas';
 
 interface Task {
   id: number;
@@ -29,7 +29,7 @@ router.get('/', (_req, res) => {
 router.post('/', (req, res) => {
   const result = CreateTaskSchema.safeParse(req.body);
   if (!result.success) {
-    res.status(400).json({ error: result.error.issues[0]?.message ?? 'title is required' });
+    res.status(400).json({ error: firstIssueMessage(result.error, 'title is required') });
     return;
   }
   const task: Task = {
@@ -51,7 +51,7 @@ router.put('/:id', (req, res) => {
   }
   const result = UpdateTaskSchema.safeParse(req.body);
   if (!result.success) {
-    res.status(400).json({ error: result.error.issues[0]?.message ?? 'invalid request' });
+    res.status(400).json({ error: firstIssueMessage(result.error, 'invalid request') });
     return;
   }
   if (result.data.title !== undefined) task.title = result.data.title;
