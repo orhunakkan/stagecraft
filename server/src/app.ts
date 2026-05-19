@@ -12,8 +12,12 @@ import { openApiDocument } from './openapi';
 
 const app = express();
 
-const clientOrigin = process.env.CLIENT_ORIGIN ?? 'http://localhost:5173';
 const isProduction = process.env.NODE_ENV === 'production';
+const clientOrigin = process.env.CLIENT_ORIGIN ?? 'http://localhost:5173';
+
+if (isProduction && clientOrigin.includes('localhost')) {
+  throw new Error('CLIENT_ORIGIN must not be localhost in production');
+}
 
 if (isProduction) {
   app.set('trust proxy', 1);
@@ -141,7 +145,7 @@ if (isProduction) {
   const clientDist = path.resolve(__dirname, '../../client/dist');
   app.use(express.static(clientDist));
   app.get(/^(?!\/api\/).*/, (_req, res) => {
-    res.sendFile(path.join(clientDist, 'index.html'), { dotfiles: 'allow' });
+    res.sendFile(path.join(clientDist, 'index.html'));
   });
 }
 
