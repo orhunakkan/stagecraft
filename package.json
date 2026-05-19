@@ -30,7 +30,7 @@
     "typecheck": "tsc --noEmit && npm run typecheck --workspace=client && npm run typecheck --workspace=server"
   },
   "devDependencies": {
-    "@playwright/test": "^1.50.0",
+    "@playwright/test": "^1.60.0",
     "@types/node": "^25.9.0",
     "@vitest/coverage-v8": "^3.2.4",
     "concurrently": "^9.2.1",
