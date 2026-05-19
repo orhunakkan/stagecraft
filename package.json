@@ -6,7 +6,7 @@
   "author": "Orhun Akkan",
   "private": true,
   "engines": {
-    "node": ">=22"
+    "node": ">=24"
   },
   "workspaces": [
     "client",
