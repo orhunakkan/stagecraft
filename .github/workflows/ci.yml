@@ -151,13 +151,70 @@ jobs:
           cache: npm
           cache-dependency-path: package-lock.json
 
+      - name: Validate Azure deployment secrets
+        shell: pwsh
+        env:
+          AZURE_WEBAPP_NAME: ${{ secrets.AZURE_WEBAPP_NAME }}
+          AZURE_WEBAPP_PUBLISH_PROFILE: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
+        run: |
+          if ([string]::IsNullOrWhiteSpace($env:AZURE_WEBAPP_NAME)) {
+            throw "Missing GitHub repository secret: AZURE_WEBAPP_NAME"
+          }
+
+          if ([string]::IsNullOrWhiteSpace($env:AZURE_WEBAPP_PUBLISH_PROFILE)) {
+            throw "Missing GitHub repository secret: AZURE_WEBAPP_PUBLISH_PROFILE"
+          }
+
       - name: Build Azure App Service package
         shell: pwsh
         run: npm run package:azure
 
       - name: Deploy ZIP package
-        uses: azure/webapps-deploy@v3
-        with:
-          app-name: ${{ secrets.AZURE_WEBAPP_NAME }}
-          publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
-          package: .azure-publish/stagecraft-appservice.zip
+        shell: pwsh
+        env:
+          AZURE_WEBAPP_PUBLISH_PROFILE: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
+        run: |
+          $packagePath = ".azure-publish/stagecraft-appservice.zip"
+          if (-not (Test-Path -LiteralPath $packagePath)) {
+            throw "Deployment package was not found: $packagePath"
+          }
+
+          [xml]$publishProfile = $env:AZURE_WEBAPP_PUBLISH_PROFILE
+          $profile = $publishProfile.publishData.publishProfile |
+            Where-Object { $_.publishMethod -eq "ZipDeploy" } |
+            Select-Object -First 1
+
+          if (-not $profile) {
+            throw "Publish profile does not contain ZipDeploy credentials."
+          }
+
+          $credentials = "$($profile.userName):$($profile.userPWD)"
+          $encodedCredentials = [Convert]::ToBase64String([Text.Encoding]::ASCII.GetBytes($credentials))
+          $headers = @{ Authorization = "Basic $encodedCredentials" }
+          $deployUri = "https://$($profile.publishUrl.TrimEnd('/'))/api/zipdeploy?isAsync=true"
+
+          Write-Host "Uploading deployment ZIP to Azure App Service..."
+          $response = Invoke-WebRequest `
+            -Method Post `
+            -Uri $deployUri `
+            -Headers $headers `
+            -InFile $packagePath `
+            -ContentType "application/zip"
+
+          $statusUri = @($response.Headers.Location)[0]
+          if (-not $statusUri) {
+            Write-Host "Azure accepted the deployment request."
+            return
+          }
+
+          do {
+            Start-Sleep -Seconds 5
+            $status = Invoke-RestMethod -Method Get -Uri $statusUri -Headers $headers
+            Write-Host "Deployment status: $($status.status_text)"
+          } while ($status.status -lt 3)
+
+          if ($status.status -ne 4) {
+            throw "Azure deployment failed: $($status.status_text)"
+          }
+
+          Write-Host "Azure deployment completed."
