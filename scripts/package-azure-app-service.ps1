@@ -93,6 +93,9 @@ Copy-Item -LiteralPath (Join-Path $repoRoot "package.json") -Destination $buildD
 Copy-Item -LiteralPath (Join-Path $repoRoot "package-lock.json") -Destination $buildDir
 Copy-Item -LiteralPath (Join-Path $repoRoot "tsconfig.base.json") -Destination $buildDir
 Copy-Item -LiteralPath (Join-Path $repoRoot "tsconfig.json") -Destination $buildDir
+if (Test-Path -LiteralPath (Join-Path $repoRoot ".npmrc")) {
+  Copy-Item -LiteralPath (Join-Path $repoRoot ".npmrc") -Destination $buildDir
+}
 Copy-SourceDirectory -Source (Join-Path $repoRoot "client") -Destination (Join-Path $buildDir "client")
 Copy-SourceDirectory -Source (Join-Path $repoRoot "server") -Destination (Join-Path $buildDir "server")
 
@@ -119,11 +122,14 @@ New-Item -ItemType Directory -Path (Join-Path $stagingDir "server") | Out-Null
 
 Copy-Item -LiteralPath (Join-Path $buildDir "package.json") -Destination $stagingDir
 Copy-Item -LiteralPath (Join-Path $buildDir "package-lock.json") -Destination $stagingDir
+if (Test-Path -LiteralPath (Join-Path $buildDir ".npmrc")) {
+  Copy-Item -LiteralPath (Join-Path $buildDir ".npmrc") -Destination $stagingDir
+}
 Copy-Item -LiteralPath (Join-Path $buildDir "client/package.json") -Destination (Join-Path $stagingDir "client/package.json")
 Copy-Item -LiteralPath (Join-Path $buildDir "server/package.json") -Destination (Join-Path $stagingDir "server/package.json")
 
 Write-Host "Installing production dependencies into staging directory..."
-Invoke-Checked -Command "npm" -Arguments @("ci", "--omit=dev", "--workspaces", "--include-workspace-root") -WorkingDirectory $stagingDir
+Invoke-Checked -Command "npm" -Arguments @("ci", "--omit=dev", "--ignore-scripts") -WorkingDirectory $stagingDir
 
 Copy-Item -LiteralPath (Join-Path $buildDir "client/dist") -Destination (Join-Path $stagingDir "client/dist") -Recurse
 Copy-Item -LiteralPath (Join-Path $buildDir "server/dist") -Destination (Join-Path $stagingDir "server/dist") -Recurse
