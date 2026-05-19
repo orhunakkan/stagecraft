@@ -1,5 +1,5 @@
 import http from 'node:http';
-import { afterAll, beforeAll, describe, expect, test } from 'vitest';
+import { afterAll, afterEach, beforeAll, describe, expect, test, vi } from 'vitest';
 import app from './app';
 
 let server: http.Server;
@@ -88,6 +88,75 @@ describe('API documentation', () => {
     expect(response.headers.get('content-security-policy')).toContain(
       "script-src 'self' 'unsafe-inline'",
     );
+  });
+});
+
+describe('production startup configuration', () => {
+  const originalEnv = { ...process.env };
+
+  afterEach(() => {
+    process.env = { ...originalEnv };
+    vi.resetModules();
+  });
+
+  test('rejects localhost client origins in production', async () => {
+    vi.resetModules();
+    process.env.NODE_ENV = 'production';
+    process.env.CLIENT_ORIGIN = 'http://localhost:5173';
+    process.env.SESSION_SECRET = 'test-secret';
+
+    await expect(import('./app.js')).rejects.toThrow(
+      'CLIENT_ORIGIN must not be localhost in production',
+    );
+  });
+
+  test('requires a session secret in production', async () => {
+    vi.resetModules();
+    process.env.NODE_ENV = 'production';
+    process.env.CLIENT_ORIGIN = 'https://stagecraft.example';
+    delete process.env.SESSION_SECRET;
+
+    await expect(import('./app.js')).rejects.toThrow(
+      'SESSION_SECRET environment variable is required in production',
+    );
+  });
+
+  test('sets strict transport security in production', async () => {
+    vi.resetModules();
+    process.env.NODE_ENV = 'production';
+    process.env.CLIENT_ORIGIN = 'https://stagecraft.example';
+    process.env.SESSION_SECRET = 'test-secret';
+
+    const productionApp = (await import('./app.js')).default as unknown as typeof app;
+    const productionServer = http.createServer(productionApp);
+    let productionBaseUrl = '';
+
+    await new Promise<void>((resolve) => {
+      productionServer.listen(0, '127.0.0.1', () => {
+        const address = productionServer.address();
+        if (!address || typeof address === 'string') {
+          throw new Error('Unable to resolve production test server address');
+        }
+        productionBaseUrl = `http://127.0.0.1:${address.port}`;
+        resolve();
+      });
+    });
+
+    try {
+      const response = await fetch(`${productionBaseUrl}/health`);
+
+      expect(response.status).toBe(200);
+      expect(response.headers.get('strict-transport-security')).toBe(
+        'max-age=15552000; includeSubDomains',
+      );
+    } finally {
+      await new Promise<void>((resolve, reject) => {
+        productionServer.close((error) => {
+          if (error) reject(error);
+          else resolve();
+        });
+      });
+    }
   });
 });
 
