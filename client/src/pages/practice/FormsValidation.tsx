@@ -21,15 +21,36 @@ interface FormErrors {
   agreed?: string;
 }
 
+const REQUIRED_FIELDS: Array<keyof FormState> = [
+  'name',
+  'email',
+  'category',
+  'frequency',
+  'agreed',
+];
+const TOPIC_CATEGORIES = ['Technology', 'Design', 'Business', 'Science'] as const;
+const EMAIL_FREQUENCIES = ['Daily', 'Weekly', 'Monthly'] as const;
+
 function validate(f: FormState): FormErrors {
   const errors: FormErrors = {};
-  if (!f.name.trim() || f.name.trim().length < 2)
+  const name = f.name.trim();
+  const email = f.email.trim();
+
+  if (name.length < 2) {
     errors.name = 'Full name must be at least 2 characters.';
-  if (!f.email.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(f.email))
+  }
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
     errors.email = 'Enter a valid email address.';
-  if (!f.category) errors.category = 'Please select a category.';
-  if (!f.frequency) errors.frequency = 'Please choose a frequency.';
-  if (!f.agreed) errors.agreed = 'You must agree to the terms.';
+  }
+  if (!f.category) {
+    errors.category = 'Please select a category.';
+  }
+  if (!f.frequency) {
+    errors.frequency = 'Please choose a frequency.';
+  }
+  if (!f.agreed) {
+    errors.agreed = 'You must agree to the terms.';
+  }
   return errors;
 }
 
@@ -42,6 +63,15 @@ const INITIAL: FormState = {
   agreed: false,
 };
 
+function fieldClassName(hasError: boolean): string {
+  return [
+    'rounded-lg border px-3 py-2 text-sm focus:outline-none focus:ring-1',
+    hasError
+      ? 'border-red-400 focus:border-red-400 focus:ring-red-400'
+      : 'border-zinc-300 focus:border-indigo-500 focus:ring-indigo-500',
+  ].join(' ');
+}
+
 export function FormsValidation() {
   const [form, setForm] = useState<FormState>(INITIAL);
   const [touched, setTouched] = useState<Set<keyof FormState>>(new Set());
@@ -51,10 +81,13 @@ export function FormsValidation() {
   const isValid = Object.keys(errors).length === 0;
 
   const touch = (field: keyof FormState) => setTouched((prev) => new Set([...prev, field]));
+  const updateField = <K extends keyof FormState>(field: K, value: FormState[K]) => {
+    setForm((current) => ({ ...current, [field]: value }));
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    setTouched(new Set(['name', 'email', 'category', 'frequency', 'agreed']));
+    setTouched(new Set(REQUIRED_FIELDS));
     if (isValid) setSubmitted(true);
   };
 
@@ -107,17 +140,12 @@ export function FormsValidation() {
             id="full-name"
             type="text"
             value={form.name}
-            onChange={(e) => setForm({ ...form, name: e.target.value })}
+            onChange={(e) => updateField('name', e.target.value)}
             onBlur={() => touch('name')}
             aria-required="true"
             aria-invalid={touched.has('name') && !!errors.name}
             aria-describedby={touched.has('name') && errors.name ? 'name-error' : undefined}
-            className={[
-              'rounded-lg border px-3 py-2 text-sm focus:outline-none focus:ring-1',
-              touched.has('name') && errors.name
-                ? 'border-red-400 focus:border-red-400 focus:ring-red-400'
-                : 'border-zinc-300 focus:border-indigo-500 focus:ring-indigo-500',
-            ].join(' ')}
+            className={fieldClassName(touched.has('name') && !!errors.name)}
           />
           {touched.has('name') && errors.name && (
             <p id="name-error" role="alert" className="text-xs text-red-600">
@@ -138,17 +166,12 @@ export function FormsValidation() {
             id="email-address"
             type="email"
             value={form.email}
-            onChange={(e) => setForm({ ...form, email: e.target.value })}
+            onChange={(e) => updateField('email', e.target.value)}
             onBlur={() => touch('email')}
             aria-required="true"
             aria-invalid={touched.has('email') && !!errors.email}
             aria-describedby={touched.has('email') && errors.email ? 'email-error' : undefined}
-            className={[
-              'rounded-lg border px-3 py-2 text-sm focus:outline-none focus:ring-1',
-              touched.has('email') && errors.email
-                ? 'border-red-400 focus:border-red-400 focus:ring-red-400'
-                : 'border-zinc-300 focus:border-indigo-500 focus:ring-indigo-500',
-            ].join(' ')}
+            className={fieldClassName(touched.has('email') && !!errors.email)}
           />
           {touched.has('email') && errors.email && (
             <p id="email-error" role="alert" className="text-xs text-red-600">
@@ -168,22 +191,18 @@ export function FormsValidation() {
           <select
             id="topic-category"
             value={form.category}
-            onChange={(e) => setForm({ ...form, category: e.target.value })}
+            onChange={(e) => updateField('category', e.target.value)}
             onBlur={() => touch('category')}
             aria-required="true"
             aria-invalid={touched.has('category') && !!errors.category}
-            className={[
-              'rounded-lg border px-3 py-2 text-sm focus:outline-none focus:ring-1',
-              touched.has('category') && errors.category
-                ? 'border-red-400 focus:border-red-400 focus:ring-red-400'
-                : 'border-zinc-300 focus:border-indigo-500 focus:ring-indigo-500',
-            ].join(' ')}
+            className={fieldClassName(touched.has('category') && !!errors.category)}
           >
             <option value="">Select a category…</option>
-            <option value="technology">Technology</option>
-            <option value="design">Design</option>
-            <option value="business">Business</option>
-            <option value="science">Science</option>
+            {TOPIC_CATEGORIES.map((category) => (
+              <option key={category} value={category.toLowerCase()}>
+                {category}
+              </option>
+            ))}
           </select>
           {touched.has('category') && errors.category && (
             <p id="category-error" role="alert" className="text-xs text-red-600">
@@ -201,22 +220,26 @@ export function FormsValidation() {
             </span>
           </legend>
           <div className="mt-2 flex flex-col gap-2">
-            {(['Daily', 'Weekly', 'Monthly'] as const).map((freq) => (
-              <label key={freq} className="flex cursor-pointer items-center gap-2">
-                <input
-                  type="radio"
-                  name="frequency"
-                  value={freq.toLowerCase()}
-                  checked={form.frequency === freq.toLowerCase()}
-                  onChange={(e) => {
-                    setForm({ ...form, frequency: e.target.value });
-                    touch('frequency');
-                  }}
-                  className="accent-indigo-600"
-                />
-                <span className="text-sm text-zinc-700">{freq}</span>
-              </label>
-            ))}
+            {EMAIL_FREQUENCIES.map((frequency) => {
+              const value = frequency.toLowerCase();
+
+              return (
+                <label key={frequency} className="flex cursor-pointer items-center gap-2">
+                  <input
+                    type="radio"
+                    name="frequency"
+                    value={value}
+                    checked={form.frequency === value}
+                    onChange={(e) => {
+                      updateField('frequency', e.target.value);
+                      touch('frequency');
+                    }}
+                    className="accent-indigo-600"
+                  />
+                  <span className="text-sm text-zinc-700">{frequency}</span>
+                </label>
+              );
+            })}
           </div>
           {touched.has('frequency') && errors.frequency && (
             <p id="frequency-error" role="alert" className="mt-1 text-xs text-red-600">
@@ -234,7 +257,7 @@ export function FormsValidation() {
             id="profile-picture"
             type="file"
             accept="image/*"
-            onChange={(e) => setForm({ ...form, file: e.target.files?.[0] ?? null })}
+            onChange={(e) => updateField('file', e.target.files?.[0] ?? null)}
             className="text-sm text-zinc-600 file:mr-3 file:rounded-lg file:border-0 file:bg-indigo-50 file:px-3 file:py-1.5 file:text-xs file:font-medium file:text-indigo-700 hover:file:bg-indigo-100"
           />
           {form.file && <p className="text-xs text-zinc-400">Selected: {form.file.name}</p>}
@@ -247,7 +270,7 @@ export function FormsValidation() {
               type="checkbox"
               checked={form.agreed}
               onChange={(e) => {
-                setForm({ ...form, agreed: e.target.checked });
+                updateField('agreed', e.target.checked);
                 touch('agreed');
               }}
               aria-required="true"

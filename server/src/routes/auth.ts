@@ -1,4 +1,4 @@
-import { Router } from 'express';
+import { Router, type Request } from 'express';
 
 // Extend express-session with our custom session fields
 declare module 'express-session' {
@@ -23,6 +23,19 @@ const USERS: User[] = [
 
 const router = Router();
 
+function findSessionUser(req: Request): User | undefined {
+  return USERS.find((u) => u.id === req.session.userId);
+}
+
+function publicUser(user: User) {
+  return {
+    id: user.id,
+    username: user.username,
+    displayName: user.displayName,
+    role: user.role,
+  };
+}
+
 router.post('/login', (req, res) => {
   const { username, password } = req.body as { username: unknown; password: unknown };
   if (typeof username !== 'string' || typeof password !== 'string') {
@@ -35,26 +48,16 @@ router.post('/login', (req, res) => {
     return;
   }
   req.session.userId = user.id;
-  res.json({
-    id: user.id,
-    username: user.username,
-    displayName: user.displayName,
-    role: user.role,
-  });
+  res.json(publicUser(user));
 });
 
 router.get('/me', (req, res) => {
-  const user = USERS.find((u) => u.id === req.session.userId);
+  const user = findSessionUser(req);
   if (!user) {
     res.status(401).json({ error: 'Not authenticated' });
     return;
   }
-  res.json({
-    id: user.id,
-    username: user.username,
-    displayName: user.displayName,
-    role: user.role,
-  });
+  res.json(publicUser(user));
 });
 
 router.post('/logout', (req, res) => {
@@ -65,7 +68,7 @@ router.post('/logout', (req, res) => {
 
 // Admin-only endpoint for the storage-state lab
 router.get('/admin/stats', (req, res) => {
-  const user = USERS.find((u) => u.id === req.session.userId);
+  const user = findSessionUser(req);
   if (!user) {
     res.status(401).json({ error: 'Not authenticated' });
     return;

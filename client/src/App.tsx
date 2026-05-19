@@ -4,91 +4,110 @@ import { Shell } from './layouts/Shell';
 import { Home } from './pages/Home';
 import { LabPage } from './pages/LabPage';
 
-const AccessibleLocators = lazy(() =>
-  import('./pages/practice/AccessibleLocators').then((module) => ({
-    default: module.AccessibleLocators,
-  })),
-);
-const FormsValidation = lazy(() =>
-  import('./pages/practice/FormsValidation').then((module) => ({
-    default: module.FormsValidation,
-  })),
-);
-const AsyncUi = lazy(() =>
-  import('./pages/practice/AsyncUi').then((module) => ({ default: module.AsyncUi })),
-);
-const NetworkApi = lazy(() =>
-  import('./pages/practice/NetworkApi').then((module) => ({ default: module.NetworkApi })),
-);
-const FakeAuth = lazy(() =>
-  import('./pages/practice/FakeAuth').then((module) => ({ default: module.FakeAuth })),
-);
-const FakeAuthDashboard = lazy(() =>
-  import('./pages/practice/FakeAuthDashboard').then((module) => ({
-    default: module.FakeAuthDashboard,
-  })),
-);
-const TablesFiltering = lazy(() =>
-  import('./pages/practice/TablesFiltering').then((module) => ({
-    default: module.TablesFiltering,
-  })),
-);
-const BrowserEvents = lazy(() =>
-  import('./pages/practice/BrowserEvents').then((module) => ({ default: module.BrowserEvents })),
-);
-const FramesContexts = lazy(() =>
-  import('./pages/practice/FramesContexts').then((module) => ({ default: module.FramesContexts })),
-);
-const EmulationInput = lazy(() =>
-  import('./pages/practice/EmulationInput').then((module) => ({ default: module.EmulationInput })),
-);
-const DebuggingReporting = lazy(() =>
-  import('./pages/practice/DebuggingReporting').then((module) => ({
-    default: module.DebuggingReporting,
-  })),
-);
-const AriaSnapshots = lazy(() =>
-  import('./pages/practice/AriaSnapshots').then((module) => ({ default: module.AriaSnapshots })),
-);
-const ClockTimers = lazy(() =>
-  import('./pages/practice/ClockTimers').then((module) => ({ default: module.ClockTimers })),
-);
-const VisualRegression = lazy(() =>
-  import('./pages/practice/VisualRegression').then((module) => ({
-    default: module.VisualRegression,
-  })),
-);
-const DragAndDrop = lazy(() =>
-  import('./pages/practice/DragAndDrop').then((module) => ({ default: module.DragAndDrop })),
-);
-const MultiTab = lazy(() =>
-  import('./pages/practice/MultiTab').then((module) => ({ default: module.MultiTab })),
-);
-const MultiTabWindow = lazy(() =>
-  import('./pages/practice/MultiTabWindow').then((module) => ({ default: module.MultiTabWindow })),
-);
-const MultiTabPopup = lazy(() =>
-  import('./pages/practice/MultiTabPopup').then((module) => ({ default: module.MultiTabPopup })),
-);
-const ServiceWorkers = lazy(() =>
-  import('./pages/practice/ServiceWorkers').then((module) => ({ default: module.ServiceWorkers })),
-);
-const WebSocketInterception = lazy(() =>
-  import('./pages/practice/WebSocketInterception').then((module) => ({
-    default: module.WebSocketInterception,
-  })),
-);
-const ApiRequestContext = lazy(() =>
-  import('./pages/practice/ApiRequestContext').then((module) => ({
-    default: module.ApiRequestContext,
-  })),
-);
-const StorageState = lazy(() =>
-  import('./pages/practice/StorageState').then((module) => ({ default: module.StorageState })),
-);
-const HarRecording = lazy(() =>
-  import('./pages/practice/HarRecording').then((module) => ({ default: module.HarRecording })),
-);
+function lazyNamed<TModule extends object, TExport extends keyof TModule & string>(
+  load: () => Promise<TModule>,
+  exportName: TExport,
+) {
+  return lazy(async () => ({ default: (await load())[exportName] as ComponentType }));
+}
+
+const practiceRoutes = [
+  {
+    path: '/practice/accessible-locators',
+    Component: lazyNamed(() => import('./pages/practice/AccessibleLocators'), 'AccessibleLocators'),
+  },
+  {
+    path: '/practice/forms-validation',
+    Component: lazyNamed(() => import('./pages/practice/FormsValidation'), 'FormsValidation'),
+  },
+  {
+    path: '/practice/async-ui',
+    Component: lazyNamed(() => import('./pages/practice/AsyncUi'), 'AsyncUi'),
+  },
+  {
+    path: '/practice/network-api',
+    Component: lazyNamed(() => import('./pages/practice/NetworkApi'), 'NetworkApi'),
+  },
+  {
+    path: '/practice/fake-auth',
+    Component: lazyNamed(() => import('./pages/practice/FakeAuth'), 'FakeAuth'),
+  },
+  {
+    path: '/practice/fake-auth/dashboard',
+    Component: lazyNamed(() => import('./pages/practice/FakeAuthDashboard'), 'FakeAuthDashboard'),
+  },
+  {
+    path: '/practice/tables-filtering',
+    Component: lazyNamed(() => import('./pages/practice/TablesFiltering'), 'TablesFiltering'),
+  },
+  {
+    path: '/practice/browser-events',
+    Component: lazyNamed(() => import('./pages/practice/BrowserEvents'), 'BrowserEvents'),
+  },
+  {
+    path: '/practice/frames-contexts',
+    Component: lazyNamed(() => import('./pages/practice/FramesContexts'), 'FramesContexts'),
+  },
+  {
+    path: '/practice/emulation-input',
+    Component: lazyNamed(() => import('./pages/practice/EmulationInput'), 'EmulationInput'),
+  },
+  {
+    path: '/practice/debugging-reporting',
+    Component: lazyNamed(() => import('./pages/practice/DebuggingReporting'), 'DebuggingReporting'),
+  },
+  {
+    path: '/practice/aria-snapshots',
+    Component: lazyNamed(() => import('./pages/practice/AriaSnapshots'), 'AriaSnapshots'),
+  },
+  {
+    path: '/practice/clock-timers',
+    Component: lazyNamed(() => import('./pages/practice/ClockTimers'), 'ClockTimers'),
+  },
+  {
+    path: '/practice/visual-regression',
+    Component: lazyNamed(() => import('./pages/practice/VisualRegression'), 'VisualRegression'),
+  },
+  {
+    path: '/practice/drag-and-drop',
+    Component: lazyNamed(() => import('./pages/practice/DragAndDrop'), 'DragAndDrop'),
+  },
+  {
+    path: '/practice/multi-tab',
+    Component: lazyNamed(() => import('./pages/practice/MultiTab'), 'MultiTab'),
+  },
+  {
+    path: '/practice/multi-tab/window',
+    Component: lazyNamed(() => import('./pages/practice/MultiTabWindow'), 'MultiTabWindow'),
+  },
+  {
+    path: '/practice/multi-tab/popup',
+    Component: lazyNamed(() => import('./pages/practice/MultiTabPopup'), 'MultiTabPopup'),
+  },
+  {
+    path: '/practice/service-workers',
+    Component: lazyNamed(() => import('./pages/practice/ServiceWorkers'), 'ServiceWorkers'),
+  },
+  {
+    path: '/practice/websocket-interception',
+    Component: lazyNamed(
+      () => import('./pages/practice/WebSocketInterception'),
+      'WebSocketInterception',
+    ),
+  },
+  {
+    path: '/practice/api-request-context',
+    Component: lazyNamed(() => import('./pages/practice/ApiRequestContext'), 'ApiRequestContext'),
+  },
+  {
+    path: '/practice/storage-state',
+    Component: lazyNamed(() => import('./pages/practice/StorageState'), 'StorageState'),
+  },
+  {
+    path: '/practice/har-recording',
+    Component: lazyNamed(() => import('./pages/practice/HarRecording'), 'HarRecording'),
+  },
+];
 
 function lazyElement(Component: ComponentType) {
   return (
@@ -109,35 +128,9 @@ export default function App() {
     <Routes>
       <Route element={<Shell />}>
         <Route index element={<Home />} />
-        {/* Ready labs */}
-        <Route path="/practice/accessible-locators" element={lazyElement(AccessibleLocators)} />
-        <Route path="/practice/forms-validation" element={lazyElement(FormsValidation)} />
-        <Route path="/practice/async-ui" element={lazyElement(AsyncUi)} />
-        <Route path="/practice/network-api" element={lazyElement(NetworkApi)} />
-        <Route path="/practice/fake-auth" element={lazyElement(FakeAuth)} />
-        <Route path="/practice/fake-auth/dashboard" element={lazyElement(FakeAuthDashboard)} />
-        {/* Newly implemented labs */}
-        <Route path="/practice/tables-filtering" element={lazyElement(TablesFiltering)} />
-        <Route path="/practice/browser-events" element={lazyElement(BrowserEvents)} />
-        <Route path="/practice/frames-contexts" element={lazyElement(FramesContexts)} />
-        <Route path="/practice/emulation-input" element={lazyElement(EmulationInput)} />
-        <Route path="/practice/debugging-reporting" element={lazyElement(DebuggingReporting)} />
-        <Route path="/practice/aria-snapshots" element={lazyElement(AriaSnapshots)} />
-        <Route path="/practice/clock-timers" element={lazyElement(ClockTimers)} />
-        <Route path="/practice/visual-regression" element={lazyElement(VisualRegression)} />
-        <Route path="/practice/drag-and-drop" element={lazyElement(DragAndDrop)} />
-        <Route path="/practice/multi-tab" element={lazyElement(MultiTab)} />
-        <Route path="/practice/multi-tab/window" element={lazyElement(MultiTabWindow)} />
-        <Route path="/practice/multi-tab/popup" element={lazyElement(MultiTabPopup)} />
-        <Route path="/practice/service-workers" element={lazyElement(ServiceWorkers)} />
-        <Route
-          path="/practice/websocket-interception"
-          element={lazyElement(WebSocketInterception)}
-        />
-        <Route path="/practice/api-request-context" element={lazyElement(ApiRequestContext)} />
-        <Route path="/practice/storage-state" element={lazyElement(StorageState)} />
-        <Route path="/practice/har-recording" element={lazyElement(HarRecording)} />
-        {/* Coming-soon catch-all */}
+        {practiceRoutes.map(({ path, Component }) => (
+          <Route key={path} path={path} element={lazyElement(Component)} />
+        ))}
         <Route path="/practice/:slug" element={<LabPage />} />
       </Route>
     </Routes>
