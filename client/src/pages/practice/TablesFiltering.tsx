@@ -211,6 +211,40 @@ const statusColor: Record<Employee['status'], string> = {
   Terminated: 'bg-red-50 text-red-600',
 };
 
+function SortableHeader({
+  col,
+  label,
+  ariaName,
+  sortKey,
+  sortDir,
+  onSort,
+}: {
+  col: SortKey;
+  label: string;
+  ariaName: string;
+  sortKey: SortKey;
+  sortDir: SortDir;
+  onSort: (col: SortKey) => void;
+}) {
+  const isActive = sortKey === col;
+  const nextDir = isActive && sortDir === 'asc' ? 'descending' : 'ascending';
+  return (
+    <button
+      type="button"
+      onClick={() => onSort(col)}
+      className="font-semibold text-zinc-700 hover:text-indigo-700"
+      aria-label={`Sort by ${ariaName} ${nextDir}`}
+    >
+      {label}
+      {isActive && (
+        <span aria-hidden="true" className="ml-1">
+          {sortDir === 'asc' ? '▲' : '▼'}
+        </span>
+      )}
+    </button>
+  );
+}
+
 export function TablesFiltering() {
   const [query, setQuery] = useState('');
   const [dept, setDept] = useState('All');
@@ -218,11 +252,11 @@ export function TablesFiltering() {
   const [sortDir, setSortDir] = useState<SortDir>('asc');
   const [page, setPage] = useState(1);
   const [actionRow, setActionRow] = useState<number | null>(null);
-  const [deleted, setDeleted] = useState<number[]>([]);
+  const [deleted, setDeleted] = useState<Set<number>>(() => new Set());
   const [notification, setNotification] = useState<string | null>(null);
 
   const filtered = useMemo(() => {
-    let rows = EMPLOYEES.filter((e) => !deleted.includes(e.id));
+    let rows = EMPLOYEES.filter((e) => !deleted.has(e.id));
     if (query) {
       const q = query.toLowerCase();
       rows = rows.filter(
@@ -253,39 +287,11 @@ export function TablesFiltering() {
   };
 
   const handleDelete = (id: number) => {
-    setDeleted((prev) => [...prev, id]);
+    setDeleted((prev) => new Set([...prev, id]));
     setActionRow(null);
     const emp = EMPLOYEES.find((e) => e.id === id);
     setNotification(`${emp?.name ?? 'Employee'} removed.`);
     setTimeout(() => setNotification(null), 2500);
-  };
-
-  const SortableHeader = ({
-    col,
-    label,
-    ariaName,
-  }: {
-    col: SortKey;
-    label: string;
-    ariaName: string;
-  }) => {
-    const isActive = sortKey === col;
-    const nextDir = isActive && sortDir === 'asc' ? 'descending' : 'ascending';
-    return (
-      <button
-        type="button"
-        onClick={() => handleSort(col)}
-        className="font-semibold text-zinc-700 hover:text-indigo-700"
-        aria-label={`Sort by ${ariaName} ${nextDir}`}
-      >
-        {label}
-        {isActive && (
-          <span aria-hidden="true" className="ml-1">
-            {sortDir === 'asc' ? '▲' : '▼'}
-          </span>
-        )}
-      </button>
-    );
   };
 
   return (
@@ -360,17 +366,45 @@ export function TablesFiltering() {
           <thead className="border-b border-zinc-200 bg-zinc-50">
             <tr>
               <th className="px-4 py-3 text-left">
-                <SortableHeader col="name" label="Name" ariaName="name" />
+                <SortableHeader
+                  col="name"
+                  label="Name"
+                  ariaName="name"
+                  sortKey={sortKey}
+                  sortDir={sortDir}
+                  onSort={handleSort}
+                />
               </th>
               <th className="px-4 py-3 text-left">
-                <SortableHeader col="department" label="Department" ariaName="department" />
+                <SortableHeader
+                  col="department"
+                  label="Department"
+                  ariaName="department"
+                  sortKey={sortKey}
+                  sortDir={sortDir}
+                  onSort={handleSort}
+                />
               </th>
               <th className="px-4 py-3 text-left font-semibold text-zinc-700">Role</th>
               <th className="px-4 py-3 text-left">
-                <SortableHeader col="status" label="Status" ariaName="status" />
+                <SortableHeader
+                  col="status"
+                  label="Status"
+                  ariaName="status"
+                  sortKey={sortKey}
+                  sortDir={sortDir}
+                  onSort={handleSort}
+                />
               </th>
               <th className="px-4 py-3 text-left">
-                <SortableHeader col="joined" label="Joined" ariaName="joined date" />
+                <SortableHeader
+                  col="joined"
+                  label="Joined"
+                  ariaName="joined date"
+                  sortKey={sortKey}
+                  sortDir={sortDir}
+                  onSort={handleSort}
+                />
               </th>
               <th className="px-4 py-3 text-left font-semibold text-zinc-700">Actions</th>
             </tr>

@@ -1,5 +1,6 @@
 import path from 'node:path';
 import express from 'express';
+import expressStaticGzip from 'express-static-gzip';
 import session from 'express-session';
 import cors from 'cors';
 import swaggerUi, { type JsonObject } from 'swagger-ui-express';
@@ -143,8 +144,32 @@ app.use(
 if (isProduction) {
   // __dirname is server/dist at runtime; client/dist sits two levels up from there
   const clientDist = path.resolve(__dirname, '../../client/dist');
-  app.use(express.static(clientDist));
+
+  // Vite outputs content-hashed filenames under /assets/ — safe to cache forever.
+  // express-static-gzip serves the pre-compressed .br/.gz siblings written by vite-plugin-compression2.
+  app.use(
+    '/assets',
+    expressStaticGzip(path.join(clientDist, 'assets'), {
+      enableBrotli: true,
+      orderPreference: ['br', 'gz'],
+      serveStatic: { maxAge: '1y', immutable: true },
+    }),
+  );
+
+  // Everything else (index.html, favicon, manifest) must not be cached so
+  // new deployments are picked up immediately.
+  app.use(
+    express.static(clientDist, {
+      setHeaders(res, filePath) {
+        if (filePath.endsWith('.html')) {
+          res.setHeader('Cache-Control', 'no-cache');
+        }
+      },
+    }),
+  );
+
   app.get(/^(?!\/api\/).*/, (_req, res) => {
+    res.setHeader('Cache-Control', 'no-cache');
     res.sendFile(path.join(clientDist, 'index.html'));
   });
 }
