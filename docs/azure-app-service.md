@@ -21,6 +21,21 @@ The script:
 
 The script only creates a local ZIP. It does not call `az` or deploy anything.
 
+## Automatic Deploys from GitHub
+
+The GitHub Actions workflow deploys to Azure automatically after a successful push to `main`. The deploy job waits for the quality gates, Playwright E2E tests, and production Docker image build to pass before publishing the Azure ZIP package.
+
+Create these repository secrets in GitHub before relying on automatic deploys:
+
+| Secret                         | Value                                                               |
+| ------------------------------ | ------------------------------------------------------------------- |
+| `AZURE_WEBAPP_NAME`            | The Azure App Service app name, without `.azurewebsites.net`.       |
+| `AZURE_WEBAPP_PUBLISH_PROFILE` | The full publish profile XML downloaded from the Azure App Service. |
+
+In the Azure portal, open the App Service and use **Get publish profile**. Copy the downloaded file contents into the `AZURE_WEBAPP_PUBLISH_PROFILE` repository secret.
+
+After those secrets exist, every push to `main` will build `.azure-publish/stagecraft-appservice.zip` and deploy it with `azure/webapps-deploy`.
+
 ## Create Azure Resources Later
 
 Choose names first:

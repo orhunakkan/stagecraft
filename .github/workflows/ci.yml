@@ -130,3 +130,36 @@ jobs:
 
       - name: Build Docker image
         run: docker build --pull --target runtime --tag stagecraft:${{ github.sha }} .
+
+  deploy-azure:
+    name: Deploy to Azure App Service
+    runs-on: windows-latest
+    timeout-minutes: 20
+    needs:
+      - e2e
+      - production-image
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    environment:
+      name: production
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+          cache-dependency-path: package-lock.json
+
+      - name: Build Azure App Service package
+        shell: pwsh
+        run: npm run package:azure
+
+      - name: Deploy ZIP package
+        uses: azure/webapps-deploy@v3
+        with:
+          app-name: ${{ secrets.AZURE_WEBAPP_NAME }}
+          publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
+          package: .azure-publish/stagecraft-appservice.zip
