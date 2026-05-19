@@ -1,4 +1,12 @@
-import { test, expect } from '@playwright/test';
+import { test, expect, type Page } from '@playwright/test';
+
+async function fillValidForm(page: Page) {
+  await page.getByLabel(/Full name/).fill('Alice Smith');
+  await page.getByLabel(/Email address/).fill('alice@example.com');
+  await page.getByLabel(/Topic category/).selectOption('technology');
+  await page.getByRole('radio', { name: 'Weekly' }).check();
+  await page.getByRole('checkbox').check();
+}
 
 test.describe('Forms & Validation lab', () => {
   test.beforeEach(async ({ page }) => {
@@ -22,31 +30,19 @@ test.describe('Forms & Validation lab', () => {
   });
 
   test('Subscribe enables once all required fields are filled', async ({ page }) => {
-    await page.getByLabel(/Full name/).fill('Alice Smith');
-    await page.getByLabel(/Email address/).fill('alice@example.com');
-    await page.getByLabel(/Topic category/).selectOption('technology');
-    await page.getByRole('radio', { name: 'Weekly' }).check();
-    await page.getByRole('checkbox').check();
+    await fillValidForm(page);
     await expect(page.getByRole('button', { name: 'Subscribe' })).toBeEnabled();
   });
 
   test('submitting a valid form shows the success state', async ({ page }) => {
-    await page.getByLabel(/Full name/).fill('Alice Smith');
-    await page.getByLabel(/Email address/).fill('alice@example.com');
-    await page.getByLabel(/Topic category/).selectOption('technology');
-    await page.getByRole('radio', { name: 'Weekly' }).check();
-    await page.getByRole('checkbox').check();
+    await fillValidForm(page);
     await page.getByRole('button', { name: 'Subscribe' }).click();
     await expect(page.getByRole('alert')).toContainText('Subscribed!');
     await expect(page.getByRole('alert')).toContainText('Alice Smith');
   });
 
   test('Reset form returns to the empty form', async ({ page }) => {
-    await page.getByLabel(/Full name/).fill('Alice Smith');
-    await page.getByLabel(/Email address/).fill('alice@example.com');
-    await page.getByLabel(/Topic category/).selectOption('technology');
-    await page.getByRole('radio', { name: 'Weekly' }).check();
-    await page.getByRole('checkbox').check();
+    await fillValidForm(page);
     await page.getByRole('button', { name: 'Subscribe' }).click();
     await page.getByRole('button', { name: 'Reset form' }).click();
     await expect(page.getByRole('form', { name: 'Newsletter signup form' })).toBeVisible();
