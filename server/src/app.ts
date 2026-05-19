@@ -168,7 +168,16 @@ if (isProduction) {
     }),
   );
 
-  app.get(/^(?!\/api\/).*/, (_req, res) => {
+  app.use((req, res, next) => {
+    if (
+      !['GET', 'HEAD'].includes(req.method) ||
+      req.path === '/api' ||
+      req.path.startsWith('/api/')
+    ) {
+      next();
+      return;
+    }
+
     res.setHeader('Cache-Control', 'no-cache');
     res.sendFile(path.join(clientDist, 'index.html'));
   });

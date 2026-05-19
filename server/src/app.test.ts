@@ -1,4 +1,6 @@
 import http from 'node:http';
+import fs from 'node:fs/promises';
+import path from 'node:path';
 import { afterAll, afterEach, beforeAll, describe, expect, test, vi } from 'vitest';
 import app from './app';
 
@@ -93,6 +95,49 @@ describe('API documentation', () => {
 
 describe('production startup configuration', () => {
   const originalEnv = { ...process.env };
+  const clientDist = path.resolve(process.cwd(), '../client/dist');
+
+  async function writeProductionIndex() {
+    await fs.mkdir(clientDist, { recursive: true });
+    await fs.writeFile(
+      path.join(clientDist, 'index.html'),
+      '<!doctype html><html><body>Stagecraft production shell</body></html>',
+    );
+  }
+
+  async function startProductionApp() {
+    vi.resetModules();
+    process.env.NODE_ENV = 'production';
+    process.env.CLIENT_ORIGIN = 'https://stagecraft.example';
+    process.env.SESSION_SECRET = 'test-secret';
+    await writeProductionIndex();
+
+    const productionApp = (await import('./app.js')).default as unknown as typeof app;
+    const productionServer = http.createServer(productionApp);
+    let productionBaseUrl = '';
+
+    await new Promise<void>((resolve) => {
+      productionServer.listen(0, '127.0.0.1', () => {
+        const address = productionServer.address();
+        if (!address || typeof address === 'string') {
+          throw new Error('Unable to resolve production test server address');
+        }
+        productionBaseUrl = `http://127.0.0.1:${address.port}`;
+        resolve();
+      });
+    });
+
+    return { productionBaseUrl, productionServer };
+  }
+
+  async function closeServer(serverToClose: http.Server) {
+    await new Promise<void>((resolve, reject) => {
+      serverToClose.close((error) => {
+        if (error) reject(error);
+        else resolve();
+      });
+    });
+  }
 
   afterEach(() => {
     process.env = { ...originalEnv };
@@ -122,25 +167,7 @@ describe('production startup configuration', () => {
   });
 
   test('sets strict transport security in production', async () => {
-    vi.resetModules();
-    process.env.NODE_ENV = 'production';
-    process.env.CLIENT_ORIGIN = 'https://stagecraft.example';
-    process.env.SESSION_SECRET = 'test-secret';
-
-    const productionApp = (await import('./app.js')).default as unknown as typeof app;
-    const productionServer = http.createServer(productionApp);
-    let productionBaseUrl = '';
-
-    await new Promise<void>((resolve) => {
-      productionServer.listen(0, '127.0.0.1', () => {
-        const address = productionServer.address();
-        if (!address || typeof address === 'string') {
-          throw new Error('Unable to resolve production test server address');
-        }
-        productionBaseUrl = `http://127.0.0.1:${address.port}`;
-        resolve();
-      });
-    });
+    const { productionBaseUrl, productionServer } = await startProductionApp();
 
     try {
       const response = await fetch(`${productionBaseUrl}/health`);
@@ -150,12 +177,39 @@ describe('production startup configuration', () => {
         'max-age=15552000; includeSubDomains',
       );
     } finally {
-      await new Promise<void>((resolve, reject) => {
-        productionServer.close((error) => {
-          if (error) reject(error);
-          else resolve();
-        });
+      await closeServer(productionServer);
+    }
+  });
+
+  test('serves the SPA shell for production client routes', async () => {
+    const { productionBaseUrl, productionServer } = await startProductionApp();
+
+    try {
+      const response = await fetch(`${productionBaseUrl}/practice/network-api`);
+      const html = await response.text();
+
+      expect(response.status).toBe(200);
+      expect(response.headers.get('cache-control')).toBe('no-cache');
+      expect(response.headers.get('content-type')).toContain('text/html');
+      expect(html).toContain('Stagecraft production shell');
+    } finally {
+      await closeServer(productionServer);
+    }
+  });
+
+  test('does not serve the SPA shell for API or non-GET requests', async () => {
+    const { productionBaseUrl, productionServer } = await startProductionApp();
+
+    try {
+      const apiResponse = await fetch(`${productionBaseUrl}/api/missing`);
+      const postResponse = await fetch(`${productionBaseUrl}/practice/network-api`, {
+        method: 'POST',
       });
+
+      expect(apiResponse.status).toBe(404);
+      expect(postResponse.status).toBe(404);
+    } finally {
+      await closeServer(productionServer);
     }
   });
 });
