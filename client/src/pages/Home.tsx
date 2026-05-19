@@ -18,7 +18,7 @@ export function Home() {
       </div>
 
       <section className="mb-10" aria-label="Ready labs">
-        <h2 className="mb-4 text-xs font-semibold uppercase tracking-widest text-zinc-400">
+        <h2 className="mb-4 text-xs font-semibold uppercase tracking-widest text-zinc-500">
           Ready — {readyLabs.length} labs
         </h2>
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
@@ -29,7 +29,7 @@ export function Home() {
       </section>
 
       <section aria-label="Coming soon labs">
-        <h2 className="mb-4 text-xs font-semibold uppercase tracking-widest text-zinc-400">
+        <h2 className="mb-4 text-xs font-semibold uppercase tracking-widest text-zinc-500">
           Coming soon — {comingSoonLabs.length} labs
         </h2>
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">

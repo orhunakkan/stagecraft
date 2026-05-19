@@ -30,7 +30,7 @@ export function LabCard({ lab, completed = false }: LabCardProps) {
           <span
             className={[
               'rounded-full px-2 py-0.5 text-xs font-medium',
-              isReady ? 'bg-indigo-50 text-indigo-700' : 'bg-zinc-100 text-zinc-400',
+              isReady ? 'bg-indigo-50 text-indigo-700' : 'bg-zinc-100 text-zinc-600',
             ].join(' ')}
           >
             {isReady ? 'Ready' : 'Soon'}
@@ -50,7 +50,7 @@ export function LabCard({ lab, completed = false }: LabCardProps) {
           </span>
         ))}
         {lab.apis.length > 3 && (
-          <span className="rounded bg-zinc-100 px-1.5 py-0.5 font-mono text-[10px] text-zinc-400 leading-normal">
+          <span className="rounded bg-zinc-100 px-1.5 py-0.5 font-mono text-[10px] text-zinc-600 leading-normal">
             +{lab.apis.length - 3}
           </span>
         )}
