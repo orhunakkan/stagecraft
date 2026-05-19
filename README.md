@@ -2,6 +2,8 @@
 
 Stagecraft is a hands-on Playwright practice application for developers who already know JavaScript or TypeScript and want realistic browser automation scenarios. It provides 20 interactive labs that learners can open in the browser, explore manually, and test from a separate Playwright project.
 
+Each lab has a dedicated route under `/practice/<slug>` (e.g. `/practice/network-api`). All 20 lab components are loaded lazily and wrapped in an `ErrorBoundary`. An unknown slug redirects to a "coming soon" page via a catch-all route.
+
 The app intentionally does not ship answer tests for learners. Its job is to provide stable, realistic UI and API surfaces for practicing locators, network interception, storage state, WebSockets, visual assertions, service workers, multi-tab flows, and other Playwright APIs.
 
 ## Contents
@@ -27,12 +29,14 @@ The app intentionally does not ship answer tests for learners. Its job is to pro
 
 | Area                 | Technology                                           |
 | -------------------- | ---------------------------------------------------- |
-| Frontend             | React 18, TypeScript, React Router                   |
-| Frontend build       | Vite 6                                               |
+| Frontend             | React 19, TypeScript, React Router v7                |
+| Frontend build       | Vite 8                                               |
 | Styling              | Tailwind CSS 4 via `@tailwindcss/vite`               |
 | Backend              | Express 5, TypeScript                                |
 | Sessions             | `express-session`                                    |
 | WebSockets           | `ws`                                                 |
+| Logging              | `pino` + `pino-http`                                 |
+| Input validation     | `zod`                                                |
 | Unit/component tests | Vitest, React Testing Library, jsdom                 |
 | End-to-end tests     | Playwright                                           |
 | Package manager      | npm workspaces                                       |

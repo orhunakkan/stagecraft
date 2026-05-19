@@ -58,15 +58,15 @@ describe('AccessibleLocators', () => {
     render(<AccessibleLocators />);
 
     const wishlistButtons = screen.getAllByRole('button', { name: 'Add to wishlist' });
-    fireEvent.click(wishlistButtons[0]);
+    fireEvent.click(wishlistButtons[0]!);
 
     expect(screen.getByRole('alert')).toHaveTextContent('1 book in your wishlist');
     expect(wishlistButtons[0]).toHaveAttribute('aria-pressed', 'true');
 
-    fireEvent.click(wishlistButtons[1]);
+    fireEvent.click(wishlistButtons[1]!);
     expect(screen.getByRole('alert')).toHaveTextContent('2 books in your wishlist');
 
-    fireEvent.click(wishlistButtons[0]);
+    fireEvent.click(wishlistButtons[0]!);
     expect(screen.getByRole('alert')).toHaveTextContent('1 book in your wishlist');
   });
 });
@@ -361,7 +361,7 @@ describe('WebSocketInterception', () => {
     fireEvent.click(screen.getByTestId('ws-connect'));
     expect(FakeWebSocket.instances).toHaveLength(1);
 
-    const fake = FakeWebSocket.instances[0];
+    const fake = FakeWebSocket.instances[0]!;
     act(() => fake.triggerOpen());
 
     expect(screen.getByTestId('ws-status')).toHaveTextContent('connected');
@@ -380,7 +380,7 @@ describe('WebSocketInterception', () => {
     render(<WebSocketInterception />);
 
     fireEvent.click(screen.getByTestId('ws-connect'));
-    const fake = FakeWebSocket.instances[0];
+    const fake = FakeWebSocket.instances[0]!;
     act(() => fake.triggerOpen());
     act(() => fake.triggerMessage('echo: hello'));
 
@@ -391,7 +391,7 @@ describe('WebSocketInterception', () => {
     render(<WebSocketInterception />);
 
     fireEvent.click(screen.getByTestId('ws-connect'));
-    const fake = FakeWebSocket.instances[0];
+    const fake = FakeWebSocket.instances[0]!;
     act(() => fake.triggerOpen());
 
     act(() => {
@@ -407,7 +407,7 @@ describe('WebSocketInterception', () => {
     render(<WebSocketInterception />);
 
     fireEvent.click(screen.getByTestId('ws-connect'));
-    const fake = FakeWebSocket.instances[0];
+    const fake = FakeWebSocket.instances[0]!;
     act(() => fake.triggerOpen());
 
     fireEvent.change(screen.getByLabelText('Message to send'), { target: { value: '   ' } });

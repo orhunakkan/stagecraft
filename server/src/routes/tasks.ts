@@ -1,4 +1,5 @@
 import { Router } from 'express';
+import { CreateTaskSchema, UpdateTaskSchema } from '../lib/schemas';
 
 interface Task {
   id: number;
@@ -7,7 +8,7 @@ interface Task {
   createdAt: string;
 }
 
-let tasks: Task[] = [
+const tasks: Task[] = [
   { id: 1, title: 'Write a Playwright test', done: false, createdAt: new Date().toISOString() },
   { id: 2, title: 'Use the request fixture', done: false, createdAt: new Date().toISOString() },
   {
@@ -26,14 +27,14 @@ router.get('/', (_req, res) => {
 });
 
 router.post('/', (req, res) => {
-  const { title } = req.body as { title: unknown };
-  if (typeof title !== 'string' || !title.trim()) {
-    res.status(400).json({ error: 'title is required' });
+  const result = CreateTaskSchema.safeParse(req.body);
+  if (!result.success) {
+    res.status(400).json({ error: result.error.issues[0]?.message ?? 'title is required' });
     return;
   }
   const task: Task = {
     id: nextId++,
-    title: title.trim(),
+    title: result.data.title,
     done: false,
     createdAt: new Date().toISOString(),
   };
@@ -48,21 +49,13 @@ router.put('/:id', (req, res) => {
     res.status(404).json({ error: 'Task not found' });
     return;
   }
-  const { title, done } = req.body as { title?: unknown; done?: unknown };
-  if (title !== undefined) {
-    if (typeof title !== 'string' || !title.trim()) {
-      res.status(400).json({ error: 'title must be a non-empty string' });
-      return;
-    }
-    task.title = title.trim();
+  const result = UpdateTaskSchema.safeParse(req.body);
+  if (!result.success) {
+    res.status(400).json({ error: result.error.issues[0]?.message ?? 'invalid request' });
+    return;
   }
-  if (done !== undefined) {
-    if (typeof done !== 'boolean') {
-      res.status(400).json({ error: 'done must be a boolean' });
-      return;
-    }
-    task.done = done;
-  }
+  if (result.data.title !== undefined) task.title = result.data.title;
+  if (result.data.done !== undefined) task.done = result.data.done;
   res.json(task);
 });
 

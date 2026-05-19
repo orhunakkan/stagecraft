@@ -10,8 +10,9 @@
     "test": "vitest",
     "test:run": "vitest run",
     "test:coverage": "vitest run --coverage",
-    "lint": "tsc --noEmit",
-    "typecheck": "tsc --noEmit"
+    "lint": "eslint src",
+    "typecheck": "tsc --noEmit",
+    "analyze": "ANALYZE=true vite build"
   },
   "dependencies": {
     "react": "^19.2.6",
@@ -26,6 +27,7 @@
     "@types/react-dom": "^19.2.3",
     "@vitejs/plugin-react": "^6.0.2",
     "jsdom": "^29.1.1",
+    "rollup-plugin-visualizer": "^7.0.1",
     "tailwindcss": "^4.3.0",
     "typescript": "^6.0.3",
     "vite": "^8.0.13",

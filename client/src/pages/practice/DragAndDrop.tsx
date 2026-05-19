@@ -64,7 +64,7 @@ function KanbanBoard() {
       const to = next.find((c) => c.id === toColId)!;
       const cardIdx = from.cards.findIndex((c) => c.id === cardId);
       const [card] = from.cards.splice(cardIdx, 1);
-      to.cards.push(card);
+      if (card) to.cards.push(card);
       return next;
     });
     dragCard.current = null;
@@ -164,7 +164,7 @@ function SortableList() {
     if (dragIdx.current === null || dragIdx.current === toIdx) return;
     const next = [...items];
     const [item] = next.splice(dragIdx.current, 1);
-    next.splice(toIdx, 0, item);
+    if (item !== undefined) next.splice(toIdx, 0, item);
     setItems(next);
     dragIdx.current = null;
   };

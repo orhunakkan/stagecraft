@@ -9,3 +9,16 @@ services:
       # Set SESSION_SECRET in a .env file or via the host environment.
       # Never commit a real secret here.
       SESSION_SECRET: ${SESSION_SECRET:?SESSION_SECRET is required}
+    restart: unless-stopped
+    healthcheck:
+      test:
+        [
+          'CMD',
+          'node',
+          '-e',
+          "fetch('http://localhost:3001/ready').then(r=>r.ok||process.exit(1)).catch(()=>process.exit(1))",
+        ]
+      interval: 30s
+      timeout: 5s
+      start_period: 10s
+      retries: 3

@@ -43,3 +43,22 @@ test('other slugs are not affected by a toggle', () => {
   expect(result.current.isCompleted('async-ui')).toBe(false);
   expect(result.current.isCompleted('network-api')).toBe(true);
 });
+
+test('syncs state when another tab writes to localStorage (storage event)', () => {
+  const { result } = renderHook(() => useLabProgress());
+  expect(result.current.isCompleted('clock-timers')).toBe(false);
+
+  // Simulate another tab writing to localStorage and firing a storage event
+  act(() => {
+    localStorage.setItem('stagecraft:completed', JSON.stringify(['clock-timers']));
+    window.dispatchEvent(
+      new StorageEvent('storage', {
+        key: 'stagecraft:completed',
+        newValue: JSON.stringify(['clock-timers']),
+        storageArea: localStorage,
+      }),
+    );
+  });
+
+  expect(result.current.isCompleted('clock-timers')).toBe(true);
+});

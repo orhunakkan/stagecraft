@@ -1,4 +1,4 @@
-import { useState, useEffect, useLayoutEffect, useRef } from 'react';
+import { useState, useLayoutEffect, useRef } from 'react';
 import { LabHeader } from '../../components/LabHeader';
 import { labs } from '../../labs';
 
@@ -45,7 +45,7 @@ export function EmulationInput() {
         setSelectedIdx((i) => Math.max(i - 1, 0));
       } else if (e.key === 'Enter') {
         e.preventDefault();
-        setLastCommand(COMMANDS[selectedIdx].label);
+        setLastCommand(COMMANDS[selectedIdx]?.label ?? null);
         setPaletteOpen(false);
       }
     };

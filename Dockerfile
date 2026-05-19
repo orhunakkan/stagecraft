@@ -1,6 +1,6 @@
 # ---- build stage -------------------------------------------------------
 # Install all deps and compile both workspaces.
-FROM node:22-alpine AS builder
+FROM node:22-alpine@sha256:968df39aedcea65eeb078fb336ed7191baf48f972b4479711397108be0966920 AS builder
 WORKDIR /app
 
 # Copy workspace manifests first so Docker can cache the install layer.
@@ -19,7 +19,7 @@ RUN npm run build
 
 # ---- runtime stage -----------------------------------------------------
 # Lean production image: only production deps + compiled artefacts.
-FROM node:22-alpine AS runtime
+FROM node:22-alpine@sha256:968df39aedcea65eeb078fb336ed7191baf48f972b4479711397108be0966920 AS runtime
 WORKDIR /app
 ENV NODE_ENV=production
 
@@ -36,4 +36,6 @@ COPY --from=builder --chown=node:node /app/server/dist ./server/dist
 USER node
 
 EXPOSE 3001
+HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
+  CMD node -e "fetch('http://localhost:3001/ready').then(r=>r.ok||process.exit(1)).catch(()=>process.exit(1))"
 CMD ["node", "server/dist/index.js"]

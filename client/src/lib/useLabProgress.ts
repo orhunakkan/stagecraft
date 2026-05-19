@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 
 const STORAGE_KEY = 'stagecraft:completed';
 
@@ -17,6 +17,17 @@ function save(slugs: Set<string>): void {
 
 export function useLabProgress() {
   const [completed, setCompleted] = useState<Set<string>>(load);
+
+  // Sync across tabs: when another tab writes to localStorage, update state
+  useEffect(() => {
+    const handler = (e: StorageEvent) => {
+      if (e.key === STORAGE_KEY) {
+        setCompleted(load());
+      }
+    };
+    window.addEventListener('storage', handler);
+    return () => window.removeEventListener('storage', handler);
+  }, []);
 
   const toggle = useCallback((slug: string) => {
     setCompleted((prev) => {

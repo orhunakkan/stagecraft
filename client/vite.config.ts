@@ -2,6 +2,7 @@ import { defineConfig } from 'vitest/config';
 import react from '@vitejs/plugin-react';
 import tailwindcss from '@tailwindcss/vite';
 import compression from 'vite-plugin-compression2';
+import { visualizer } from 'rollup-plugin-visualizer';
 
 export default defineConfig({
   plugins: [
@@ -9,6 +10,7 @@ export default defineConfig({
     tailwindcss(),
     compression({ algorithms: ['brotliCompress'], exclude: [/\.(br|gz)$/] }),
     compression({ algorithms: ['gzip'], exclude: [/\.(br|gz)$/] }),
+    ...(process.env['ANALYZE'] ? [visualizer({ open: true, filename: 'dist/stats.html' })] : []),
   ],
   server: {
     port: 5173,
@@ -20,6 +22,9 @@ export default defineConfig({
       },
     },
   },
+  build: {
+    chunkSizeWarningLimit: 500,
+  },
   test: {
     environment: 'jsdom',
     globals: true,
@@ -30,10 +35,10 @@ export default defineConfig({
       include: ['src/**/*.{ts,tsx}'],
       exclude: ['src/main.tsx'],
       thresholds: {
-        statements: 5,
-        branches: 25,
-        functions: 12,
-        lines: 5,
+        statements: 50,
+        branches: 45,
+        functions: 50,
+        lines: 50,
       },
     },
   },

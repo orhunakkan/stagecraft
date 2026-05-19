@@ -33,6 +33,23 @@ export const openApiDocument = {
         },
       },
     },
+    '/ready': {
+      get: {
+        tags: ['Health'],
+        summary: 'Check server readiness',
+        operationId: 'getReady',
+        responses: {
+          '200': {
+            description: 'Server is ready to accept traffic.',
+            content: {
+              'application/json': {
+                schema: { $ref: '#/components/schemas/ReadyResponse' },
+              },
+            },
+          },
+        },
+      },
+    },
     '/api/auth/login': {
       post: {
         tags: ['Auth'],
@@ -370,6 +387,13 @@ export const openApiDocument = {
         required: ['ok'],
         properties: {
           ok: { type: 'boolean', example: true },
+        },
+      },
+      ReadyResponse: {
+        type: 'object',
+        required: ['ready'],
+        properties: {
+          ready: { type: 'boolean', example: true },
         },
       },
       ErrorResponse: {

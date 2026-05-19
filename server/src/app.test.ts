@@ -61,6 +61,15 @@ describe('health endpoint', () => {
   });
 });
 
+describe('ready endpoint', () => {
+  test('reports the server is ready', async () => {
+    const { response, body } = await json<{ ready: boolean }>('/ready');
+
+    expect(response.status).toBe(200);
+    expect(body).toEqual({ ready: true });
+  });
+});
+
 describe('API documentation', () => {
   test('serves the OpenAPI document', async () => {
     const { response, body } = await json<{

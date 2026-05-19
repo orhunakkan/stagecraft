@@ -4,7 +4,7 @@ import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { LabCard } from '../src/components/LabCard';
 import { ComingSoon } from '../src/pages/practice/ComingSoon';
 import { Home } from '../src/pages/Home';
-import { LabPage } from '../src/pages/LabPage';
+import { LabFallback } from '../src/pages/LabFallback';
 import { Shell } from '../src/layouts/Shell';
 import { labs, type Lab } from '../src/labs';
 
@@ -154,12 +154,12 @@ describe('Shell', () => {
   });
 });
 
-describe('LabPage routing fallback', () => {
+describe('LabFallback routing fallback', () => {
   test('redirects to home when the slug is unknown', () => {
     renderWithRouter(
       <Routes>
         <Route index element={<p>home landing</p>} />
-        <Route path="/practice/:slug" element={<LabPage />} />
+        <Route path="/practice/:slug" element={<LabFallback />} />
       </Routes>,
       ['/practice/totally-unknown-slug'],
     );
@@ -168,13 +168,13 @@ describe('LabPage routing fallback', () => {
   });
 
   test('renders ComingSoon for a known slug when no dedicated route exists', () => {
-    // Pick the first registered lab — LabPage is only mounted when no
+    // Pick the first registered lab — LabFallback is only mounted when no
     // dedicated route handles the slug, so it renders ComingSoon for any
     // lab that lands on this catch-all.
-    const lab = labs[0];
+    const lab = labs[0]!;
     renderWithRouter(
       <Routes>
-        <Route path="/practice/:slug" element={<LabPage />} />
+        <Route path="/practice/:slug" element={<LabFallback />} />
       </Routes>,
       [`/practice/${lab.slug}`],
     );

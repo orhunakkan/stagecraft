@@ -22,18 +22,36 @@
     "test:coverage": "npm run test:coverage --workspace=client && npm run test:coverage --workspace=server",
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui",
-    "lint": "npm run lint --workspace=client && npm run lint --workspace=server",
+    "lint": "eslint client/src server/src e2e",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "package:azure": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/package-azure-app-service.ps1",
     "start": "node server/dist/index.js",
-    "typecheck": "tsc --noEmit && npm run typecheck --workspace=client && npm run typecheck --workspace=server"
+    "typecheck": "tsc --noEmit && npm run typecheck --workspace=client && npm run typecheck --workspace=server",
+    "prepare": "husky"
+  },
+  "lint-staged": {
+    "*.{ts,tsx}": [
+      "prettier --write",
+      "eslint --fix"
+    ],
+    "*.{json,md,yml,yaml}": [
+      "prettier --write"
+    ]
   },
   "devDependencies": {
+    "@axe-core/playwright": "^4.11.3",
     "@playwright/test": "^1.60.0",
     "@types/node": "^25.9.0",
     "@vitest/coverage-v8": "^4.1.6",
     "concurrently": "^9.2.1",
-    "prettier": "3.8.3"
+    "eslint": "^9.39.4",
+    "eslint-plugin-import": "^2.32.0",
+    "eslint-plugin-jsx-a11y": "^6.10.2",
+    "eslint-plugin-react-hooks": "^7.1.1",
+    "husky": "^9.1.7",
+    "lint-staged": "^17.0.5",
+    "prettier": "3.8.3",
+    "typescript-eslint": "^8.59.4"
   }
 }

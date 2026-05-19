@@ -2,7 +2,9 @@ import { lazy, Suspense, type ComponentType } from 'react';
 import { Routes, Route } from 'react-router-dom';
 import { Shell } from './layouts/Shell';
 import { Home } from './pages/Home';
-import { LabPage } from './pages/LabPage';
+import { LabFallback } from './pages/LabFallback';
+import { ErrorBoundary } from './components/ErrorBoundary';
+import { labs } from './labs';
 
 function lazyNamed<TModule extends object, TExport extends keyof TModule & string>(
   load: () => Promise<TModule>,
@@ -11,70 +13,56 @@ function lazyNamed<TModule extends object, TExport extends keyof TModule & strin
   return lazy(async () => ({ default: (await load())[exportName] as ComponentType }));
 }
 
-const practiceRoutes = [
-  {
-    path: '/practice/accessible-locators',
-    Component: lazyNamed(() => import('./pages/practice/AccessibleLocators'), 'AccessibleLocators'),
-  },
-  {
-    path: '/practice/forms-validation',
-    Component: lazyNamed(() => import('./pages/practice/FormsValidation'), 'FormsValidation'),
-  },
-  {
-    path: '/practice/async-ui',
-    Component: lazyNamed(() => import('./pages/practice/AsyncUi'), 'AsyncUi'),
-  },
-  {
-    path: '/practice/network-api',
-    Component: lazyNamed(() => import('./pages/practice/NetworkApi'), 'NetworkApi'),
-  },
-  {
-    path: '/practice/fake-auth',
-    Component: lazyNamed(() => import('./pages/practice/FakeAuth'), 'FakeAuth'),
-  },
+// Component map — keyed by lab slug.  Adding a lab only requires a new entry here.
+const labComponentMap: Record<string, ComponentType> = {
+  'accessible-locators': lazyNamed(
+    () => import('./pages/practice/AccessibleLocators'),
+    'AccessibleLocators',
+  ),
+  'forms-validation': lazyNamed(
+    () => import('./pages/practice/FormsValidation'),
+    'FormsValidation',
+  ),
+  'async-ui': lazyNamed(() => import('./pages/practice/AsyncUi'), 'AsyncUi'),
+  'network-api': lazyNamed(() => import('./pages/practice/NetworkApi'), 'NetworkApi'),
+  'fake-auth': lazyNamed(() => import('./pages/practice/FakeAuth'), 'FakeAuth'),
+  'tables-filtering': lazyNamed(
+    () => import('./pages/practice/TablesFiltering'),
+    'TablesFiltering',
+  ),
+  'browser-events': lazyNamed(() => import('./pages/practice/BrowserEvents'), 'BrowserEvents'),
+  'frames-contexts': lazyNamed(() => import('./pages/practice/FramesContexts'), 'FramesContexts'),
+  'emulation-input': lazyNamed(() => import('./pages/practice/EmulationInput'), 'EmulationInput'),
+  'debugging-reporting': lazyNamed(
+    () => import('./pages/practice/DebuggingReporting'),
+    'DebuggingReporting',
+  ),
+  'aria-snapshots': lazyNamed(() => import('./pages/practice/AriaSnapshots'), 'AriaSnapshots'),
+  'clock-timers': lazyNamed(() => import('./pages/practice/ClockTimers'), 'ClockTimers'),
+  'visual-regression': lazyNamed(
+    () => import('./pages/practice/VisualRegression'),
+    'VisualRegression',
+  ),
+  'drag-and-drop': lazyNamed(() => import('./pages/practice/DragAndDrop'), 'DragAndDrop'),
+  'multi-tab': lazyNamed(() => import('./pages/practice/MultiTab'), 'MultiTab'),
+  'service-workers': lazyNamed(() => import('./pages/practice/ServiceWorkers'), 'ServiceWorkers'),
+  'websocket-interception': lazyNamed(
+    () => import('./pages/practice/WebSocketInterception'),
+    'WebSocketInterception',
+  ),
+  'api-request-context': lazyNamed(
+    () => import('./pages/practice/ApiRequestContext'),
+    'ApiRequestContext',
+  ),
+  'storage-state': lazyNamed(() => import('./pages/practice/StorageState'), 'StorageState'),
+  'har-recording': lazyNamed(() => import('./pages/practice/HarRecording'), 'HarRecording'),
+};
+
+// Extra sub-routes for labs with multi-page flows (not derivable from a single slug)
+const extraRoutes: Array<{ path: string; Component: ComponentType }> = [
   {
     path: '/practice/fake-auth/dashboard',
     Component: lazyNamed(() => import('./pages/practice/FakeAuthDashboard'), 'FakeAuthDashboard'),
-  },
-  {
-    path: '/practice/tables-filtering',
-    Component: lazyNamed(() => import('./pages/practice/TablesFiltering'), 'TablesFiltering'),
-  },
-  {
-    path: '/practice/browser-events',
-    Component: lazyNamed(() => import('./pages/practice/BrowserEvents'), 'BrowserEvents'),
-  },
-  {
-    path: '/practice/frames-contexts',
-    Component: lazyNamed(() => import('./pages/practice/FramesContexts'), 'FramesContexts'),
-  },
-  {
-    path: '/practice/emulation-input',
-    Component: lazyNamed(() => import('./pages/practice/EmulationInput'), 'EmulationInput'),
-  },
-  {
-    path: '/practice/debugging-reporting',
-    Component: lazyNamed(() => import('./pages/practice/DebuggingReporting'), 'DebuggingReporting'),
-  },
-  {
-    path: '/practice/aria-snapshots',
-    Component: lazyNamed(() => import('./pages/practice/AriaSnapshots'), 'AriaSnapshots'),
-  },
-  {
-    path: '/practice/clock-timers',
-    Component: lazyNamed(() => import('./pages/practice/ClockTimers'), 'ClockTimers'),
-  },
-  {
-    path: '/practice/visual-regression',
-    Component: lazyNamed(() => import('./pages/practice/VisualRegression'), 'VisualRegression'),
-  },
-  {
-    path: '/practice/drag-and-drop',
-    Component: lazyNamed(() => import('./pages/practice/DragAndDrop'), 'DragAndDrop'),
-  },
-  {
-    path: '/practice/multi-tab',
-    Component: lazyNamed(() => import('./pages/practice/MultiTab'), 'MultiTab'),
   },
   {
     path: '/practice/multi-tab/window',
@@ -84,42 +72,29 @@ const practiceRoutes = [
     path: '/practice/multi-tab/popup',
     Component: lazyNamed(() => import('./pages/practice/MultiTabPopup'), 'MultiTabPopup'),
   },
-  {
-    path: '/practice/service-workers',
-    Component: lazyNamed(() => import('./pages/practice/ServiceWorkers'), 'ServiceWorkers'),
-  },
-  {
-    path: '/practice/websocket-interception',
-    Component: lazyNamed(
-      () => import('./pages/practice/WebSocketInterception'),
-      'WebSocketInterception',
-    ),
-  },
-  {
-    path: '/practice/api-request-context',
-    Component: lazyNamed(() => import('./pages/practice/ApiRequestContext'), 'ApiRequestContext'),
-  },
-  {
-    path: '/practice/storage-state',
-    Component: lazyNamed(() => import('./pages/practice/StorageState'), 'StorageState'),
-  },
-  {
-    path: '/practice/har-recording',
-    Component: lazyNamed(() => import('./pages/practice/HarRecording'), 'HarRecording'),
-  },
+];
+
+// Derive main practice routes from the registry — paths are always /practice/<slug>
+const practiceRoutes = [
+  ...labs
+    .filter((lab) => lab.slug in labComponentMap)
+    .map((lab) => ({ path: `/practice/${lab.slug}`, Component: labComponentMap[lab.slug]! })),
+  ...extraRoutes,
 ];
 
 function lazyElement(Component: ComponentType) {
   return (
-    <Suspense
-      fallback={
-        <div className="rounded-lg border border-dashed border-zinc-200 bg-white p-6 text-sm text-zinc-500">
-          Loading lab...
-        </div>
-      }
-    >
-      <Component />
-    </Suspense>
+    <ErrorBoundary>
+      <Suspense
+        fallback={
+          <div className="rounded-lg border border-dashed border-zinc-200 bg-white p-6 text-sm text-zinc-500">
+            Loading lab...
+          </div>
+        }
+      >
+        <Component />
+      </Suspense>
+    </ErrorBoundary>
   );
 }
 
@@ -131,7 +106,7 @@ export default function App() {
         {practiceRoutes.map(({ path, Component }) => (
           <Route key={path} path={path} element={lazyElement(Component)} />
         ))}
-        <Route path="/practice/:slug" element={<LabPage />} />
+        <Route path="/practice/:slug" element={<LabFallback />} />
       </Route>
     </Routes>
   );

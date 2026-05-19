@@ -3,6 +3,7 @@ import express from 'express';
 import expressStaticGzip from 'express-static-gzip';
 import session from 'express-session';
 import cors from 'cors';
+import pinoHttp from 'pino-http';
 import swaggerUi, { type JsonObject } from 'swagger-ui-express';
 import notesRouter from './routes/notes';
 import authRouter from './routes/auth';
@@ -10,6 +11,7 @@ import tasksRouter from './routes/tasks';
 import productsRouter from './routes/products';
 import swItemsRouter from './routes/swItems';
 import { openApiDocument } from './openapi';
+import { logger } from './lib/logger';
 
 const app = express();
 
@@ -71,6 +73,7 @@ function applySecurityHeaders(
 
 app.disable('x-powered-by');
 app.use(applySecurityHeaders);
+app.use(pinoHttp({ logger }));
 
 app.use(
   cors({
@@ -102,6 +105,10 @@ app.use(
 
 app.get('/health', (_req, res) => {
   res.json({ ok: true });
+});
+
+app.get('/ready', (_req, res) => {
+  res.json({ ready: true });
 });
 
 app.get('/openapi.json', (_req, res) => {

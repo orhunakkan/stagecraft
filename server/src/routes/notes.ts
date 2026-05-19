@@ -1,4 +1,5 @@
 import { Router } from 'express';
+import { CreateNoteSchema } from '../lib/schemas';
 
 interface Note {
   id: number;
@@ -6,7 +7,7 @@ interface Note {
   createdAt: string;
 }
 
-let notes: Note[] = [
+const notes: Note[] = [
   {
     id: 1,
     text: 'Intercept network requests with page.route()',
@@ -28,12 +29,12 @@ router.get('/', (_req, res) => {
 });
 
 router.post('/', (req, res) => {
-  const { text } = req.body as { text: unknown };
-  if (typeof text !== 'string' || !text.trim()) {
-    res.status(400).json({ error: 'text is required' });
+  const result = CreateNoteSchema.safeParse(req.body);
+  if (!result.success) {
+    res.status(400).json({ error: result.error.issues[0]?.message ?? 'text is required' });
     return;
   }
-  const note: Note = { id: nextId++, text: text.trim(), createdAt: new Date().toISOString() };
+  const note: Note = { id: nextId++, text: result.data.text, createdAt: new Date().toISOString() };
   notes.push(note);
   res.status(201).json(note);
 });
