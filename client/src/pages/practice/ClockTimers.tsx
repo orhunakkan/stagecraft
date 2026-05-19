@@ -11,10 +11,18 @@ function CountdownTimer() {
   const [running, setRunning] = useState(false);
 
   useEffect(() => {
-    if (!running || remaining === 0) return;
-    const id = setInterval(() => setRemaining((n) => n - 1), 1000);
+    if (!running) return;
+    const id = setInterval(() => {
+      setRemaining((n) => {
+        if (n <= 1) {
+          setRunning(false);
+          return 0;
+        }
+        return n - 1;
+      });
+    }, 1000);
     return () => clearInterval(id);
-  }, [running, remaining]);
+  }, [running]);
 
   const reset = () => {
     setRunning(false);

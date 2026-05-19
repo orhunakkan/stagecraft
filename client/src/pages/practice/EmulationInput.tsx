@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useLayoutEffect, useRef } from 'react';
 import { LabHeader } from '../../components/LabHeader';
 import { labs } from '../../labs';
 
@@ -24,9 +24,9 @@ export function EmulationInput() {
   const scrollRef = useRef<HTMLDivElement>(null);
 
   // Keyboard: Ctrl+K opens palette; Escape closes; arrows navigate; Enter selects
-  useEffect(() => {
+  useLayoutEffect(() => {
     const handler = (e: KeyboardEvent) => {
-      if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
         e.preventDefault();
         setPaletteOpen((o) => !o);
         setSelectedIdx(0);

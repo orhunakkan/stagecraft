@@ -17,6 +17,7 @@ test.describe('Emulation & Input lab', () => {
   });
 
   test('opens the palette with Ctrl+K and dismisses with Escape', async ({ page }) => {
+    await expect(page.getByRole('button', { name: 'Open command palette' })).toBeVisible();
     // Click the page body first so the document has focus for the global keydown handler.
     await page.locator('body').click({ position: { x: 5, y: 5 } });
     await page.keyboard.press('Control+KeyK');

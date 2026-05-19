@@ -132,7 +132,7 @@ describe('ClockTimers', () => {
     });
 
     expect(screen.getByRole('alert')).toHaveTextContent("Time's up!");
-    expect(screen.getByRole('button', { name: 'Pause' })).toBeDisabled();
+    expect(screen.getByRole('button', { name: 'Start' })).toBeDisabled();
 
     fireEvent.click(screen.getByRole('button', { name: 'Reset' }));
 
