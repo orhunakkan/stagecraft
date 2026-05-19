@@ -19,17 +19,14 @@ export function attachWebSocketServer(server: http.Server): void {
   });
 
   wss.on('connection', (ws: WebSocket) => {
-    // Send welcome message
     ws.send('Welcome to the Stagecraft WebSocket server!');
 
-    // Send a ticker message every 3 seconds
     const ticker = setInterval(() => {
       if (ws.readyState === WebSocket.OPEN) {
         ws.send(`ticker: ${new Date().toISOString()}`);
       }
     }, 3000);
 
-    // Echo messages back
     ws.on('message', (data) => {
       const text = data.toString();
       if (Buffer.byteLength(text, 'utf8') > MAX_WEBSOCKET_PAYLOAD_BYTES) {

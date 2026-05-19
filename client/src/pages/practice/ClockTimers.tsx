@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { LabHeader } from '../../components/LabHeader';
 import { labs } from '../../labs';
 
@@ -9,19 +9,11 @@ function CountdownTimer() {
   const INITIAL = 60;
   const [remaining, setRemaining] = useState(INITIAL);
   const [running, setRunning] = useState(false);
-  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   useEffect(() => {
-    if (running && remaining > 0) {
-      intervalRef.current = setInterval(() => {
-        setRemaining((n) => n - 1);
-      }, 1000);
-    } else {
-      if (intervalRef.current) clearInterval(intervalRef.current);
-    }
-    return () => {
-      if (intervalRef.current) clearInterval(intervalRef.current);
-    };
+    if (!running || remaining === 0) return;
+    const id = setInterval(() => setRemaining((n) => n - 1), 1000);
+    return () => clearInterval(id);
   }, [running, remaining]);
 
   const reset = () => {

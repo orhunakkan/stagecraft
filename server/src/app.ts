@@ -98,11 +98,7 @@ app.use(
       return;
     }
 
-    if (
-      error instanceof SyntaxError &&
-      'status' in error &&
-      (error as { status?: number }).status === 400
-    ) {
+    if (error instanceof SyntaxError && (error as { status?: number }).status === 400) {
       res.status(400).json({ error: 'Invalid JSON body' });
       return;
     }

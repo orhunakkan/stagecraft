@@ -60,10 +60,10 @@ export function AccessibleLocators() {
   const [genre, setGenre] = useState('All');
   const [wishlist, setWishlist] = useState<number[]>([]);
 
+  const q = query.toLowerCase();
   const filtered = BOOKS.filter((b) => {
     const matchesQuery =
-      b.title.toLowerCase().includes(query.toLowerCase()) ||
-      b.author.toLowerCase().includes(query.toLowerCase());
+      b.title.toLowerCase().includes(q) || b.author.toLowerCase().includes(q);
     const matchesGenre = genre === 'All' || b.genre === genre;
     return matchesQuery && matchesGenre;
   });

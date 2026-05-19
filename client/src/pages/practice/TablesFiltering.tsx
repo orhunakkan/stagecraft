@@ -260,12 +260,25 @@ export function TablesFiltering() {
     setTimeout(() => setNotification(null), 2500);
   };
 
-  const SortIndicator = ({ col }: { col: SortKey }) =>
-    sortKey === col ? (
-      <span aria-hidden="true" className="ml-1">
-        {sortDir === 'asc' ? '▲' : '▼'}
-      </span>
-    ) : null;
+  const SortableHeader = ({ col, label, ariaName }: { col: SortKey; label: string; ariaName: string }) => {
+    const isActive = sortKey === col;
+    const nextDir = isActive && sortDir === 'asc' ? 'descending' : 'ascending';
+    return (
+      <button
+        type="button"
+        onClick={() => handleSort(col)}
+        className="font-semibold text-zinc-700 hover:text-indigo-700"
+        aria-label={`Sort by ${ariaName} ${nextDir}`}
+      >
+        {label}
+        {isActive && (
+          <span aria-hidden="true" className="ml-1">
+            {sortDir === 'asc' ? '▲' : '▼'}
+          </span>
+        )}
+      </button>
+    );
+  };
 
   return (
     <div>
@@ -339,45 +352,17 @@ export function TablesFiltering() {
           <thead className="border-b border-zinc-200 bg-zinc-50">
             <tr>
               <th className="px-4 py-3 text-left">
-                <button
-                  type="button"
-                  onClick={() => handleSort('name')}
-                  className="font-semibold text-zinc-700 hover:text-indigo-700"
-                  aria-label={`Sort by name ${sortKey === 'name' ? (sortDir === 'asc' ? 'descending' : 'ascending') : 'ascending'}`}
-                >
-                  Name <SortIndicator col="name" />
-                </button>
+                <SortableHeader col="name" label="Name" ariaName="name" />
               </th>
               <th className="px-4 py-3 text-left">
-                <button
-                  type="button"
-                  onClick={() => handleSort('department')}
-                  className="font-semibold text-zinc-700 hover:text-indigo-700"
-                  aria-label={`Sort by department ${sortKey === 'department' ? (sortDir === 'asc' ? 'descending' : 'ascending') : 'ascending'}`}
-                >
-                  Department <SortIndicator col="department" />
-                </button>
+                <SortableHeader col="department" label="Department" ariaName="department" />
               </th>
               <th className="px-4 py-3 text-left font-semibold text-zinc-700">Role</th>
               <th className="px-4 py-3 text-left">
-                <button
-                  type="button"
-                  onClick={() => handleSort('status')}
-                  className="font-semibold text-zinc-700 hover:text-indigo-700"
-                  aria-label={`Sort by status ${sortKey === 'status' ? (sortDir === 'asc' ? 'descending' : 'ascending') : 'ascending'}`}
-                >
-                  Status <SortIndicator col="status" />
-                </button>
+                <SortableHeader col="status" label="Status" ariaName="status" />
               </th>
               <th className="px-4 py-3 text-left">
-                <button
-                  type="button"
-                  onClick={() => handleSort('joined')}
-                  className="font-semibold text-zinc-700 hover:text-indigo-700"
-                  aria-label={`Sort by joined date ${sortKey === 'joined' ? (sortDir === 'asc' ? 'descending' : 'ascending') : 'ascending'}`}
-                >
-                  Joined <SortIndicator col="joined" />
-                </button>
+                <SortableHeader col="joined" label="Joined" ariaName="joined date" />
               </th>
               <th className="px-4 py-3 text-left font-semibold text-zinc-700">Actions</th>
             </tr>
