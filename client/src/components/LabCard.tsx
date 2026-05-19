@@ -57,7 +57,7 @@ export function LabCard({ lab, completed = false }: LabCardProps) {
       </div>
 
       {lab.requiresBackend && (
-        <p className="mt-2 text-[10px] text-zinc-400 flex items-center gap-1">
+        <p className="mt-2 text-[10px] text-zinc-500 flex items-center gap-1">
           <span>⬡</span> Requires backend
         </p>
       )}

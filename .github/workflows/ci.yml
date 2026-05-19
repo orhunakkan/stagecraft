@@ -131,9 +131,6 @@ jobs:
           target: runtime
           push: false
           tags: stagecraft:${{ github.sha }}
-          sbom: true
-          provenance: mode=max
-          outputs: type=docker
 
   deploy-azure:
     name: Deploy to Azure App Service
