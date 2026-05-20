@@ -2,7 +2,7 @@
 
 Stagecraft is a hands-on Playwright practice application for developers who already know JavaScript or TypeScript and want realistic browser automation scenarios. It provides 20 interactive labs that learners can open in the browser, explore manually, and test from a separate Playwright project.
 
-Each lab has a dedicated route under `/practice/<slug>` (e.g. `/practice/network-api`). All 20 lab components are loaded lazily and wrapped in an `ErrorBoundary`. An unknown slug redirects to a "coming soon" page via a catch-all route.
+Each lab has a dedicated route under `/practice/<slug>` (e.g. `/practice/network-api`). All 20 lab components are loaded lazily and wrapped in an `ErrorBoundary`. A registered slug that has no route yet renders a "coming soon" page via a catch-all route, while an unknown slug redirects to the lab catalog.
 
 The app intentionally does not ship answer tests for learners. Its job is to provide stable, realistic UI and API surfaces for practicing locators, network interception, storage state, WebSockets, visual assertions, service workers, multi-tab flows, and other Playwright APIs.
 
@@ -39,6 +39,9 @@ The app intentionally does not ship answer tests for learners. Its job is to pro
 | Input validation     | `zod`                                                |
 | Unit/component tests | Vitest, React Testing Library, jsdom                 |
 | End-to-end tests     | Playwright                                           |
+| Linting              | ESLint 9 (flat config)                               |
+| Formatting           | Prettier                                             |
+| Git hooks            | Husky + lint-staged (pre-commit)                     |
 | Package manager      | npm workspaces                                       |
 | Runtime              | Node.js 24                                           |
 | Deployment           | Single Node process serving the built client and API |
@@ -87,9 +90,12 @@ The root `npm run dev` command starts both workspaces concurrently: the Vite cli
 | `npm run test:coverage` | Run Vitest coverage for both workspaces.                  |
 | `npm run test:e2e`      | Run the Playwright E2E suite.                             |
 | `npm run test:e2e:ui`   | Open Playwright UI mode.                                  |
-| `npm run lint`          | Run TypeScript-based lint checks for both workspaces.     |
-| `npm run package:azure` | Build a ZIP package for Azure App Service.                |
+| `npm run lint`          | Run ESLint over `client/src`, `server/src`, and `e2e`.    |
+| `npm run format`        | Format the repository with Prettier.                      |
+| `npm run format:check`  | Check formatting with Prettier without writing changes.   |
 | `npm run typecheck`     | Type-check the root project and both workspaces.          |
+| `npm run package:azure` | Build a ZIP package for Azure App Service.                |
+| `npm start`             | Run the compiled production server (`server/dist`).       |
 
 Workspace-specific scripts are also available:
 
@@ -280,14 +286,17 @@ npm run test:e2e:ui
 
 The E2E suite verifies that the practice app itself remains stable. It is separate from learner-written tests.
 
-### Type and Lint Checks
+### Type, Lint, and Format Checks
 
-This project uses TypeScript checks as the lint gate.
+Type-checking and ESLint are separate gates. Prettier handles formatting.
 
 ```bash
 npm run typecheck
 npm run lint
+npm run format:check
 ```
+
+A Husky pre-commit hook runs lint-staged, which formats staged files with Prettier and runs `eslint --fix` on staged `.ts`/`.tsx` files.
 
 ## Configuration
 
@@ -355,12 +364,14 @@ When you are ready to create Azure resources, use the detailed checklist in [doc
 
 | Setting          | Value                                    |
 | ---------------- | ---------------------------------------- |
-| Runtime          | `NODE\|22-lts`                           |
+| Runtime          | `NODE\|24-lts`                           |
 | Startup command  | `node server/dist/index.js`              |
 | `NODE_ENV`       | `production`                             |
 | `SESSION_SECRET` | A long generated secret stored in Azure  |
 | `CLIENT_ORIGIN`  | `https://<app-name>.azurewebsites.net`   |
 | WebSockets       | Enabled in the App Service configuration |
+
+A GitHub Actions workflow can also deploy to Azure automatically on every push to `main` (after the quality gates, Playwright E2E tests, and Docker build pass) using Azure OIDC federated credentials. See [docs/azure-app-service.md](docs/azure-app-service.md) for the required repository secrets and setup.
 
 ## Development Guidelines
 
