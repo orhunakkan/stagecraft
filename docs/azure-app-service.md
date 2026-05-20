@@ -27,34 +27,16 @@ The GitHub Actions workflow deploys to Azure automatically after a successful pu
 
 Create these repository secrets in GitHub before relying on automatic deploys. They must be repository secrets, not only environment secrets, because the deploy job reads them directly from `secrets.*`.
 
-| Secret                         | Value                                                               |
-| ------------------------------ | ------------------------------------------------------------------- |
-| `AZURE_WEBAPP_NAME`            | The Azure App Service app name, without `.azurewebsites.net`.       |
-| `AZURE_WEBAPP_PUBLISH_PROFILE` | The full publish profile XML downloaded from the Azure App Service. |
+| Secret                  | Value                                                         |
+| ----------------------- | ------------------------------------------------------------- |
+| `AZURE_WEBAPP_NAME`     | The Azure App Service app name, without `.azurewebsites.net`. |
+| `AZURE_CLIENT_ID`       | The Client ID for your Azure AD app registration.             |
+| `AZURE_TENANT_ID`       | The Tenant ID for your Azure AD app registration.             |
+| `AZURE_SUBSCRIPTION_ID` | Your Azure Subscription ID.                                   |
 
-In the Azure portal, open the App Service and use **Get publish profile**. Copy the downloaded file contents into the `AZURE_WEBAPP_PUBLISH_PROFILE` repository secret.
+Modern deployments should use **Azure OIDC (Federated Credentials)** rather than insecure SCM basic publishing profiles. Set up Federated Credentials on a User Assigned Managed Identity or App Registration linked to your GitHub repository to generate the credentials for the secrets above.
 
-After those secrets exist, every push to `main` will build `.azure-publish/stagecraft-appservice.zip` and deploy it through the App Service Kudu Zip Deploy API.
-
-The publish profile flow also requires SCM basic publishing credentials to be enabled on the App Service. Keep FTP publishing disabled unless you explicitly need it:
-
-```powershell
-az resource update `
-  --resource-group $resourceGroup `
-  --namespace Microsoft.Web `
-  --resource-type basicPublishingCredentialsPolicies `
-  --parent "sites/$app" `
-  --name scm `
-  --set properties.allow=true
-
-az resource update `
-  --resource-group $resourceGroup `
-  --namespace Microsoft.Web `
-  --resource-type basicPublishingCredentialsPolicies `
-  --parent "sites/$app" `
-  --name ftp `
-  --set properties.allow=false
-```
+After those secrets exist, every push to `main` will build `.azure-publish/stagecraft-appservice.zip` and deploy it securely via the `azure/webapps-deploy` Action.
 
 ## Create Azure Resources Later
 
@@ -86,7 +68,7 @@ az webapp create `
   --name $app `
   --resource-group $resourceGroup `
   --plan $plan `
-  --runtime "NODE:24-lts" `
+  --runtime "node:24-lts" `
   --startup-file "node server/dist/index.js"
 ```
 
@@ -100,7 +82,7 @@ az webapp config appsettings set `
   --name $app `
   --settings `
     NODE_ENV=production `
-    SESSION_SECRET=$sessionSecret `
+    SESSION_SECRET="$sessionSecret" `
     CLIENT_ORIGIN="https://$app.azurewebsites.net"
 ```
 
