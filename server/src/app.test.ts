@@ -441,4 +441,13 @@ describe('catalog APIs', () => {
     expect(response.status).toBe(404);
     expect(body.error).toBe('Product not found');
   });
+
+  test('returns an individual product by id', async () => {
+    const { response, body } = await json<{ id: number; name: string; inStock: boolean }>(
+      '/api/products/1',
+    );
+
+    expect(response.status).toBe(200);
+    expect(body).toMatchObject({ id: 1, name: 'Mechanical Keyboard', inStock: true });
+  });
 });

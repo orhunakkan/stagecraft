@@ -119,6 +119,47 @@ describe('TablesFiltering', () => {
     expect(screen.queryByRole('cell', { name: 'Alice Chen' })).not.toBeInTheDocument();
     expect(screen.getByRole('status')).toHaveTextContent('22 employees');
   });
+
+  test('filters by department, handles empty results, and toggles sort direction', () => {
+    render(<TablesFiltering />);
+
+    fireEvent.change(screen.getByLabelText('Department'), { target: { value: 'HR' } });
+    expect(screen.getByRole('status')).toHaveTextContent('3 employees');
+    expect(screen.getByRole('cell', { name: 'Iris Johnson' })).toBeVisible();
+    expect(screen.queryByRole('cell', { name: 'Alice Chen' })).not.toBeInTheDocument();
+
+    fireEvent.change(screen.getByLabelText('Search'), { target: { value: 'zzz' } });
+    expect(screen.getByRole('status')).toHaveTextContent('No employees found.');
+    expect(screen.getByText('No employees match your filters.')).toBeVisible();
+
+    fireEvent.change(screen.getByLabelText('Search'), { target: { value: '' } });
+    fireEvent.change(screen.getByLabelText('Department'), { target: { value: 'All' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Sort by name descending' }));
+
+    expect(screen.getAllByRole('row')[1]).toHaveTextContent('Wendy Hall');
+  });
+
+  test('paginates rows and opens the edit action notification', () => {
+    vi.useFakeTimers();
+    render(<TablesFiltering />);
+
+    fireEvent.click(screen.getByRole('button', { name: 'Next' }));
+    expect(screen.getByText('Page 2 of 4')).toBeVisible();
+    expect(screen.getByRole('button', { name: '2' })).toHaveAttribute('aria-current', 'page');
+
+    fireEvent.click(screen.getByRole('button', { name: 'Previous' }));
+    expect(screen.getByText('Page 1 of 4')).toBeVisible();
+
+    fireEvent.click(screen.getByRole('button', { name: 'Actions for Alice Chen' }));
+    expect(screen.getByRole('menu', { name: 'Alice Chen actions' })).toBeVisible();
+    fireEvent.click(screen.getByRole('menuitem', { name: 'Edit' }));
+    expect(screen.getByRole('alert')).toHaveTextContent('Editing Alice Chen');
+
+    act(() => {
+      vi.advanceTimersByTime(1500);
+    });
+    expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+  });
 });
 
 describe('ClockTimers', () => {
@@ -139,6 +180,54 @@ describe('ClockTimers', () => {
     expect(screen.getByTestId('countdown')).toHaveTextContent('01:00');
     expect(screen.queryByText("Time's up!")).not.toBeInTheDocument();
   });
+
+  test('pauses the countdown before expiration', async () => {
+    vi.useFakeTimers();
+    render(<ClockTimers />);
+
+    fireEvent.click(screen.getByRole('button', { name: 'Start' }));
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(2000);
+    });
+
+    fireEvent.click(screen.getByRole('button', { name: 'Pause' }));
+    expect(screen.getByTestId('countdown')).toHaveTextContent('00:58');
+
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(3000);
+    });
+    expect(screen.getByTestId('countdown')).toHaveTextContent('00:58');
+  });
+
+  test('shows, updates, and dismisses the session warning toast', async () => {
+    vi.useFakeTimers();
+    render(<ClockTimers />);
+
+    fireEvent.click(screen.getByTestId('start-session'));
+    expect(screen.getByText(/Session active/)).toBeVisible();
+
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(6000);
+    });
+    expect(screen.getByTestId('expiry-countdown')).toHaveTextContent('3s');
+
+    fireEvent.click(screen.getByRole('button', { name: 'Dismiss session warning' }));
+    expect(screen.queryByTestId('expiry-toast')).not.toBeInTheDocument();
+    expect(screen.getByTestId('start-session')).toBeEnabled();
+  });
+
+  test('advances the polling refresh counter and relative timestamp', async () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date('2026-05-20T12:00:00Z'));
+    render(<ClockTimers />);
+
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(30_000);
+    });
+
+    expect(screen.getByTestId('refresh-count')).toHaveTextContent('Refresh #1');
+    expect(screen.getByTestId('last-refresh-ago')).toHaveTextContent('0s ago');
+  });
 });
 
 describe('DragAndDrop', () => {
@@ -154,5 +243,41 @@ describe('DragAndDrop', () => {
 
     expect(within(doneColumn).getByText('Write Playwright tests')).toBeVisible();
     expect(within(todoColumn).queryByText('Write Playwright tests')).not.toBeInTheDocument();
+  });
+
+  test('handles file drop hover state and displays the dropped file size', () => {
+    render(<DragAndDrop />);
+
+    const dropZone = screen.getByTestId('drop-zone');
+    fireEvent.dragOver(dropZone);
+    expect(dropZone.className).toContain('border-indigo-400');
+
+    fireEvent.dragLeave(dropZone);
+    expect(dropZone.className).toContain('border-zinc-300');
+
+    fireEvent.drop(dropZone, {
+      dataTransfer: {
+        files: [new File(['stagecraft'], 'stagecraft.txt', { type: 'text/plain' })],
+      },
+    });
+
+    expect(screen.getByTestId('dropped-file')).toHaveTextContent('stagecraft.txt (0.0 KB)');
+  });
+
+  test('reorders the sortable list with drag and drop', () => {
+    render(<DragAndDrop />);
+
+    const list = screen.getByRole('list', { name: 'Sortable list' });
+    const alpha = screen.getByTestId('sort-item-alpha');
+    const delta = screen.getByTestId('sort-item-delta');
+
+    fireEvent.dragStart(delta);
+    fireEvent.drop(alpha);
+
+    expect(
+      within(list)
+        .getAllByRole('listitem')
+        .map((item) => item.textContent),
+    ).toEqual(['⠿Delta', '⠿Alpha', '⠿Beta', '⠿Gamma', '⠿Epsilon']);
   });
 });
