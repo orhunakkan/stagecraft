@@ -86,7 +86,7 @@ az webapp create `
   --name $app `
   --resource-group $resourceGroup `
   --plan $plan `
-  --runtime "NODE:22-lts" `
+  --runtime "NODE:24-lts" `
   --startup-file "node server/dist/index.js"
 ```
 

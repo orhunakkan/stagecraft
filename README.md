@@ -40,12 +40,12 @@ The app intentionally does not ship answer tests for learners. Its job is to pro
 | Unit/component tests | Vitest, React Testing Library, jsdom                 |
 | End-to-end tests     | Playwright                                           |
 | Package manager      | npm workspaces                                       |
-| Runtime              | Node.js 22                                           |
+| Runtime              | Node.js 24                                           |
 | Deployment           | Single Node process serving the built client and API |
 
 ## Prerequisites
 
-- Node.js 22 or newer
+- Node.js 24.x
 - npm 10 or newer
 - Playwright browser binaries for E2E tests
 
