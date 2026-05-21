@@ -7,22 +7,9 @@ updates:
     groups:
       dev-dependencies:
         dependency-type: development
-
-  - package-ecosystem: npm
-    directory: /client
-    schedule:
-      interval: weekly
-    groups:
-      dev-dependencies:
-        dependency-type: development
-
-  - package-ecosystem: npm
-    directory: /server
-    schedule:
-      interval: weekly
-    groups:
-      dev-dependencies:
-        dependency-type: development
+        update-types:
+          - minor
+          - patch
 
   - package-ecosystem: docker
     directory: /
