@@ -32,3 +32,16 @@
   --edge: #3f3f46; /* zinc-700 */
   --accent: #818cf8; /* indigo-400 — on canvas: 4.7:1 ✓ AA */
 }
+
+@layer base {
+  select {
+    background-color: var(--surface);
+    color: var(--content);
+  }
+
+  /* Native option popups can ignore dark backgrounds while inheriting light text. */
+  select option {
+    background-color: #ffffff;
+    color: #18181b;
+  }
+}
