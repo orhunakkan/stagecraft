@@ -74,31 +74,31 @@ export function WebSocketInterception() {
   }, []);
 
   const statusColor: Record<typeof status, string> = {
-    disconnected: 'bg-zinc-200 text-zinc-600',
-    connecting: 'bg-amber-100 text-amber-700',
-    connected: 'bg-emerald-100 text-emerald-700',
-    error: 'bg-red-100 text-red-600',
+    disconnected: 'bg-surface-raised text-muted',
+    connecting: 'bg-amber-100 text-amber-700 dark:bg-amber-950 dark:text-amber-300',
+    connected: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300',
+    error: 'bg-red-100 text-red-600 dark:bg-red-950 dark:text-red-400',
   };
 
   return (
     <div>
       <LabHeader lab={lab} />
 
-      <p className="mb-6 text-sm text-zinc-500">
-        Use <code className="rounded bg-zinc-100 px-1 text-xs">page.routeWebSocket()</code> to fully
-        mock the socket, selectively forward messages, or block specific frames.
+      <p className="mb-6 text-sm text-muted">
+        Use <code className="rounded bg-surface-raised px-1 text-xs">page.routeWebSocket()</code> to
+        fully mock the socket, selectively forward messages, or block specific frames.
       </p>
 
       <div className="space-y-10">
         {/* ── Connection controls ───────────────────────────────────────── */}
         <section aria-labelledby="ws-conn-heading">
-          <h2 id="ws-conn-heading" className="mb-1 text-base font-semibold text-zinc-900">
+          <h2 id="ws-conn-heading" className="mb-1 text-base font-semibold text-content">
             WebSocket connection
           </h2>
-          <p className="mb-4 text-sm text-zinc-500">
+          <p className="mb-4 text-sm text-muted">
             Connect to{' '}
-            <code className="rounded bg-zinc-100 px-1 text-xs">ws://localhost:3001/ws</code>. The
-            server sends a welcome message and echoes everything you send back. A ticker message
+            <code className="rounded bg-surface-raised px-1 text-xs">ws://localhost:3001/ws</code>.
+            The server sends a welcome message and echoes everything you send back. A ticker message
             arrives every 3 seconds.
           </p>
 
@@ -117,7 +117,7 @@ export function WebSocketInterception() {
               onClick={disconnect}
               disabled={status !== 'connected'}
               data-testid="ws-disconnect"
-              className="rounded-lg border border-zinc-300 px-4 py-2 text-sm font-medium text-zinc-700 hover:bg-zinc-50 disabled:opacity-50"
+              className="rounded-lg border border-edge px-4 py-2 text-sm font-medium text-muted hover:bg-canvas disabled:opacity-50"
             >
               Disconnect
             </button>
@@ -134,17 +134,19 @@ export function WebSocketInterception() {
           <div
             aria-label="WebSocket message log"
             aria-live="polite"
-            className="h-48 overflow-y-auto rounded-xl border border-zinc-200 bg-zinc-50 p-3 font-mono text-xs"
+            className="h-48 overflow-y-auto rounded-xl border border-edge bg-canvas p-3 font-mono text-xs"
           >
             {messages.length === 0 ? (
-              <p className="text-zinc-400">No messages yet. Connect to start.</p>
+              <p className="text-muted">No messages yet. Connect to start.</p>
             ) : (
               messages.map((msg) => (
                 <div
                   key={msg.id}
-                  className={msg.from === 'user' ? 'text-indigo-700' : 'text-zinc-700'}
+                  className={
+                    msg.from === 'user' ? 'text-indigo-700 dark:text-indigo-300' : 'text-content'
+                  }
                 >
-                  <span className="mr-2 text-zinc-400">[{msg.at}]</span>
+                  <span className="mr-2 text-muted">[{msg.at}]</span>
                   <span className="mr-1 font-semibold">
                     {msg.from === 'user' ? 'you' : 'server'}:
                   </span>
@@ -169,7 +171,7 @@ export function WebSocketInterception() {
               disabled={status !== 'connected'}
               aria-label="Message to send"
               placeholder="Type a message…"
-              className="flex-1 rounded-lg border border-zinc-300 px-3 py-1.5 text-sm focus:border-indigo-500 focus:outline-none disabled:opacity-50"
+              className="flex-1 rounded-lg border border-edge px-3 py-1.5 text-sm focus:border-indigo-500 focus:outline-none disabled:opacity-50"
             />
             <button
               type="submit"
@@ -184,7 +186,7 @@ export function WebSocketInterception() {
 
         {/* ── Challenge tiers ───────────────────────────────────────────── */}
         <section aria-labelledby="ws-challenges-heading">
-          <h2 id="ws-challenges-heading" className="mb-3 text-base font-semibold text-zinc-900">
+          <h2 id="ws-challenges-heading" className="mb-3 text-base font-semibold text-content">
             Challenge tiers
           </h2>
           <div className="space-y-3">
@@ -205,11 +207,11 @@ export function WebSocketInterception() {
                 desc: 'Let the connection succeed but block outgoing messages containing the word "block". Assert the server never echoes them back.',
               },
             ].map(({ n, label, desc }) => (
-              <div key={n} className="rounded-xl border border-zinc-200 bg-white p-4">
-                <p className="mb-1 text-sm font-semibold text-zinc-800">
+              <div key={n} className="rounded-xl border border-edge bg-surface p-4">
+                <p className="mb-1 text-sm font-semibold text-content">
                   Challenge {n}: {label}
                 </p>
-                <p className="text-sm text-zinc-500">{desc}</p>
+                <p className="text-sm text-muted">{desc}</p>
               </div>
             ))}
           </div>

@@ -44,12 +44,14 @@ export function AriaSnapshots() {
     <div>
       <LabHeader lab={lab} />
 
-      <p className="mb-8 text-sm text-zinc-500">
+      <p className="mb-8 text-sm text-muted">
         This lab is about asserting the <em>structure</em> of the accessibility tree — not finding
         elements by role (see{' '}
-        <code className="rounded bg-zinc-100 px-1 text-xs">/practice/accessible-locators</code>
+        <code className="rounded bg-surface-raised px-1 text-xs">
+          /practice/accessible-locators
+        </code>
         ). Use{' '}
-        <code className="rounded bg-zinc-100 px-1 text-xs">
+        <code className="rounded bg-surface-raised px-1 text-xs">
           expect(locator).toMatchAriaSnapshot()
         </code>{' '}
         to compare a YAML template against the live tree.
@@ -63,17 +65,17 @@ export function AriaSnapshots() {
       <div className="space-y-10">
         {/* ── Accordion ──────────────────────────────────────────────────── */}
         <section aria-labelledby="accordion-heading">
-          <h2 id="accordion-heading" className="mb-1 text-base font-semibold text-zinc-900">
+          <h2 id="accordion-heading" className="mb-1 text-base font-semibold text-content">
             Challenge 1 — Accordion
           </h2>
-          <p className="mb-4 text-sm text-zinc-500">
+          <p className="mb-4 text-sm text-muted">
             Capture the ARIA snapshot of the accordion. Open different sections and assert that the
             tree updates correctly — expanded sections reveal child content nodes. Try{' '}
-            <code className="rounded bg-zinc-100 px-1 text-xs">/children: equal</code> for strict
-            matching.
+            <code className="rounded bg-surface-raised px-1 text-xs">/children: equal</code> for
+            strict matching.
           </p>
 
-          <div className="divide-y divide-zinc-200 rounded-xl border border-zinc-200 bg-white">
+          <div className="divide-y divide-edge rounded-xl border border-edge bg-surface">
             {ACCORDION_SECTIONS.map((section) => {
               const isOpen = openSection === section.id;
               return (
@@ -85,10 +87,10 @@ export function AriaSnapshots() {
                       aria-expanded={isOpen}
                       aria-controls={`${section.id}-content`}
                       id={`${section.id}-btn`}
-                      className="flex w-full items-center justify-between px-4 py-3 text-left text-sm font-medium text-zinc-900 hover:bg-zinc-50"
+                      className="flex w-full items-center justify-between px-4 py-3 text-left text-sm font-medium text-content hover:bg-canvas"
                     >
                       {section.title}
-                      <span aria-hidden="true" className="ml-2 shrink-0 text-zinc-400">
+                      <span aria-hidden="true" className="ml-2 shrink-0 text-muted">
                         {isOpen ? '▲' : '▼'}
                       </span>
                     </button>
@@ -98,7 +100,7 @@ export function AriaSnapshots() {
                     role="region"
                     aria-labelledby={`${section.id}-btn`}
                     hidden={!isOpen}
-                    className="px-4 pb-4 pt-1 text-sm text-zinc-600"
+                    className="px-4 pb-4 pt-1 text-sm text-muted"
                   >
                     {section.content}
                   </div>
@@ -110,12 +112,14 @@ export function AriaSnapshots() {
 
         {/* ── Wizard / step indicator ───────────────────────────────────── */}
         <section aria-labelledby="wizard-heading">
-          <h2 id="wizard-heading" className="mb-1 text-base font-semibold text-zinc-900">
+          <h2 id="wizard-heading" className="mb-1 text-base font-semibold text-content">
             Challenge 2 — Step wizard
           </h2>
-          <p className="mb-4 text-sm text-zinc-500">
+          <p className="mb-4 text-sm text-muted">
             Navigate through the wizard steps. Assert that the{' '}
-            <code className="rounded bg-zinc-100 px-1 text-xs">aria-current=&quot;step&quot;</code>{' '}
+            <code className="rounded bg-surface-raised px-1 text-xs">
+              aria-current=&quot;step&quot;
+            </code>{' '}
             attribute moves to the correct step. Capture before/after snapshots to verify structural
             transitions.
           </p>
@@ -133,8 +137,8 @@ export function AriaSnapshots() {
                       i === step
                         ? 'border-indigo-500 bg-indigo-600 text-white'
                         : i < step
-                          ? 'border-emerald-300 bg-emerald-50 text-emerald-700'
-                          : 'border-zinc-200 text-zinc-500',
+                          ? 'border-emerald-300 bg-emerald-50 text-emerald-700 dark:border-emerald-700 dark:bg-emerald-950 dark:text-emerald-300'
+                          : 'border-edge text-muted',
                     ].join(' ')}
                   >
                     {i + 1}. {label}
@@ -147,19 +151,19 @@ export function AriaSnapshots() {
           <div
             role="form"
             aria-label={`${STEPS[step]} step`}
-            className="rounded-xl border border-zinc-200 bg-white p-4"
+            className="rounded-xl border border-edge bg-surface p-4"
           >
-            <h3 className="mb-3 text-sm font-semibold text-zinc-800">
+            <h3 className="mb-3 text-sm font-semibold text-content">
               Step {step + 1}: {STEPS[step]}
             </h3>
             {step === 0 && (
               <div className="space-y-3">
-                <label className="block text-xs text-zinc-600">
+                <label className="block text-xs text-muted">
                   Email
                   <input
                     type="email"
                     aria-label="Email address"
-                    className="mt-1 block w-full rounded-lg border border-zinc-300 px-3 py-1.5 text-sm focus:border-indigo-500 focus:outline-none"
+                    className="mt-1 block w-full rounded-lg border border-edge px-3 py-1.5 text-sm focus:border-indigo-500 focus:outline-none"
                     placeholder="you@example.com"
                   />
                 </label>
@@ -167,12 +171,12 @@ export function AriaSnapshots() {
             )}
             {step === 1 && (
               <div className="space-y-3">
-                <label className="block text-xs text-zinc-600">
+                <label className="block text-xs text-muted">
                   Display name
                   <input
                     type="text"
                     aria-label="Display name"
-                    className="mt-1 block w-full rounded-lg border border-zinc-300 px-3 py-1.5 text-sm focus:border-indigo-500 focus:outline-none"
+                    className="mt-1 block w-full rounded-lg border border-edge px-3 py-1.5 text-sm focus:border-indigo-500 focus:outline-none"
                     placeholder="Your name"
                   />
                 </label>
@@ -180,18 +184,18 @@ export function AriaSnapshots() {
             )}
             {step === 2 && (
               <div className="space-y-2">
-                <label className="flex items-center gap-2 text-sm text-zinc-700">
+                <label className="flex items-center gap-2 text-sm text-muted">
                   <input type="checkbox" aria-label="Email notifications" />
                   Email notifications
                 </label>
-                <label className="flex items-center gap-2 text-sm text-zinc-700">
+                <label className="flex items-center gap-2 text-sm text-muted">
                   <input type="checkbox" aria-label="Dark mode" />
                   Dark mode
                 </label>
               </div>
             )}
             {step === 3 && (
-              <p className="text-sm text-zinc-600">
+              <p className="text-sm text-muted">
                 Review your details and submit. The accessibility tree at this step differs
                 structurally from the others — assert it with a separate snapshot.
               </p>
@@ -201,7 +205,7 @@ export function AriaSnapshots() {
                 type="button"
                 onClick={() => setStep((s) => Math.max(0, s - 1))}
                 disabled={step === 0}
-                className="rounded-lg border border-zinc-200 px-3 py-1.5 text-xs font-medium text-zinc-600 disabled:opacity-40"
+                className="rounded-lg border border-edge px-3 py-1.5 text-xs font-medium text-muted disabled:opacity-40"
               >
                 Back
               </button>
@@ -219,19 +223,19 @@ export function AriaSnapshots() {
 
         {/* ── Live region ───────────────────────────────────────────────── */}
         <section aria-labelledby="live-heading">
-          <h2 id="live-heading" className="mb-1 text-base font-semibold text-zinc-900">
+          <h2 id="live-heading" className="mb-1 text-base font-semibold text-content">
             Challenge 3 — Live region
           </h2>
-          <p className="mb-4 text-sm text-zinc-500">
+          <p className="mb-4 text-sm text-muted">
             The announcement region updates when accordion sections are toggled. Capture a snapshot
             that includes the live region and verify its content changes predictably.
           </p>
           <div
             aria-label="Live announcements"
             aria-live="polite"
-            className="min-h-[2.5rem] rounded-xl border border-dashed border-zinc-300 bg-zinc-50 px-4 py-2 text-sm text-zinc-600"
+            className="min-h-[2.5rem] rounded-xl border border-dashed border-edge bg-canvas px-4 py-2 text-sm text-muted"
           >
-            {announcement || <span className="text-zinc-400">No announcement yet</span>}
+            {announcement || <span className="text-muted">No announcement yet</span>}
           </div>
         </section>
       </div>

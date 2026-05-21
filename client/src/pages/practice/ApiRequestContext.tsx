@@ -84,13 +84,13 @@ export function ApiRequestContext() {
     <div>
       <LabHeader lab={lab} />
 
-      <p className="mb-6 text-sm text-zinc-500">
-        Playwright&apos;s <code className="rounded bg-zinc-100 px-1 text-xs">request</code> fixture
-        operates entirely outside the browser. Use it to call GET, POST, PUT, and DELETE directly —
-        seed data before a UI test, then verify the UI reflects it.
+      <p className="mb-6 text-sm text-muted">
+        Playwright&apos;s <code className="rounded bg-surface-raised px-1 text-xs">request</code>{' '}
+        fixture operates entirely outside the browser. Use it to call GET, POST, PUT, and DELETE
+        directly — seed data before a UI test, then verify the UI reflects it.
       </p>
 
-      <div className="mb-4 rounded-xl border border-indigo-100 bg-indigo-50 p-4 text-sm text-indigo-800">
+      <div className="mb-4 rounded-xl border border-indigo-100 bg-indigo-50 p-4 text-sm text-indigo-800 dark:border-indigo-700 dark:bg-indigo-950 dark:text-indigo-300">
         <p className="font-medium">API endpoints</p>
         <ul className="mt-2 space-y-0.5 font-mono text-xs">
           <li>GET &nbsp;&nbsp;/api/tasks</li>
@@ -103,7 +103,7 @@ export function ApiRequestContext() {
       {error && (
         <div
           role="alert"
-          className="mb-4 rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700"
+          className="mb-4 rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700 dark:border-red-700 dark:bg-red-950 dark:text-red-400"
         >
           {error}
         </div>
@@ -117,7 +117,7 @@ export function ApiRequestContext() {
           onChange={(e) => setNewTitle(e.target.value)}
           aria-label="New task title"
           placeholder="New task…"
-          className="flex-1 rounded-lg border border-zinc-300 px-3 py-1.5 text-sm focus:border-indigo-500 focus:outline-none"
+          className="flex-1 rounded-lg border border-edge px-3 py-1.5 text-sm focus:border-indigo-500 focus:outline-none"
         />
         <button
           type="submit"
@@ -132,15 +132,15 @@ export function ApiRequestContext() {
         <div
           role="status"
           aria-label="Loading tasks"
-          className="flex items-center gap-2 text-sm text-zinc-500"
+          className="flex items-center gap-2 text-sm text-muted"
         >
-          <span className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-zinc-300 border-t-indigo-600" />
+          <span className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-edge border-t-indigo-600" />
           Loading…
         </div>
       ) : (
         <ul aria-label="Task list" className="space-y-2">
           {tasks.length === 0 && (
-            <li className="text-sm text-zinc-400">
+            <li className="text-sm text-muted">
               No tasks yet. Add one above or POST via the request fixture.
             </li>
           )}
@@ -148,7 +148,7 @@ export function ApiRequestContext() {
             <li
               key={task.id}
               data-testid={`task-${task.id}`}
-              className="flex items-center gap-3 rounded-lg border border-zinc-200 bg-white px-4 py-2.5"
+              className="flex items-center gap-3 rounded-lg border border-edge bg-surface px-4 py-2.5"
             >
               <input
                 type="checkbox"
@@ -158,11 +158,11 @@ export function ApiRequestContext() {
                 className="h-4 w-4 accent-indigo-600"
               />
               <span
-                className={`flex-1 text-sm ${task.done ? 'text-zinc-400 line-through' : 'text-zinc-800'}`}
+                className={`flex-1 text-sm ${task.done ? 'text-muted line-through' : 'text-content'}`}
               >
                 {task.title}
               </span>
-              <span className="text-xs text-zinc-400">{task.createdAt.slice(0, 10)}</span>
+              <span className="text-xs text-muted">{task.createdAt.slice(0, 10)}</span>
               <button
                 type="button"
                 onClick={() => void deleteTask(task.id)}

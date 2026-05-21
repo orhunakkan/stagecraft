@@ -48,23 +48,27 @@ export function ServiceWorkers() {
     <div>
       <LabHeader lab={lab} />
 
-      <p className="mb-8 text-sm text-zinc-500">
+      <p className="mb-8 text-sm text-muted">
         Service workers intercept requests <em>before</em>{' '}
-        <code className="rounded bg-zinc-100 px-1 text-xs">page.route()</code> ever sees them. Use{' '}
-        <code className="rounded bg-zinc-100 px-1 text-xs">serviceWorkers: &apos;block&apos;</code>{' '}
+        <code className="rounded bg-surface-raised px-1 text-xs">page.route()</code> ever sees them.
+        Use{' '}
+        <code className="rounded bg-surface-raised px-1 text-xs">
+          serviceWorkers: &apos;block&apos;
+        </code>{' '}
         in your browser context options to bypass them entirely during tests.
       </p>
 
       <div className="space-y-10">
         {/* ── SW registration ───────────────────────────────────────────── */}
         <section aria-labelledby="sw-reg-heading">
-          <h2 id="sw-reg-heading" className="mb-1 text-base font-semibold text-zinc-900">
+          <h2 id="sw-reg-heading" className="mb-1 text-base font-semibold text-content">
             Step 1 — Register the service worker
           </h2>
-          <p className="mb-4 text-sm text-zinc-500">
+          <p className="mb-4 text-sm text-muted">
             Register a service worker scoped to this page. Once registered, it will intercept
-            requests to <code className="rounded bg-zinc-100 px-1 text-xs">/api/sw-items</code> and
-            return stale cached data regardless of what the real server responds.
+            requests to{' '}
+            <code className="rounded bg-surface-raised px-1 text-xs">/api/sw-items</code> and return
+            stale cached data regardless of what the real server responds.
           </p>
           <button
             type="button"
@@ -74,12 +78,16 @@ export function ServiceWorkers() {
             Register service worker
           </button>
           {swRegistered === true && (
-            <p role="status" aria-live="polite" className="mt-2 text-sm text-emerald-600">
+            <p
+              role="status"
+              aria-live="polite"
+              className="mt-2 text-sm text-emerald-600 dark:text-emerald-400"
+            >
               ✓ Service worker registered
             </p>
           )}
           {swRegistered === false && (
-            <p role="alert" className="mt-2 text-sm text-red-600">
+            <p role="alert" className="mt-2 text-sm text-red-600 dark:text-red-400">
               ✗ Registration failed (not supported or already registered)
             </p>
           )}
@@ -87,13 +95,13 @@ export function ServiceWorkers() {
 
         {/* ── Fetch with SW ─────────────────────────────────────────────── */}
         <section aria-labelledby="fetch-heading">
-          <h2 id="fetch-heading" className="mb-1 text-base font-semibold text-zinc-900">
+          <h2 id="fetch-heading" className="mb-1 text-base font-semibold text-content">
             Step 2 — Fetch items (SW intercepts)
           </h2>
-          <p className="mb-4 text-sm text-zinc-500">
+          <p className="mb-4 text-sm text-muted">
             Click &quot;Fetch items&quot;. If the SW is active, it returns cached stale data. A
             Playwright test using{' '}
-            <code className="rounded bg-zinc-100 px-1 text-xs">page.route()</code> alone{' '}
+            <code className="rounded bg-surface-raised px-1 text-xs">page.route()</code> alone{' '}
             <strong>will not intercept</strong> this request — the SW gets there first.
           </p>
 
@@ -102,7 +110,7 @@ export function ServiceWorkers() {
             onClick={() => void fetchItems()}
             disabled={loading}
             data-testid="fetch-items-btn"
-            className="rounded-lg border border-zinc-300 px-4 py-2 text-sm font-medium text-zinc-700 hover:bg-zinc-50 disabled:opacity-50"
+            className="rounded-lg border border-edge px-4 py-2 text-sm font-medium text-muted hover:bg-canvas disabled:opacity-50"
           >
             Fetch items
           </button>
@@ -111,15 +119,15 @@ export function ServiceWorkers() {
             <div
               role="status"
               aria-label="Loading"
-              className="mt-3 flex items-center gap-2 text-sm text-zinc-500"
+              className="mt-3 flex items-center gap-2 text-sm text-muted"
             >
-              <span className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-zinc-300 border-t-indigo-600" />
+              <span className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-edge border-t-indigo-600" />
               Loading…
             </div>
           )}
 
           {error && (
-            <p role="alert" className="mt-3 text-sm text-red-600">
+            <p role="alert" className="mt-3 text-sm text-red-600 dark:text-red-400">
               {error}
             </p>
           )}
@@ -130,13 +138,13 @@ export function ServiceWorkers() {
                 <li
                   key={item.id}
                   data-testid={`sw-item-${item.id}`}
-                  className="flex items-center gap-2 rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm"
+                  className="flex items-center gap-2 rounded-lg border border-edge bg-surface px-3 py-2 text-sm"
                 >
                   <span
                     className={`rounded px-1.5 py-0.5 text-xs font-medium ${
                       item.source === 'cache'
-                        ? 'bg-amber-50 text-amber-700'
-                        : 'bg-emerald-50 text-emerald-700'
+                        ? 'bg-amber-50 text-amber-700 dark:bg-amber-950 dark:text-amber-300'
+                        : 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300'
                     }`}
                   >
                     {item.source}
@@ -150,13 +158,13 @@ export function ServiceWorkers() {
 
         {/* ── Block SW ──────────────────────────────────────────────────── */}
         <section aria-labelledby="block-heading">
-          <h2 id="block-heading" className="mb-1 text-base font-semibold text-zinc-900">
+          <h2 id="block-heading" className="mb-1 text-base font-semibold text-content">
             Step 3 — Block the service worker
           </h2>
-          <div className="rounded-xl border border-indigo-100 bg-indigo-50 p-4 text-sm text-indigo-800">
+          <div className="rounded-xl border border-indigo-100 bg-indigo-50 p-4 text-sm text-indigo-800 dark:border-indigo-700 dark:bg-indigo-950 dark:text-indigo-300">
             <p>
               In your Playwright test, pass{' '}
-              <code className="rounded bg-indigo-100 px-1 text-xs">
+              <code className="rounded bg-indigo-100 px-1 text-xs dark:bg-indigo-900">
                 serviceWorkers: &apos;block&apos;
               </code>{' '}
               when creating the context:
@@ -167,9 +175,15 @@ export function ServiceWorkers() {
 });`}
             </pre>
             <p className="mt-3">
-              Now <code className="rounded bg-indigo-100 px-1 text-xs">page.route()</code> will
-              intercept <code className="rounded bg-indigo-100 px-1 text-xs">/api/sw-items</code> as
-              expected, and you can mock or verify the real server response.
+              Now{' '}
+              <code className="rounded bg-indigo-100 px-1 text-xs dark:bg-indigo-900">
+                page.route()
+              </code>{' '}
+              will intercept{' '}
+              <code className="rounded bg-indigo-100 px-1 text-xs dark:bg-indigo-900">
+                /api/sw-items
+              </code>{' '}
+              as expected, and you can mock or verify the real server response.
             </p>
           </div>
         </section>

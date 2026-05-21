@@ -43,7 +43,7 @@ export function DebuggingReporting() {
     <div>
       <LabHeader lab={lab} />
 
-      <p className="mb-8 text-sm text-zinc-500">
+      <p className="mb-8 text-sm text-muted">
         Playwright&apos;s trace API, screenshots, and retry options are most useful when tests fail
         unexpectedly. This lab exposes deliberately unreliable components so you can practice
         diagnosing failures.
@@ -52,19 +52,19 @@ export function DebuggingReporting() {
       <div className="space-y-10">
         {/* ── Flaky button ───────────────────────────────────────────────── */}
         <section aria-labelledby="flaky-heading">
-          <h2 id="flaky-heading" className="mb-1 text-base font-semibold text-zinc-900">
+          <h2 id="flaky-heading" className="mb-1 text-base font-semibold text-content">
             Flaky component
           </h2>
-          <p className="mb-1 text-sm text-zinc-500">
+          <p className="mb-1 text-sm text-muted">
             This button fails every third click. Configure{' '}
-            <code className="rounded bg-zinc-100 px-1 text-xs">
+            <code className="rounded bg-surface-raised px-1 text-xs">
               test.describe.configure(&#123; retries: 2 &#125;)
             </code>{' '}
             and observe how Playwright retries. Use{' '}
-            <code className="rounded bg-zinc-100 px-1 text-xs">context.tracing.start()</code> on
-            retry to capture a trace.
+            <code className="rounded bg-surface-raised px-1 text-xs">context.tracing.start()</code>{' '}
+            on retry to capture a trace.
           </p>
-          <p className="mb-4 text-xs text-zinc-400">
+          <p className="mb-4 text-xs text-muted">
             Click count: {flakyCount} — fails on clicks 3, 6, 9…
           </p>
           <div className="flex flex-wrap items-center gap-3">
@@ -81,7 +81,7 @@ export function DebuggingReporting() {
                 role="status"
                 aria-live="polite"
                 data-testid="flaky-success"
-                className="text-sm font-medium text-emerald-600"
+                className="text-sm font-medium text-emerald-600 dark:text-emerald-400"
               >
                 ✓ Success
               </span>
@@ -90,7 +90,7 @@ export function DebuggingReporting() {
               <span
                 role="alert"
                 data-testid="flaky-error"
-                className="text-sm font-medium text-red-600"
+                className="text-sm font-medium text-red-600 dark:text-red-400"
               >
                 ✗ Error — this was the flaky click
               </span>
@@ -100,12 +100,12 @@ export function DebuggingReporting() {
 
         {/* ── Slow component ─────────────────────────────────────────────── */}
         <section aria-labelledby="slow-heading">
-          <h2 id="slow-heading" className="mb-1 text-base font-semibold text-zinc-900">
+          <h2 id="slow-heading" className="mb-1 text-base font-semibold text-content">
             Slow component
           </h2>
-          <p className="mb-4 text-sm text-zinc-500">
+          <p className="mb-4 text-sm text-muted">
             Takes 2 seconds to complete. Practice attaching a screenshot at a key point with{' '}
-            <code className="rounded bg-zinc-100 px-1 text-xs">testInfo.attach()</code> and
+            <code className="rounded bg-surface-raised px-1 text-xs">testInfo.attach()</code> and
             configuring a step-level timeout.
           </p>
           <button
@@ -113,7 +113,7 @@ export function DebuggingReporting() {
             onClick={() => void handleSlow()}
             disabled={slowState === 'loading'}
             data-testid="slow-button"
-            className="rounded-lg border border-zinc-300 px-4 py-2 text-sm font-medium text-zinc-700 hover:bg-zinc-50 disabled:cursor-not-allowed disabled:opacity-50"
+            className="rounded-lg border border-edge px-4 py-2 text-sm font-medium text-muted hover:bg-canvas disabled:cursor-not-allowed disabled:opacity-50"
           >
             Trigger slow operation
           </button>
@@ -121,9 +121,9 @@ export function DebuggingReporting() {
             <div
               role="status"
               aria-label="Loading"
-              className="mt-3 flex items-center gap-2 text-sm text-zinc-500"
+              className="mt-3 flex items-center gap-2 text-sm text-muted"
             >
-              <span className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-zinc-300 border-t-indigo-600" />
+              <span className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-edge border-t-indigo-600" />
               Processing…
             </div>
           )}
@@ -132,7 +132,7 @@ export function DebuggingReporting() {
               role="status"
               aria-live="polite"
               data-testid="slow-result"
-              className="mt-3 text-sm text-emerald-600"
+              className="mt-3 text-sm text-emerald-600 dark:text-emerald-400"
             >
               ✓ Operation complete
             </p>
@@ -141,22 +141,22 @@ export function DebuggingReporting() {
 
         {/* ── Non-deterministic content ──────────────────────────────────── */}
         <section aria-labelledby="nondeterministic-heading">
-          <h2 id="nondeterministic-heading" className="mb-1 text-base font-semibold text-zinc-900">
+          <h2 id="nondeterministic-heading" className="mb-1 text-base font-semibold text-content">
             Non-deterministic content
           </h2>
-          <p className="mb-4 text-sm text-zinc-500">
+          <p className="mb-4 text-sm text-muted">
             This counter updates every second. A naive{' '}
-            <code className="rounded bg-zinc-100 px-1 text-xs">toHaveText()</code> on the raw number
-            will be flaky. Use{' '}
-            <code className="rounded bg-zinc-100 px-1 text-xs">expect.poll()</code> or assert a
-            regex that matches any number, not a specific value.
+            <code className="rounded bg-surface-raised px-1 text-xs">toHaveText()</code> on the raw
+            number will be flaky. Use{' '}
+            <code className="rounded bg-surface-raised px-1 text-xs">expect.poll()</code> or assert
+            a regex that matches any number, not a specific value.
           </p>
-          <div className="inline-flex items-center gap-3 rounded-xl border border-zinc-200 bg-white px-4 py-3">
-            <span className="text-xs uppercase tracking-wider text-zinc-400">Uptime</span>
+          <div className="inline-flex items-center gap-3 rounded-xl border border-edge bg-surface px-4 py-3">
+            <span className="text-xs uppercase tracking-wider text-muted">Uptime</span>
             <span
               data-testid="live-counter"
               aria-label={`${ticker} seconds`}
-              className="text-2xl font-bold tabular-nums text-zinc-900"
+              className="text-2xl font-bold tabular-nums text-content"
             >
               {ticker}s
             </span>
@@ -165,12 +165,12 @@ export function DebuggingReporting() {
 
         {/* ── Screenshot hint ────────────────────────────────────────────── */}
         <section aria-labelledby="screenshot-heading">
-          <h2 id="screenshot-heading" className="mb-1 text-base font-semibold text-zinc-900">
+          <h2 id="screenshot-heading" className="mb-1 text-base font-semibold text-content">
             Screenshot attachment
           </h2>
-          <p className="mb-4 text-sm text-zinc-500">
+          <p className="mb-4 text-sm text-muted">
             Toggle the panel below, then use{' '}
-            <code className="rounded bg-zinc-100 px-1 text-xs">
+            <code className="rounded bg-surface-raised px-1 text-xs">
               testInfo.attach(&apos;panel-open&apos;, &#123; body: await page.screenshot() &#125;)
             </code>{' '}
             to embed it in the HTML report.
@@ -179,14 +179,14 @@ export function DebuggingReporting() {
             type="button"
             aria-expanded={screenshotHint}
             onClick={() => setScreenshotHint((v) => !v)}
-            className="rounded-lg border border-zinc-300 bg-white px-4 py-2 text-sm font-medium text-zinc-700 hover:bg-zinc-50"
+            className="rounded-lg border border-edge bg-surface px-4 py-2 text-sm font-medium text-muted hover:bg-canvas"
           >
             {screenshotHint ? 'Collapse panel' : 'Expand panel'}
           </button>
           {screenshotHint && (
             <div
               data-testid="expandable-panel"
-              className="mt-3 rounded-xl border border-indigo-200 bg-indigo-50 px-4 py-3 text-sm text-indigo-800"
+              className="mt-3 rounded-xl border border-indigo-200 bg-indigo-50 px-4 py-3 text-sm text-indigo-800 dark:border-indigo-700 dark:bg-indigo-950 dark:text-indigo-300"
             >
               📸 Take a screenshot here. This content should appear in the trace viewer and HTML
               report when you attach it.

@@ -63,34 +63,34 @@ export function EmulationInput() {
     <div>
       <LabHeader lab={lab} />
 
-      <p className="mb-8 text-sm text-zinc-500">
+      <p className="mb-8 text-sm text-muted">
         Practice low-level input APIs:{' '}
-        <code className="rounded bg-zinc-100 px-1 text-xs">page.keyboard.press()</code>,{' '}
-        <code className="rounded bg-zinc-100 px-1 text-xs">page.mouse.move()</code>, and{' '}
-        <code className="rounded bg-zinc-100 px-1 text-xs">page.setViewportSize()</code>.
+        <code className="rounded bg-surface-raised px-1 text-xs">page.keyboard.press()</code>,{' '}
+        <code className="rounded bg-surface-raised px-1 text-xs">page.mouse.move()</code>, and{' '}
+        <code className="rounded bg-surface-raised px-1 text-xs">page.setViewportSize()</code>.
       </p>
 
       <div className="space-y-10">
         {/* ── Command palette ────────────────────────────────────────────── */}
         <section aria-labelledby="keyboard-heading">
-          <h2 id="keyboard-heading" className="mb-1 text-base font-semibold text-zinc-900">
+          <h2 id="keyboard-heading" className="mb-1 text-base font-semibold text-content">
             Keyboard — Command palette
           </h2>
-          <p className="mb-4 text-sm text-zinc-500">
+          <p className="mb-4 text-sm text-muted">
             Press{' '}
-            <kbd className="rounded border border-zinc-300 bg-zinc-100 px-1.5 py-0.5 text-xs font-mono">
+            <kbd className="rounded border border-edge bg-surface-raised px-1.5 py-0.5 text-xs font-mono">
               Ctrl+K
             </kbd>{' '}
             to open the palette. Navigate with{' '}
-            <kbd className="rounded border border-zinc-300 bg-zinc-100 px-1.5 py-0.5 text-xs font-mono">
+            <kbd className="rounded border border-edge bg-surface-raised px-1.5 py-0.5 text-xs font-mono">
               ↑↓
             </kbd>
             , confirm with{' '}
-            <kbd className="rounded border border-zinc-300 bg-zinc-100 px-1.5 py-0.5 text-xs font-mono">
+            <kbd className="rounded border border-edge bg-surface-raised px-1.5 py-0.5 text-xs font-mono">
               Enter
             </kbd>
             , dismiss with{' '}
-            <kbd className="rounded border border-zinc-300 bg-zinc-100 px-1.5 py-0.5 text-xs font-mono">
+            <kbd className="rounded border border-edge bg-surface-raised px-1.5 py-0.5 text-xs font-mono">
               Esc
             </kbd>
             .
@@ -101,13 +101,13 @@ export function EmulationInput() {
               setPaletteOpen(true);
               setSelectedIdx(0);
             }}
-            className="rounded-lg border border-zinc-300 bg-white px-4 py-2 text-sm font-medium text-zinc-700 hover:bg-zinc-50"
+            className="rounded-lg border border-edge bg-surface px-4 py-2 text-sm font-medium text-muted hover:bg-canvas"
           >
             Open command palette
           </button>
 
           {lastCommand && (
-            <p role="status" aria-live="polite" className="mt-3 text-sm text-zinc-600">
+            <p role="status" aria-live="polite" className="mt-3 text-sm text-muted">
               Executed: <strong>{lastCommand}</strong>
             </p>
           )}
@@ -122,10 +122,10 @@ export function EmulationInput() {
               onClick={() => setPaletteOpen(false)}
             >
               <div
-                className="w-full max-w-md rounded-xl border border-zinc-200 bg-white shadow-2xl"
+                className="w-full max-w-md rounded-xl border border-edge bg-surface shadow-2xl"
                 onClick={(e) => e.stopPropagation()}
               >
-                <div className="border-b border-zinc-200 px-4 py-3 text-xs font-medium text-zinc-500">
+                <div className="border-b border-edge px-4 py-3 text-xs font-medium text-muted">
                   Command Palette
                 </div>
                 <ul role="listbox" aria-label="Commands" className="max-h-64 overflow-y-auto py-1">
@@ -141,12 +141,12 @@ export function EmulationInput() {
                       className={[
                         'flex cursor-pointer items-center justify-between px-4 py-2 text-sm',
                         idx === selectedIdx
-                          ? 'bg-indigo-50 text-indigo-700'
-                          : 'text-zinc-700 hover:bg-zinc-50',
+                          ? 'bg-indigo-50 text-indigo-700 dark:bg-indigo-950 dark:text-indigo-300'
+                          : 'text-muted hover:bg-canvas',
                       ].join(' ')}
                     >
                       {cmd.label}
-                      <kbd className="text-xs text-zinc-400">⌘{cmd.shortcut}</kbd>
+                      <kbd className="text-xs text-muted">⌘{cmd.shortcut}</kbd>
                     </li>
                   ))}
                 </ul>
@@ -157,13 +157,13 @@ export function EmulationInput() {
 
         {/* ── Hover tooltip ──────────────────────────────────────────────── */}
         <section aria-labelledby="mouse-heading">
-          <h2 id="mouse-heading" className="mb-1 text-base font-semibold text-zinc-900">
+          <h2 id="mouse-heading" className="mb-1 text-base font-semibold text-content">
             Mouse — Hover tooltip
           </h2>
-          <p className="mb-4 text-sm text-zinc-500">
-            Use <code className="rounded bg-zinc-100 px-1 text-xs">page.mouse.move()</code> or{' '}
-            <code className="rounded bg-zinc-100 px-1 text-xs">locator.hover()</code> to trigger
-            hover states. Assert that the tooltip becomes visible.
+          <p className="mb-4 text-sm text-muted">
+            Use <code className="rounded bg-surface-raised px-1 text-xs">page.mouse.move()</code> or{' '}
+            <code className="rounded bg-surface-raised px-1 text-xs">locator.hover()</code> to
+            trigger hover states. Assert that the tooltip becomes visible.
           </p>
           <div className="relative inline-block">
             <button
@@ -173,7 +173,7 @@ export function EmulationInput() {
               onFocus={() => setTooltip(true)}
               onBlur={() => setTooltip(false)}
               aria-describedby="hover-tooltip"
-              className="rounded-lg border border-zinc-300 bg-white px-4 py-2 text-sm font-medium text-zinc-700"
+              className="rounded-lg border border-edge bg-surface px-4 py-2 text-sm font-medium text-muted"
             >
               Hover over me
             </button>
@@ -191,25 +191,27 @@ export function EmulationInput() {
 
         {/* ── Viewport / responsive ──────────────────────────────────────── */}
         <section aria-labelledby="viewport-heading">
-          <h2 id="viewport-heading" className="mb-1 text-base font-semibold text-zinc-900">
+          <h2 id="viewport-heading" className="mb-1 text-base font-semibold text-content">
             Viewport — Responsive layout
           </h2>
-          <p className="mb-4 text-sm text-zinc-500">
-            Use <code className="rounded bg-zinc-100 px-1 text-xs">page.setViewportSize()</code> or
-            Playwright&apos;s <code className="rounded bg-zinc-100 px-1 text-xs">devices</code> to
-            emulate different screen sizes. This card changes its layout at different widths.
+          <p className="mb-4 text-sm text-muted">
+            Use{' '}
+            <code className="rounded bg-surface-raised px-1 text-xs">page.setViewportSize()</code>{' '}
+            or Playwright&apos;s{' '}
+            <code className="rounded bg-surface-raised px-1 text-xs">devices</code> to emulate
+            different screen sizes. This card changes its layout at different widths.
           </p>
           <div
             data-testid="responsive-card"
-            className="rounded-xl border border-zinc-200 bg-white p-4 sm:flex sm:items-center sm:gap-4"
+            className="rounded-xl border border-edge bg-surface p-4 sm:flex sm:items-center sm:gap-4"
           >
-            <div className="mb-3 flex h-14 w-14 shrink-0 items-center justify-center rounded-xl bg-indigo-100 sm:mb-0">
+            <div className="mb-3 flex h-14 w-14 shrink-0 items-center justify-center rounded-xl bg-indigo-100 dark:bg-indigo-950 sm:mb-0">
               <span className="text-xl">🎭</span>
             </div>
             <div>
-              <p className="font-semibold text-zinc-900">Responsive component</p>
-              <p className="mt-0.5 text-sm text-zinc-500 sm:hidden">Mobile layout (stacked)</p>
-              <p className="mt-0.5 hidden text-sm text-zinc-500 sm:block">
+              <p className="font-semibold text-content">Responsive component</p>
+              <p className="mt-0.5 text-sm text-muted sm:hidden">Mobile layout (stacked)</p>
+              <p className="mt-0.5 hidden text-sm text-muted sm:block">
                 Wide layout (side-by-side)
               </p>
             </div>
@@ -218,24 +220,24 @@ export function EmulationInput() {
 
         {/* ── Scroll ─────────────────────────────────────────────────────── */}
         <section aria-labelledby="scroll-heading">
-          <h2 id="scroll-heading" className="mb-1 text-base font-semibold text-zinc-900">
+          <h2 id="scroll-heading" className="mb-1 text-base font-semibold text-content">
             Scroll — Sticky action
           </h2>
-          <p className="mb-4 text-sm text-zinc-500">
-            Use <code className="rounded bg-zinc-100 px-1 text-xs">page.mouse.wheel()</code> to
-            scroll the scrollable container below. The &quot;Scroll to top&quot; button appears only
-            after scrolling down.
+          <p className="mb-4 text-sm text-muted">
+            Use <code className="rounded bg-surface-raised px-1 text-xs">page.mouse.wheel()</code>{' '}
+            to scroll the scrollable container below. The &quot;Scroll to top&quot; button appears
+            only after scrolling down.
           </p>
           <div
             ref={scrollRef}
             onScroll={handleScroll}
             data-testid="scroll-container"
-            className="relative h-40 overflow-y-auto rounded-xl border border-zinc-200 bg-zinc-50 p-4"
+            className="relative h-40 overflow-y-auto rounded-xl border border-edge bg-canvas p-4"
             tabIndex={0}
             aria-label="Scrollable content"
           >
             {Array.from({ length: 12 }, (_, i) => (
-              <p key={i} className="mb-2 text-xs text-zinc-500">
+              <p key={i} className="mb-2 text-xs text-muted">
                 Line {i + 1} — scroll down to reveal the action button.
               </p>
             ))}

@@ -206,9 +206,9 @@ type SortKey = 'name' | 'department' | 'status' | 'joined';
 type SortDir = 'asc' | 'desc';
 
 const statusColor: Record<Employee['status'], string> = {
-  Active: 'bg-emerald-50 text-emerald-700',
-  'On Leave': 'bg-amber-50 text-amber-700',
-  Terminated: 'bg-red-50 text-red-600',
+  Active: 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300',
+  'On Leave': 'bg-amber-50 text-amber-700 dark:bg-amber-950 dark:text-amber-300',
+  Terminated: 'bg-red-50 text-red-600 dark:bg-red-950 dark:text-red-400',
 };
 
 function employeeMatchesSearch(employee: Employee, search: string): boolean {
@@ -249,7 +249,7 @@ function SortableHeader({
     <button
       type="button"
       onClick={() => onSort(col)}
-      className="font-semibold text-zinc-700 hover:text-indigo-700"
+      className="font-semibold text-muted hover:text-accent"
       aria-label={`Sort by ${ariaName} ${nextDir}`}
     >
       {label}
@@ -310,16 +310,17 @@ export function TablesFiltering() {
     <div>
       <LabHeader lab={lab} />
 
-      <p className="mb-6 text-sm text-zinc-500">
-        Practice <code className="rounded bg-zinc-100 px-1 text-xs">getByRole('row').filter()</code>
-        , <code className="rounded bg-zinc-100 px-1 text-xs">locator.nth()</code>, and asserting
+      <p className="mb-6 text-sm text-muted">
+        Practice{' '}
+        <code className="rounded bg-surface-raised px-1 text-xs">getByRole('row').filter()</code>,{' '}
+        <code className="rounded bg-surface-raised px-1 text-xs">locator.nth()</code>, and asserting
         sort order across pages.
       </p>
 
       {/* Toolbar */}
       <div className="mb-4 flex flex-wrap gap-3">
         <div className="flex flex-col gap-1">
-          <label htmlFor="employee-search" className="text-xs font-medium text-zinc-600">
+          <label htmlFor="employee-search" className="text-xs font-medium text-muted">
             Search
           </label>
           <input
@@ -331,12 +332,12 @@ export function TablesFiltering() {
               setPage(1);
             }}
             placeholder="Name or role…"
-            className="rounded-lg border border-zinc-300 px-3 py-1.5 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+            className="rounded-lg border border-edge px-3 py-1.5 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
           />
         </div>
 
         <div className="flex flex-col gap-1">
-          <label htmlFor="department-filter" className="text-xs font-medium text-zinc-600">
+          <label htmlFor="department-filter" className="text-xs font-medium text-muted">
             Department
           </label>
           <select
@@ -346,7 +347,7 @@ export function TablesFiltering() {
               setDept(e.target.value);
               setPage(1);
             }}
-            className="rounded-lg border border-zinc-300 px-3 py-1.5 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+            className="rounded-lg border border-edge px-3 py-1.5 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
           >
             {DEPARTMENTS.map((d) => (
               <option key={d} value={d}>
@@ -358,7 +359,7 @@ export function TablesFiltering() {
       </div>
 
       {/* Status */}
-      <p role="status" className="mb-3 text-sm text-zinc-500">
+      <p role="status" className="mb-3 text-sm text-muted">
         {filtered.length === 0 ? 'No employees found.' : `${filtered.length} employees`}
       </p>
 
@@ -366,16 +367,16 @@ export function TablesFiltering() {
         <div
           role="alert"
           aria-live="polite"
-          className="mb-3 rounded-lg bg-zinc-100 px-3 py-2 text-sm text-zinc-700"
+          className="mb-3 rounded-lg bg-surface-raised px-3 py-2 text-sm text-content"
         >
           {notification}
         </div>
       )}
 
       {/* Table */}
-      <div className="overflow-x-auto rounded-xl border border-zinc-200">
+      <div className="overflow-x-auto rounded-xl border border-edge">
         <table className="w-full text-sm">
-          <thead className="border-b border-zinc-200 bg-zinc-50">
+          <thead className="border-b border-edge bg-canvas">
             <tr>
               <th className="px-4 py-3 text-left">
                 <SortableHeader
@@ -397,7 +398,7 @@ export function TablesFiltering() {
                   onSort={handleSort}
                 />
               </th>
-              <th className="px-4 py-3 text-left font-semibold text-zinc-700">Role</th>
+              <th className="px-4 py-3 text-left font-semibold text-muted">Role</th>
               <th className="px-4 py-3 text-left">
                 <SortableHeader
                   col="status"
@@ -418,22 +419,22 @@ export function TablesFiltering() {
                   onSort={handleSort}
                 />
               </th>
-              <th className="px-4 py-3 text-left font-semibold text-zinc-700">Actions</th>
+              <th className="px-4 py-3 text-left font-semibold text-muted">Actions</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-zinc-100 bg-white">
+          <tbody className="divide-y divide-edge bg-surface">
             {pageRows.length === 0 ? (
               <tr>
-                <td colSpan={6} className="px-4 py-8 text-center text-sm text-zinc-400">
+                <td colSpan={6} className="px-4 py-8 text-center text-sm text-muted">
                   No employees match your filters.
                 </td>
               </tr>
             ) : (
               pageRows.map((emp) => (
-                <tr key={emp.id} className="hover:bg-zinc-50">
-                  <td className="px-4 py-3 font-medium text-zinc-900">{emp.name}</td>
-                  <td className="px-4 py-3 text-zinc-600">{emp.department}</td>
-                  <td className="px-4 py-3 text-zinc-600">{emp.role}</td>
+                <tr key={emp.id} className="hover:bg-canvas">
+                  <td className="px-4 py-3 font-medium text-content">{emp.name}</td>
+                  <td className="px-4 py-3 text-muted">{emp.department}</td>
+                  <td className="px-4 py-3 text-muted">{emp.role}</td>
                   <td className="px-4 py-3">
                     <span
                       className={`rounded px-2 py-0.5 text-xs font-medium ${statusColor[emp.status]}`}
@@ -441,7 +442,7 @@ export function TablesFiltering() {
                       {emp.status}
                     </span>
                   </td>
-                  <td className="px-4 py-3 text-zinc-500">{emp.joined}</td>
+                  <td className="px-4 py-3 text-muted">{emp.joined}</td>
                   <td className="relative px-4 py-3">
                     <button
                       type="button"
@@ -449,7 +450,7 @@ export function TablesFiltering() {
                       aria-haspopup="true"
                       aria-expanded={actionRow === emp.id}
                       aria-label={`Actions for ${emp.name}`}
-                      className="rounded px-2 py-1 text-xs font-medium text-zinc-600 hover:bg-zinc-100"
+                      className="rounded px-2 py-1 text-xs font-medium text-muted hover:bg-surface-raised"
                     >
                       ⋯
                     </button>
@@ -457,7 +458,7 @@ export function TablesFiltering() {
                       <div
                         role="menu"
                         aria-label={`${emp.name} actions`}
-                        className="absolute right-2 z-10 mt-1 w-32 rounded-lg border border-zinc-200 bg-white shadow-lg"
+                        className="absolute right-2 z-10 mt-1 w-32 rounded-lg border border-edge bg-surface shadow-lg"
                       >
                         <button
                           type="button"
@@ -467,7 +468,7 @@ export function TablesFiltering() {
                             setNotification(`Editing ${emp.name}…`);
                             setTimeout(() => setNotification(null), 1500);
                           }}
-                          className="block w-full px-3 py-2 text-left text-sm text-zinc-700 hover:bg-zinc-50"
+                          className="block w-full px-3 py-2 text-left text-sm text-muted hover:bg-canvas"
                         >
                           Edit
                         </button>
@@ -475,7 +476,7 @@ export function TablesFiltering() {
                           type="button"
                           role="menuitem"
                           onClick={() => handleDelete(emp.id)}
-                          className="block w-full px-3 py-2 text-left text-sm text-red-600 hover:bg-red-50"
+                          className="block w-full px-3 py-2 text-left text-sm text-red-600 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-950"
                         >
                           Remove
                         </button>
@@ -494,7 +495,7 @@ export function TablesFiltering() {
         aria-label="Employee table pagination"
         className="mt-4 flex items-center justify-between gap-2"
       >
-        <p className="text-sm text-zinc-500">
+        <p className="text-sm text-muted">
           Page {page} of {totalPages}
         </p>
         <div className="flex gap-2">
@@ -502,7 +503,7 @@ export function TablesFiltering() {
             type="button"
             onClick={() => setPage((p) => Math.max(1, p - 1))}
             disabled={page === 1}
-            className="rounded-lg border border-zinc-200 px-3 py-1.5 text-sm text-zinc-600 disabled:cursor-not-allowed disabled:opacity-40 hover:enabled:bg-zinc-50"
+            className="rounded-lg border border-edge px-3 py-1.5 text-sm text-muted disabled:cursor-not-allowed disabled:opacity-40 hover:enabled:bg-canvas"
           >
             Previous
           </button>
@@ -516,7 +517,7 @@ export function TablesFiltering() {
                 'rounded-lg border px-3 py-1.5 text-sm',
                 n === page
                   ? 'border-indigo-500 bg-indigo-600 text-white'
-                  : 'border-zinc-200 text-zinc-600 hover:bg-zinc-50',
+                  : 'border-edge text-muted hover:bg-canvas',
               ].join(' ')}
             >
               {n}
@@ -526,7 +527,7 @@ export function TablesFiltering() {
             type="button"
             onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
             disabled={page === totalPages}
-            className="rounded-lg border border-zinc-200 px-3 py-1.5 text-sm text-zinc-600 disabled:cursor-not-allowed disabled:opacity-40 hover:enabled:bg-zinc-50"
+            className="rounded-lg border border-edge px-3 py-1.5 text-sm text-muted disabled:cursor-not-allowed disabled:opacity-40 hover:enabled:bg-canvas"
           >
             Next
           </button>

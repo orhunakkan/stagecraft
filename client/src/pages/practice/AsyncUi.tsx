@@ -91,12 +91,13 @@ export function AsyncUi() {
       <div className="space-y-12">
         {/* ── Section 1 ──────────────────────────────────────────────────────── */}
         <section aria-labelledby="articles-heading">
-          <h2 id="articles-heading" className="mb-1 text-base font-semibold text-zinc-900">
+          <h2 id="articles-heading" className="mb-1 text-base font-semibold text-content">
             Delayed content
           </h2>
-          <p className="mb-4 text-sm text-zinc-500">
+          <p className="mb-4 text-sm text-muted">
             Load takes ~1.5 s. Practice asserting the loading state and waiting for content to
-            appear. Use <code className="rounded bg-zinc-100 px-1 text-xs">Load with error</code> to
+            appear. Use{' '}
+            <code className="rounded bg-surface-raised px-1 text-xs">Load with error</code> to
             trigger a failure.
           </p>
 
@@ -113,7 +114,7 @@ export function AsyncUi() {
               type="button"
               onClick={() => void loadArticles(true)}
               disabled={loadState === 'loading'}
-              className="rounded-lg border border-red-300 px-3 py-1.5 text-sm font-medium text-red-600 transition-colors hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-50"
+              className="rounded-lg border border-red-300 px-3 py-1.5 text-sm font-medium text-red-600 transition-colors hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-50 dark:border-red-700 dark:text-red-400 dark:hover:bg-red-950"
             >
               Load with error
             </button>
@@ -123,20 +124,25 @@ export function AsyncUi() {
             <div
               role="status"
               aria-label="Loading articles"
-              className="flex items-center gap-2 text-sm text-zinc-500"
+              className="flex items-center gap-2 text-sm text-muted"
             >
-              <span className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-zinc-300 border-t-indigo-600" />
+              <span className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-edge border-t-indigo-600" />
               Loading articles…
             </div>
           )}
 
           {loadState === 'error' && (
-            <div role="alert" className="rounded-lg border border-red-200 bg-red-50 p-4">
-              <p className="text-sm font-medium text-red-700">Failed to load articles.</p>
+            <div
+              role="alert"
+              className="rounded-lg border border-red-200 bg-red-50 p-4 dark:border-red-700 dark:bg-red-950"
+            >
+              <p className="text-sm font-medium text-red-700 dark:text-red-400">
+                Failed to load articles.
+              </p>
               <button
                 type="button"
                 onClick={() => void loadArticles(false)}
-                className="mt-2 text-sm text-red-600 underline hover:text-red-800"
+                className="mt-2 text-sm text-red-600 underline hover:text-red-800 dark:text-red-400 dark:hover:text-red-300"
               >
                 Retry
               </button>
@@ -146,13 +152,10 @@ export function AsyncUi() {
           {loadState === 'success' && (
             <div className="space-y-3">
               {articles.map((article) => (
-                <article
-                  key={article.id}
-                  className="rounded-xl border border-zinc-200 bg-white p-4"
-                >
-                  <h3 className="text-sm font-semibold text-zinc-900">{article.title}</h3>
-                  <p className="mt-0.5 text-xs text-zinc-400">{article.source}</p>
-                  <p className="mt-1 text-xs text-zinc-600">{article.summary}</p>
+                <article key={article.id} className="rounded-xl border border-edge bg-surface p-4">
+                  <h3 className="text-sm font-semibold text-content">{article.title}</h3>
+                  <p className="mt-0.5 text-xs text-muted">{article.source}</p>
+                  <p className="mt-1 text-xs text-muted">{article.summary}</p>
                 </article>
               ))}
             </div>
@@ -161,25 +164,25 @@ export function AsyncUi() {
 
         {/* ── Section 2 ──────────────────────────────────────────────────────── */}
         <section aria-labelledby="ticker-heading">
-          <h2 id="ticker-heading" className="mb-1 text-base font-semibold text-zinc-900">
+          <h2 id="ticker-heading" className="mb-1 text-base font-semibold text-content">
             Auto-polling ticker
           </h2>
-          <p className="mb-4 text-sm text-zinc-500">
+          <p className="mb-4 text-sm text-muted">
             Price updates every 2 s automatically. Use{' '}
-            <code className="rounded bg-zinc-100 px-1 text-xs">expect.poll()</code> to assert a
-            value that keeps changing.
+            <code className="rounded bg-surface-raised px-1 text-xs">expect.poll()</code> to assert
+            a value that keeps changing.
           </p>
 
-          <div className="inline-block rounded-xl border border-zinc-200 bg-white p-4">
-            <p className="text-xs uppercase tracking-wider text-zinc-400">ACME Corp · NASDAQ</p>
+          <div className="inline-block rounded-xl border border-edge bg-surface p-4">
+            <p className="text-xs uppercase tracking-wider text-muted">ACME Corp · NASDAQ</p>
             <p
-              className="mt-1 text-2xl font-bold tabular-nums text-zinc-900"
+              className="mt-1 text-2xl font-bold tabular-nums text-content"
               aria-label={`Stock price $${price}`}
               data-testid="stock-price"
             >
               ${price}
             </p>
-            <p className="mt-0.5 text-xs text-zinc-400">
+            <p className="mt-0.5 text-xs text-muted">
               Last updated: <span data-testid="last-updated">{lastUpdated}</span>
             </p>
           </div>
@@ -187,10 +190,10 @@ export function AsyncUi() {
 
         {/* ── Section 3 ──────────────────────────────────────────────────────── */}
         <section aria-labelledby="toast-heading">
-          <h2 id="toast-heading" className="mb-1 text-base font-semibold text-zinc-900">
+          <h2 id="toast-heading" className="mb-1 text-base font-semibold text-content">
             Transient notification
           </h2>
-          <p className="mb-4 text-sm text-zinc-500">
+          <p className="mb-4 text-sm text-muted">
             The toast appears after 800 ms — you must assert it before it's dismissed. Practice
             waiting for elements that appear and disappear.
           </p>
@@ -206,7 +209,7 @@ export function AsyncUi() {
         </section>
       </div>
 
-      {/* Toast */}
+      {/* Toast — intentionally dark widget, hardcoded colors */}
       {toastVisible && (
         <div
           role="alert"

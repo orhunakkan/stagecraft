@@ -57,7 +57,7 @@ function fieldClassName(hasError: boolean): string {
     'rounded-lg border px-3 py-2 text-sm focus:outline-none focus:ring-1',
     hasError
       ? 'border-red-400 focus:border-red-400 focus:ring-red-400'
-      : 'border-zinc-300 focus:border-indigo-500 focus:ring-indigo-500',
+      : 'border-edge focus:border-indigo-500 focus:ring-indigo-500',
   ].join(' ');
 }
 
@@ -87,11 +87,15 @@ export function FormsValidation() {
         <LabHeader lab={lab} />
         <div
           role="alert"
-          className="max-w-md rounded-xl border border-emerald-200 bg-emerald-50 p-6 text-center"
+          className="max-w-md rounded-xl border border-emerald-200 bg-emerald-50 p-6 text-center dark:border-emerald-700 dark:bg-emerald-950"
         >
           <p className="text-3xl">✓</p>
-          <h2 className="mt-2 text-lg font-semibold text-emerald-800">Subscribed!</h2>
-          <p className="mt-1 text-sm text-emerald-600">Welcome, {form.name}.</p>
+          <h2 className="mt-2 text-lg font-semibold text-emerald-800 dark:text-emerald-300">
+            Subscribed!
+          </h2>
+          <p className="mt-1 text-sm text-emerald-600 dark:text-emerald-400">
+            Welcome, {form.name}.
+          </p>
           <button
             type="button"
             onClick={() => {
@@ -99,7 +103,7 @@ export function FormsValidation() {
               setTouched(new Set());
               setSubmitted(false);
             }}
-            className="mt-4 rounded-lg bg-emerald-600 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-700 transition-colors"
+            className="mt-4 rounded-lg bg-emerald-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-emerald-700"
           >
             Reset form
           </button>
@@ -126,7 +130,7 @@ export function FormsValidation() {
       >
         {/* Full name */}
         <div className="flex flex-col gap-1">
-          <label htmlFor="full-name" className="text-sm font-medium text-zinc-700">
+          <label htmlFor="full-name" className="text-sm font-medium text-muted">
             Full name{' '}
             <span aria-hidden="true" className="text-red-500">
               *
@@ -152,7 +156,7 @@ export function FormsValidation() {
 
         {/* Email */}
         <div className="flex flex-col gap-1">
-          <label htmlFor="email-address" className="text-sm font-medium text-zinc-700">
+          <label htmlFor="email-address" className="text-sm font-medium text-muted">
             Email address{' '}
             <span aria-hidden="true" className="text-red-500">
               *
@@ -178,7 +182,7 @@ export function FormsValidation() {
 
         {/* Category */}
         <div className="flex flex-col gap-1">
-          <label htmlFor="topic-category" className="text-sm font-medium text-zinc-700">
+          <label htmlFor="topic-category" className="text-sm font-medium text-muted">
             Topic category{' '}
             <span aria-hidden="true" className="text-red-500">
               *
@@ -209,7 +213,7 @@ export function FormsValidation() {
 
         {/* Frequency */}
         <fieldset>
-          <legend className="text-sm font-medium text-zinc-700">
+          <legend className="text-sm font-medium text-muted">
             Email frequency{' '}
             <span aria-hidden="true" className="text-red-500">
               *
@@ -232,7 +236,7 @@ export function FormsValidation() {
                     }}
                     className="accent-indigo-600"
                   />
-                  <span className="text-sm text-zinc-700">{frequency}</span>
+                  <span className="text-sm text-muted">{frequency}</span>
                 </label>
               );
             })}
@@ -246,17 +250,17 @@ export function FormsValidation() {
 
         {/* File upload */}
         <div className="flex flex-col gap-1">
-          <label htmlFor="profile-picture" className="text-sm font-medium text-zinc-700">
-            Profile picture <span className="font-normal text-zinc-400">(optional)</span>
+          <label htmlFor="profile-picture" className="text-sm font-medium text-muted">
+            Profile picture <span className="font-normal text-muted">(optional)</span>
           </label>
           <input
             id="profile-picture"
             type="file"
             accept="image/*"
             onChange={(e) => updateField('file', e.target.files?.[0] ?? null)}
-            className="text-sm text-zinc-600 file:mr-3 file:rounded-lg file:border-0 file:bg-indigo-50 file:px-3 file:py-1.5 file:text-xs file:font-medium file:text-indigo-700 hover:file:bg-indigo-100"
+            className="text-sm text-muted file:mr-3 file:rounded-lg file:border-0 file:bg-indigo-50 file:px-3 file:py-1.5 file:text-xs file:font-medium file:text-indigo-700 hover:file:bg-indigo-100 dark:file:bg-indigo-950 dark:file:text-indigo-300 dark:hover:file:bg-indigo-900"
           />
-          {form.file && <p className="text-xs text-zinc-400">Selected: {form.file.name}</p>}
+          {form.file && <p className="text-xs text-muted">Selected: {form.file.name}</p>}
         </div>
 
         {/* Terms */}
@@ -273,9 +277,9 @@ export function FormsValidation() {
               aria-invalid={!!agreedError}
               className="mt-0.5 accent-indigo-600"
             />
-            <span className="text-sm text-zinc-700">
+            <span className="text-sm text-muted">
               I agree to the{' '}
-              <a href="#terms" className="text-indigo-600 underline">
+              <a href="#terms" className="text-accent underline">
                 terms and conditions
               </a>
             </span>
@@ -295,7 +299,7 @@ export function FormsValidation() {
           Subscribe
         </button>
 
-        <p className="text-xs text-zinc-400">
+        <p className="text-xs text-muted">
           <span aria-hidden="true" className="text-red-500">
             *
           </span>{' '}

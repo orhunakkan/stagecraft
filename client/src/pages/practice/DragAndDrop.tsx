@@ -79,11 +79,11 @@ function KanbanBoard() {
           aria-label={`${col.label} column`}
           onDragOver={(e) => e.preventDefault()}
           onDrop={() => handleDrop(col.id)}
-          className="w-56 shrink-0 rounded-xl border border-zinc-200 bg-zinc-50 p-3"
+          className="w-56 shrink-0 rounded-xl border border-edge bg-canvas p-3"
         >
-          <h3 className="mb-3 text-xs font-semibold uppercase tracking-wider text-zinc-500">
+          <h3 className="mb-3 text-xs font-semibold uppercase tracking-wider text-muted">
             {col.label}{' '}
-            <span className="ml-1 rounded-full bg-zinc-200 px-1.5 py-0.5 text-xs">
+            <span className="ml-1 rounded-full bg-surface-raised px-1.5 py-0.5 text-xs">
               {col.cards.length}
             </span>
           </h3>
@@ -95,7 +95,7 @@ function KanbanBoard() {
                 aria-label={card.title}
                 data-card-id={card.id}
                 onDragStart={() => handleDragStart(card.id, col.id)}
-                className="cursor-grab rounded-lg border border-zinc-200 bg-white p-3 text-sm text-zinc-800 shadow-sm hover:border-indigo-300 active:cursor-grabbing"
+                className="cursor-grab rounded-lg border border-edge bg-surface p-3 text-sm text-content shadow-sm hover:border-indigo-300 active:cursor-grabbing dark:hover:border-indigo-600"
               >
                 {card.title}
               </div>
@@ -134,17 +134,19 @@ function FileDropZone() {
       data-testid="drop-zone"
       className={[
         'flex h-28 flex-col items-center justify-center rounded-xl border-2 border-dashed transition-colors',
-        over ? 'border-indigo-400 bg-indigo-50' : 'border-zinc-300 bg-zinc-50',
+        over
+          ? 'border-indigo-400 bg-indigo-50 dark:border-indigo-500 dark:bg-indigo-950'
+          : 'border-edge bg-canvas',
       ].join(' ')}
     >
       {droppedFile ? (
-        <p className="text-sm font-medium text-zinc-700" data-testid="dropped-file">
+        <p className="text-sm font-medium text-content" data-testid="dropped-file">
           ✓ {droppedFile}
         </p>
       ) : (
         <>
-          <p className="text-sm text-zinc-500">Drop a file here</p>
-          <p className="mt-1 text-xs text-zinc-400">or use locator.drop() in Playwright</p>
+          <p className="text-sm text-muted">Drop a file here</p>
+          <p className="mt-1 text-xs text-muted">or use locator.drop() in Playwright</p>
         </>
       )}
     </div>
@@ -180,9 +182,9 @@ function SortableList() {
           onDragStart={() => handleDragStart(idx)}
           onDragOver={(e) => e.preventDefault()}
           onDrop={() => handleDrop(idx)}
-          className="flex cursor-grab items-center gap-3 rounded-lg border border-zinc-200 bg-white px-4 py-2.5 text-sm font-medium text-zinc-800 shadow-sm hover:border-indigo-300 active:cursor-grabbing"
+          className="flex cursor-grab items-center gap-3 rounded-lg border border-edge bg-surface px-4 py-2.5 text-sm font-medium text-content shadow-sm hover:border-indigo-300 active:cursor-grabbing dark:hover:border-indigo-600"
         >
-          <span className="text-zinc-300">⠿</span>
+          <span className="text-muted">⠿</span>
           {item}
         </li>
       ))}
@@ -195,36 +197,38 @@ export function DragAndDrop() {
     <div>
       <LabHeader lab={lab} />
 
-      <p className="mb-8 text-sm text-zinc-500">
+      <p className="mb-8 text-sm text-muted">
         Three challenge tiers:{' '}
-        <code className="rounded bg-zinc-100 px-1 text-xs">locator.dragTo()</code> for
-        element-to-element, <code className="rounded bg-zinc-100 px-1 text-xs">locator.drop()</code>{' '}
-        for file drops with a synthetic{' '}
-        <code className="rounded bg-zinc-100 px-1 text-xs">DataTransfer</code>, and raw{' '}
-        <code className="rounded bg-zinc-100 px-1 text-xs">dispatchEvent</code> for sortable lists.
+        <code className="rounded bg-surface-raised px-1 text-xs">locator.dragTo()</code> for
+        element-to-element,{' '}
+        <code className="rounded bg-surface-raised px-1 text-xs">locator.drop()</code> for file
+        drops with a synthetic{' '}
+        <code className="rounded bg-surface-raised px-1 text-xs">DataTransfer</code>, and raw{' '}
+        <code className="rounded bg-surface-raised px-1 text-xs">dispatchEvent</code> for sortable
+        lists.
       </p>
 
       <div className="space-y-10">
         <section aria-labelledby="kanban-heading">
-          <h2 id="kanban-heading" className="mb-1 text-base font-semibold text-zinc-900">
+          <h2 id="kanban-heading" className="mb-1 text-base font-semibold text-content">
             Challenge 1 — Kanban board
           </h2>
-          <p className="mb-4 text-sm text-zinc-500">
+          <p className="mb-4 text-sm text-muted">
             Drag a card from one column to another using{' '}
-            <code className="rounded bg-zinc-100 px-1 text-xs">locator.dragTo()</code>. Assert that
-            the card appears in the destination column and is gone from the source.
+            <code className="rounded bg-surface-raised px-1 text-xs">locator.dragTo()</code>. Assert
+            that the card appears in the destination column and is gone from the source.
           </p>
           <KanbanBoard />
         </section>
 
         <section aria-labelledby="dropzone-heading">
-          <h2 id="dropzone-heading" className="mb-1 text-base font-semibold text-zinc-900">
+          <h2 id="dropzone-heading" className="mb-1 text-base font-semibold text-content">
             Challenge 2 — File drop zone
           </h2>
-          <p className="mb-4 text-sm text-zinc-500">
-            Construct a <code className="rounded bg-zinc-100 px-1 text-xs">DataTransfer</code> with
-            a file buffer in the page context and call{' '}
-            <code className="rounded bg-zinc-100 px-1 text-xs">
+          <p className="mb-4 text-sm text-muted">
+            Construct a <code className="rounded bg-surface-raised px-1 text-xs">DataTransfer</code>{' '}
+            with a file buffer in the page context and call{' '}
+            <code className="rounded bg-surface-raised px-1 text-xs">
               locator.drop(&#123; dataTransfer &#125;)
             </code>
             . Assert the filename appears.
@@ -233,12 +237,12 @@ export function DragAndDrop() {
         </section>
 
         <section aria-labelledby="sortable-heading">
-          <h2 id="sortable-heading" className="mb-1 text-base font-semibold text-zinc-900">
+          <h2 id="sortable-heading" className="mb-1 text-base font-semibold text-content">
             Challenge 3 — Sortable list
           </h2>
-          <p className="mb-4 text-sm text-zinc-500">
+          <p className="mb-4 text-sm text-muted">
             Reorder items by dragging. Assert the new order with{' '}
-            <code className="rounded bg-zinc-100 px-1 text-xs">
+            <code className="rounded bg-surface-raised px-1 text-xs">
               expect(locator).toHaveText(expectedOrder)
             </code>
             .

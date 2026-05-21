@@ -39,7 +39,7 @@ export function BrowserEvents() {
     <div>
       <LabHeader lab={lab} />
 
-      <p className="mb-8 text-sm text-zinc-500">
+      <p className="mb-8 text-sm text-muted">
         Browser-level events require dedicated Playwright APIs. Register handlers <em>before</em>{' '}
         triggering the event, or the handler fires too late.
       </p>
@@ -47,12 +47,12 @@ export function BrowserEvents() {
       <div className="space-y-10">
         {/* ── Dialogs ─────────────────────────────────────────────────────── */}
         <section aria-labelledby="dialogs-heading">
-          <h2 id="dialogs-heading" className="mb-1 text-base font-semibold text-zinc-900">
+          <h2 id="dialogs-heading" className="mb-1 text-base font-semibold text-content">
             Native dialogs
           </h2>
-          <p className="mb-4 text-sm text-zinc-500">
+          <p className="mb-4 text-sm text-muted">
             Use{' '}
-            <code className="rounded bg-zinc-100 px-1 text-xs">
+            <code className="rounded bg-surface-raised px-1 text-xs">
               page.on(&apos;dialog&apos;, handler)
             </code>{' '}
             to intercept each type. The handler must be registered before the button click.
@@ -69,14 +69,14 @@ export function BrowserEvents() {
             <button
               type="button"
               onClick={triggerConfirm}
-              className="rounded-lg border border-indigo-300 px-4 py-2 text-sm font-medium text-indigo-700 hover:bg-indigo-50"
+              className="rounded-lg border border-indigo-300 px-4 py-2 text-sm font-medium text-indigo-700 hover:bg-indigo-50 dark:border-indigo-600 dark:text-indigo-300 dark:hover:bg-indigo-950"
             >
               Trigger confirm
             </button>
             <button
               type="button"
               onClick={triggerPrompt}
-              className="rounded-lg border border-indigo-300 px-4 py-2 text-sm font-medium text-indigo-700 hover:bg-indigo-50"
+              className="rounded-lg border border-indigo-300 px-4 py-2 text-sm font-medium text-indigo-700 hover:bg-indigo-50 dark:border-indigo-600 dark:text-indigo-300 dark:hover:bg-indigo-950"
             >
               Trigger prompt
             </button>
@@ -86,7 +86,7 @@ export function BrowserEvents() {
             <div
               role="status"
               aria-live="polite"
-              className="mt-3 rounded-lg bg-zinc-50 px-3 py-2 text-sm text-zinc-700"
+              className="mt-3 rounded-lg bg-canvas px-3 py-2 text-sm text-content"
             >
               Last dialog: <strong>{dialogResult.type}</strong> → {dialogResult.value}
             </div>
@@ -95,18 +95,19 @@ export function BrowserEvents() {
 
         {/* ── File upload ─────────────────────────────────────────────────── */}
         <section aria-labelledby="upload-heading">
-          <h2 id="upload-heading" className="mb-1 text-base font-semibold text-zinc-900">
+          <h2 id="upload-heading" className="mb-1 text-base font-semibold text-content">
             File upload
           </h2>
-          <p className="mb-4 text-sm text-zinc-500">
-            Use <code className="rounded bg-zinc-100 px-1 text-xs">locator.setInputFiles()</code> to
-            attach files programmatically. The file input does not need to be visible.
+          <p className="mb-4 text-sm text-muted">
+            Use{' '}
+            <code className="rounded bg-surface-raised px-1 text-xs">locator.setInputFiles()</code>{' '}
+            to attach files programmatically. The file input does not need to be visible.
           </p>
 
           <div className="flex flex-wrap items-center gap-3">
             <label
               htmlFor="file-upload"
-              className="cursor-pointer rounded-lg border border-zinc-300 bg-white px-4 py-2 text-sm font-medium text-zinc-700 hover:bg-zinc-50"
+              className="cursor-pointer rounded-lg border border-edge bg-surface px-4 py-2 text-sm font-medium text-muted hover:bg-canvas"
             >
               Choose file
             </label>
@@ -121,29 +122,29 @@ export function BrowserEvents() {
             <button
               type="button"
               onClick={() => fileInputRef.current?.click()}
-              className="rounded-lg border border-zinc-300 bg-white px-4 py-2 text-sm font-medium text-zinc-700 hover:bg-zinc-50"
+              className="rounded-lg border border-edge bg-surface px-4 py-2 text-sm font-medium text-muted hover:bg-canvas"
             >
               Upload via button
             </button>
           </div>
 
           {uploadedFile ? (
-            <p role="status" aria-live="polite" className="mt-3 text-sm text-zinc-700">
+            <p role="status" aria-live="polite" className="mt-3 text-sm text-content">
               Selected: <strong>{uploadedFile}</strong>
             </p>
           ) : (
-            <p className="mt-3 text-sm text-zinc-400">No file selected yet.</p>
+            <p className="mt-3 text-sm text-muted">No file selected yet.</p>
           )}
         </section>
 
         {/* ── File download ────────────────────────────────────────────────── */}
         <section aria-labelledby="download-heading">
-          <h2 id="download-heading" className="mb-1 text-base font-semibold text-zinc-900">
+          <h2 id="download-heading" className="mb-1 text-base font-semibold text-content">
             File download
           </h2>
-          <p className="mb-4 text-sm text-zinc-500">
+          <p className="mb-4 text-sm text-muted">
             Use{' '}
-            <code className="rounded bg-zinc-100 px-1 text-xs">
+            <code className="rounded bg-surface-raised px-1 text-xs">
               page.waitForEvent(&apos;download&apos;)
             </code>{' '}
             to capture the download before clicking. Assert the suggested filename or save path.
@@ -160,18 +161,19 @@ export function BrowserEvents() {
 
         {/* ── Navigation event ─────────────────────────────────────────────── */}
         <section aria-labelledby="navigation-heading">
-          <h2 id="navigation-heading" className="mb-1 text-base font-semibold text-zinc-900">
+          <h2 id="navigation-heading" className="mb-1 text-base font-semibold text-content">
             Navigation event
           </h2>
-          <p className="mb-4 text-sm text-zinc-500">
-            Use <code className="rounded bg-zinc-100 px-1 text-xs">page.waitForNavigation()</code>{' '}
-            or <code className="rounded bg-zinc-100 px-1 text-xs">page.waitForURL()</code> when a
-            click causes a page transition. This link navigates away from the lab.
+          <p className="mb-4 text-sm text-muted">
+            Use{' '}
+            <code className="rounded bg-surface-raised px-1 text-xs">page.waitForNavigation()</code>{' '}
+            or <code className="rounded bg-surface-raised px-1 text-xs">page.waitForURL()</code>{' '}
+            when a click causes a page transition. This link navigates away from the lab.
           </p>
 
           <a
             href="/"
-            className="inline-block rounded-lg border border-zinc-300 px-4 py-2 text-sm font-medium text-zinc-700 hover:bg-zinc-50"
+            className="inline-block rounded-lg border border-edge px-4 py-2 text-sm font-medium text-muted hover:bg-canvas"
           >
             Navigate to home
           </a>

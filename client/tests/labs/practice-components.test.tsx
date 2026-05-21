@@ -253,7 +253,7 @@ describe('DragAndDrop', () => {
     expect(dropZone.className).toContain('border-indigo-400');
 
     fireEvent.dragLeave(dropZone);
-    expect(dropZone.className).toContain('border-zinc-300');
+    expect(dropZone.className).toContain('border-edge');
 
     fireEvent.drop(dropZone, {
       dataTransfer: {
