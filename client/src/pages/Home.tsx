@@ -10,15 +10,15 @@ export function Home() {
   return (
     <div>
       <div className="mb-10">
-        <h1 className="text-3xl font-bold tracking-tight text-zinc-900">Practice Labs</h1>
-        <p className="mt-2 max-w-2xl text-zinc-500">
+        <h1 className="text-3xl font-bold tracking-tight text-content">Practice Labs</h1>
+        <p className="mt-2 max-w-2xl text-muted">
           Interactive Playwright challenges. Read the lab, interact with the UI, then write your own
           tests in a separate project — no spoilers here.
         </p>
       </div>
 
       <section className="mb-10" aria-label="Ready labs">
-        <h2 className="mb-4 text-xs font-semibold uppercase tracking-widest text-zinc-500">
+        <h2 className="mb-4 text-xs font-semibold uppercase tracking-widest text-muted">
           Ready — {readyLabs.length} labs
         </h2>
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
@@ -29,7 +29,7 @@ export function Home() {
       </section>
 
       <section aria-label="Coming soon labs">
-        <h2 className="mb-4 text-xs font-semibold uppercase tracking-widest text-zinc-500">
+        <h2 className="mb-4 text-xs font-semibold uppercase tracking-widest text-muted">
           Coming soon — {comingSoonLabs.length} labs
         </h2>
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
