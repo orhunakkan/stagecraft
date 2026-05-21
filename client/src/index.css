@@ -26,7 +26,7 @@
 .dark {
   --canvas: #18181b;        /* zinc-900 */
   --surface: #27272a;       /* zinc-800 */
-  --surface-raised: #3f3f46; /* zinc-700 */
+  --surface-raised: #333336; /* zinc-750 approx — passes 4.5:1 AA with muted text */
   --content: #f4f4f5;       /* zinc-100 — text-content on canvas: 14.7:1 ✓ AAA */
   --muted: #a1a1aa;         /* zinc-400 — text-muted on canvas:    4.6:1 ✓ AA  */
   --edge: #3f3f46;          /* zinc-700 */
