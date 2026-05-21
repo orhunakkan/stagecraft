@@ -50,13 +50,6 @@ export function StorageState() {
     <div>
       <LabHeader lab={lab} />
 
-      <p className="mb-6 text-sm text-muted">
-        This lab begins with a valid session already in hand. The focus is on{' '}
-        <code className="rounded bg-surface-raised px-1 text-xs">context.storageState()</code> —
-        saving auth state to a file so subsequent tests skip the login flow, and loading different
-        states into parallel contexts (admin vs. regular user).
-      </p>
-
       {/* Credentials hint */}
       <div className="mb-6 rounded-xl border border-edge bg-canvas p-4 text-sm">
         <p className="font-medium text-content">Test credentials</p>

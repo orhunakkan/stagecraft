@@ -63,13 +63,6 @@ export function EmulationInput() {
     <div>
       <LabHeader lab={lab} />
 
-      <p className="mb-8 text-sm text-muted">
-        Practice low-level input APIs:{' '}
-        <code className="rounded bg-surface-raised px-1 text-xs">page.keyboard.press()</code>,{' '}
-        <code className="rounded bg-surface-raised px-1 text-xs">page.mouse.move()</code>, and{' '}
-        <code className="rounded bg-surface-raised px-1 text-xs">page.setViewportSize()</code>.
-      </p>
-
       <div className="space-y-10">
         {/* ── Command palette ────────────────────────────────────────────── */}
         <section aria-labelledby="keyboard-heading">

@@ -109,7 +109,7 @@ describe('HarRecording tokens', () => {
         <HarRecording />
       </MemoryRouter>,
     );
-    const stepItem = container.querySelector('li');
+    const stepItem = container.querySelector('li.flex');
     expect(stepItem?.className).toContain('bg-surface');
     expect(stepItem?.className).not.toContain('bg-white');
   });

@@ -38,19 +38,6 @@ export function VisualRegression() {
     <div>
       <LabHeader lab={lab} />
 
-      <p className="mb-8 text-sm text-muted">
-        Use{' '}
-        <code className="rounded bg-surface-raised px-1 text-xs">
-          expect(page).toHaveScreenshot()
-        </code>{' '}
-        and{' '}
-        <code className="rounded bg-surface-raised px-1 text-xs">
-          expect(locator).toHaveScreenshot()
-        </code>{' '}
-        for pixel-level comparisons. Mask dynamic regions (timestamps, avatars) with the{' '}
-        <code className="rounded bg-surface-raised px-1 text-xs">mask</code> option.
-      </p>
-
       <div className="space-y-10">
         {/* ── Button showcase ────────────────────────────────────────────── */}
         <section aria-labelledby="buttons-heading" data-testid="button-showcase">

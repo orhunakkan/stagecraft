@@ -48,16 +48,6 @@ export function ServiceWorkers() {
     <div>
       <LabHeader lab={lab} />
 
-      <p className="mb-8 text-sm text-muted">
-        Service workers intercept requests <em>before</em>{' '}
-        <code className="rounded bg-surface-raised px-1 text-xs">page.route()</code> ever sees them.
-        Use{' '}
-        <code className="rounded bg-surface-raised px-1 text-xs">
-          serviceWorkers: &apos;block&apos;
-        </code>{' '}
-        in your browser context options to bypass them entirely during tests.
-      </p>
-
       <div className="space-y-10">
         {/* ── SW registration ───────────────────────────────────────────── */}
         <section aria-labelledby="sw-reg-heading">

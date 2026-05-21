@@ -69,13 +69,6 @@ export function NetworkApi() {
     <div>
       <LabHeader lab={lab} />
 
-      <p className="mb-6 text-sm text-muted">
-        This UI fetches from{' '}
-        <code className="rounded bg-surface-raised px-1 text-xs">/api/notes</code> on load and after
-        mutations. Use <code className="rounded bg-surface-raised px-1 text-xs">page.route()</code>{' '}
-        to intercept or mock any of these requests.
-      </p>
-
       {/* Add note form */}
       <form onSubmit={(e) => void addNote(e)} className="mb-6 flex gap-2">
         <label htmlFor="note-input" className="sr-only">

@@ -16,26 +16,14 @@ export function MultiTab() {
     <div>
       <LabHeader lab={lab} />
 
-      <p className="mb-8 text-sm text-muted">
-        When a link or button opens a new tab or popup, Playwright captures it with{' '}
-        <code className="rounded bg-surface-raised px-1 text-xs">
-          context.waitForEvent(&apos;page&apos;)
-        </code>
-        . You must set up the listener <em>before</em> triggering the action.
-      </p>
-
       <div className="space-y-10">
         <section aria-labelledby="newtab-heading">
           <h2 id="newtab-heading" className="mb-1 text-base font-semibold text-content">
             Challenge 1 — New tab
           </h2>
           <p className="mb-4 text-sm text-muted">
-            Click the button below. Playwright must capture the new page via{' '}
-            <code className="rounded bg-surface-raised px-1 text-xs">
-              const [newPage] = await Promise.all([context.waitForEvent(&apos;page&apos;),
-              button.click()])
-            </code>
-            . Assert a heading on the new tab, then close it.
+            Click the button below to open the dashboard in a new tab. Capture the new page object
+            before the tab opens, interact with it, assert a heading, then close it.
           </p>
           <button
             type="button"
@@ -51,15 +39,8 @@ export function MultiTab() {
             Challenge 2 — Popup window
           </h2>
           <p className="mb-4 text-sm text-muted">
-            This button opens a popup window (not a tab). Use{' '}
-            <code className="rounded bg-surface-raised px-1 text-xs">
-              page.waitForEvent(&apos;popup&apos;)
-            </code>{' '}
-            to capture it. The popup can communicate back to the opener via{' '}
-            <code className="rounded bg-surface-raised px-1 text-xs">
-              window.opener.postMessage()
-            </code>
-            .
+            This button opens a popup window (not a tab). Capture it before the click, assert
+            content inside the popup, and observe how the opener and popup can communicate.
           </p>
           <button
             type="button"

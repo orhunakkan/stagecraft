@@ -41,12 +41,6 @@ export function HarRecording() {
     <div>
       <LabHeader lab={lab} />
 
-      <p className="mb-6 text-sm text-muted">
-        <code className="rounded bg-surface-raised px-1 text-xs">page.routeFromHAR()</code> replays
-        a previously recorded HTTP archive, letting tests run against a real network snapshot
-        without hitting live servers.
-      </p>
-
       <div className="space-y-10">
         {/* ── HAR workflow explainer ────────────────────────────────────── */}
         <section aria-labelledby="har-flow-heading">

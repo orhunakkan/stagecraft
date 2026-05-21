@@ -44,19 +44,6 @@ export function AriaSnapshots() {
     <div>
       <LabHeader lab={lab} />
 
-      <p className="mb-8 text-sm text-muted">
-        This lab is about asserting the <em>structure</em> of the accessibility tree — not finding
-        elements by role (see{' '}
-        <code className="rounded bg-surface-raised px-1 text-xs">
-          /practice/accessible-locators
-        </code>
-        ). Use{' '}
-        <code className="rounded bg-surface-raised px-1 text-xs">
-          expect(locator).toMatchAriaSnapshot()
-        </code>{' '}
-        to compare a YAML template against the live tree.
-      </p>
-
       {/* Live region for announcements */}
       <div role="status" aria-live="polite" className="sr-only">
         {announcement}

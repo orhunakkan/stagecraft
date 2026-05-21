@@ -24,20 +24,6 @@ describe('VisualRegression tokens', () => {
     expect(heading.className).not.toContain('text-zinc-900');
   });
 
-  test('intro paragraph uses text-muted instead of text-zinc-500', () => {
-    const { container } = wrap(<VisualRegression />);
-    const intro = container.querySelector('p.mb-8');
-    expect(intro?.className).toContain('text-muted');
-    expect(intro?.className).not.toContain('text-zinc-500');
-  });
-
-  test('intro code spans use bg-surface-raised instead of bg-zinc-100', () => {
-    const { container } = wrap(<VisualRegression />);
-    const codeSpan = container.querySelector('.mb-8 code');
-    expect(codeSpan?.className).toContain('bg-surface-raised');
-    expect(codeSpan?.className).not.toContain('bg-zinc-100');
-  });
-
   test('indigo note panel has dark-mode classes', () => {
     const { container } = wrap(<VisualRegression />);
     const notePanel = container.querySelector('div.bg-indigo-50');

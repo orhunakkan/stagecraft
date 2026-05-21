@@ -40,6 +40,30 @@ export function LabHeader({ lab }: LabHeaderProps) {
           </span>
         ))}
       </div>
+      {lab.goal && <p className="mt-4 text-sm text-content">{lab.goal}</p>}
+      {lab.guidance && lab.guidance.length > 0 && (
+        <div className="mt-4">
+          <h2 className="text-xs font-semibold uppercase tracking-wide text-muted">Guidance</h2>
+          <ol className="mt-2 space-y-1.5 list-decimal list-inside">
+            {lab.guidance.map((hint, i) => (
+              <li key={i} className="text-sm text-muted leading-relaxed">
+                {hint}
+              </li>
+            ))}
+          </ol>
+        </div>
+      )}
+      {lab.docsUrl && (
+        <a
+          href={lab.docsUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="mt-4 inline-flex items-center gap-1 text-xs font-medium text-accent hover:underline"
+        >
+          Playwright Docs
+          <span aria-hidden="true">↗</span>
+        </a>
+      )}
     </div>
   );
 }

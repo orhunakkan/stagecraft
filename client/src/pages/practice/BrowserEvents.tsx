@@ -39,11 +39,6 @@ export function BrowserEvents() {
     <div>
       <LabHeader lab={lab} />
 
-      <p className="mb-8 text-sm text-muted">
-        Browser-level events require dedicated Playwright APIs. Register handlers <em>before</em>{' '}
-        triggering the event, or the handler fires too late.
-      </p>
-
       <div className="space-y-10">
         {/* ── Dialogs ─────────────────────────────────────────────────────── */}
         <section aria-labelledby="dialogs-heading">
@@ -51,11 +46,8 @@ export function BrowserEvents() {
             Native dialogs
           </h2>
           <p className="mb-4 text-sm text-muted">
-            Use{' '}
-            <code className="rounded bg-surface-raised px-1 text-xs">
-              page.on(&apos;dialog&apos;, handler)
-            </code>{' '}
-            to intercept each type. The handler must be registered before the button click.
+            Each dialog type requires a handler registered on the page before the action that
+            triggers it. Try each type and assert the outcome shown on the page.
           </p>
 
           <div className="flex flex-wrap gap-3">
@@ -99,9 +91,8 @@ export function BrowserEvents() {
             File upload
           </h2>
           <p className="mb-4 text-sm text-muted">
-            Use{' '}
-            <code className="rounded bg-surface-raised px-1 text-xs">locator.setInputFiles()</code>{' '}
-            to attach files programmatically. The file input does not need to be visible.
+            Attach a file programmatically to the hidden file input. The input does not need to be
+            visible for the interaction to succeed.
           </p>
 
           <div className="flex flex-wrap items-center gap-3">

@@ -3,6 +3,9 @@ import { expect, test } from '@playwright/test';
 test.describe('Drag & Drop lab', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/practice/drag-and-drop');
+    // Ensure the Kanban board is fully in view before any drag operations;
+    // the LabHeader guidance pushes the board near the viewport edge.
+    await page.getByLabel('Done column').scrollIntoViewIfNeeded();
   });
 
   test('moves a kanban card between columns', async ({ page }) => {

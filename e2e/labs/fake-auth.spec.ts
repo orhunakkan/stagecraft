@@ -37,7 +37,7 @@ test.describe('Fake Auth lab', () => {
   test('dashboard shows the authenticated username', async ({ page }) => {
     await signIn(page, 'alice', 'password123');
     await expect(page.getByText('alice', { exact: true })).toBeVisible();
-    await expect(page.getByText('Authenticated')).toBeVisible();
+    await expect(page.getByText('Authenticated', { exact: true })).toBeVisible();
   });
 
   test('sign out redirects back to the login page', async ({ page }) => {

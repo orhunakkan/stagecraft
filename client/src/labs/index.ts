@@ -7,6 +7,9 @@ export interface Lab {
   apis: string[];
   status: LabStatus;
   requiresBackend: boolean;
+  goal?: string;
+  guidance?: string[];
+  docsUrl?: string;
 }
 
 export const labs: Lab[] = [
@@ -17,6 +20,16 @@ export const labs: Lab[] = [
     apis: ['getByRole', 'getByLabel', 'getByAltText', 'getByText'],
     status: 'ready',
     requiresBackend: false,
+    goal: 'Build resilient selectors using semantic HTML attributes — roles, labels, alt text, and accessible names — so your tests stay green when styles or class names change.',
+    guidance: [
+      'Look at the book cards displayed on the page. How many different attributes does each card expose that you could use as a locator anchor — headings, images, buttons, status text?',
+      'Some books show an "Available" badge and others show "Unavailable". Find a way to assert only on the available subset without hardcoding row indices.',
+      'The genre filter buttons change which books are visible. After clicking one, how would you assert that the resulting set contains only books of that genre?',
+      'Each book card has a cover image with descriptive alt text. How do you locate an element by its alt text, and what matcher confirms the image is present?',
+      'The action button on each card is contextual to that book. How do you scope a locator to a specific card so you interact with the right button rather than all buttons on the page?',
+      'Challenge yourself to write every locator without using CSS classes, test IDs, or XPath — rely only on the semantic APIs listed above.',
+    ],
+    docsUrl: 'https://playwright.dev/docs/locators',
   },
   {
     slug: 'forms-validation',
@@ -25,6 +38,17 @@ export const labs: Lab[] = [
     apis: ['locator.fill', 'locator.selectOption', 'locator.check', 'toHaveValue', 'toBeDisabled'],
     status: 'ready',
     requiresBackend: false,
+    goal: 'Practice interacting with every type of form control — text inputs, dropdowns, radio buttons, and checkboxes — and assert on validation error messages, field attributes, and form submission outcomes.',
+    guidance: [
+      'Open the page and note the initial state of the Submit button. How can you assert that a button is not yet interactive?',
+      'Focus a required field, then move focus away without typing. An inline error message should appear — think about which locator strategy best targets it without relying on fragile CSS selectors.',
+      'Each control type (text input, select, radio, checkbox) has a purpose-built Playwright API. Identify which one belongs to each field before writing any assertions.',
+      "After interacting with a field, you may want to assert on its current value. Consider what matcher is appropriate for checking a control's selected or typed value.",
+      'Fill in every required field with valid data and assert the Submit button transitions to an enabled state before you click it.',
+      'Submit the form and confirm the success state appears. The confirmation region has a meaningful ARIA role — use it to write a resilient selector.',
+      'For accessible fields, the DOM carries validation state as an attribute (e.g. aria-invalid). Explore how you can assert on element attributes directly rather than relying only on visible text.',
+    ],
+    docsUrl: 'https://playwright.dev/docs/input',
   },
   {
     slug: 'tables-filtering',
@@ -33,6 +57,16 @@ export const labs: Lab[] = [
     apis: ['getByRole', 'locator.filter', 'locator.nth', 'locator.getByRole'],
     status: 'ready',
     requiresBackend: false,
+    goal: 'Practice locating specific rows in a data table, applying search and filter controls in combination, asserting on sort order, and triggering per-row actions without relying on fragile position-based selectors.',
+    guidance: [
+      'Start by counting the visible rows before any filter is applied. Which Playwright API lets you measure the number of elements matching a locator?',
+      'Type a name into the search field and assert the displayed rows update. How do you confirm each visible row contains the search term without reading every cell individually?',
+      'Apply both the search filter and the department dropdown at the same time. How do you assert the intersection — only rows matching both criteria are shown?',
+      'Click a sortable column header. How would you assert the first row after sorting contains the expected name, and that the last row contains the expected opposite?',
+      'Navigate to a second page if pagination is present. Assert that the row content changes and that the correct page indicator is active.',
+      'Each row has action buttons. How do you scope a button click to the row containing a specific employee name, rather than targeting the first button on the page?',
+    ],
+    docsUrl: 'https://playwright.dev/docs/locators#filter-by-text',
   },
   {
     slug: 'async-ui',
@@ -41,6 +75,15 @@ export const labs: Lab[] = [
     apis: ['toBeVisible', 'waitFor', 'expect.poll', 'toHaveText'],
     status: 'ready',
     requiresBackend: false,
+    goal: 'Write reliable assertions for content that appears after a delay, values that update on a timer, and operations that may need a retry — without using arbitrary sleeps.',
+    guidance: [
+      'The news feed does not appear instantly. Playwright assertions automatically wait — but what is the default timeout, and how do you extend it for a specific assertion when you know the delay is longer?',
+      'The loading skeleton is visible briefly before content loads. How would you assert it is present, and then that it disappears once real content replaces it?',
+      'The stock price updates on a timer. How do you assert a specific value when the displayed number keeps changing? Explore the polling-based assertion API for cases where you need to keep checking until a condition is true.',
+      'There is a section that can fail on the first attempt. How would you configure Playwright to retry the full test on failure, and how do retries appear in the HTML report?',
+      'Think about flakiness: if your assertion fires before the UI settles, the test becomes unreliable. What strategies let you wait for a stable state — for example, waiting for a loading indicator to disappear — before making your final assertion?',
+    ],
+    docsUrl: 'https://playwright.dev/docs/actionability',
   },
   {
     slug: 'network-api',
@@ -49,6 +92,16 @@ export const labs: Lab[] = [
     apis: ['page.route', 'page.waitForResponse', 'page.waitForRequest'],
     status: 'ready',
     requiresBackend: true,
+    goal: 'Practice intercepting, observing, and mocking HTTP requests that the UI makes to the backend, covering stubbed responses, request inspection, and simulated error states.',
+    guidance: [
+      'Open the page and watch what network requests fire during the initial load. Playwright gives you ways to wait for a specific request or response — how might you verify a particular endpoint was called?',
+      'Before navigating to the page, register a route handler so you can intercept the initial data fetch and return entirely controlled data instead. Think about the relationship between when you set up the interception and when the request fires.',
+      'When you intercept a request, you have several choices: block it, fulfill it with static data, or forward it to the real server and optionally modify the response. Consider which approach is appropriate for each scenario.',
+      'Add a note via the UI and capture the outgoing POST request. How would you inspect the request payload to confirm the correct data was sent?',
+      'Simulate a server error on one of the endpoints and verify that the UI displays an error state. What HTTP status code would cause that, and what assertion would confirm the error is shown to the user?',
+      'Think about test isolation: if your test stubs the network, should it also call the real backend? Consider what side effects a real network call might introduce into a test suite.',
+    ],
+    docsUrl: 'https://playwright.dev/docs/network',
   },
   {
     slug: 'fake-auth',
@@ -57,6 +110,15 @@ export const labs: Lab[] = [
     apis: ['page.goto', 'context.addCookies', 'page.evaluate', 'storageState'],
     status: 'ready',
     requiresBackend: true,
+    goal: 'Test the full authentication lifecycle — failed login, successful login with redirect, protected route enforcement, and logout — and explore how to avoid repeating the login flow in every test.',
+    guidance: [
+      'Submit the login form with wrong credentials. How do you assert the inline error message appears without relying on its CSS class?',
+      'Submit with valid credentials and assert that the browser navigated to the dashboard. How do you verify the current URL after a navigation?',
+      'Navigate directly to the dashboard URL without logging in first. What does the app do, and how would you assert that behavior?',
+      'Log in, then click logout and assert you are returned to the login page and cannot access the dashboard anymore.',
+      'If multiple tests need to start in a logged-in state, running the UI login flow in every test is slow. What does Playwright offer to serialize and reuse authenticated session state across tests?',
+    ],
+    docsUrl: 'https://playwright.dev/docs/auth',
   },
   {
     slug: 'browser-events',
@@ -65,6 +127,15 @@ export const labs: Lab[] = [
     apis: ['page.on("dialog")', 'page.waitForEvent("download")', 'locator.setInputFiles'],
     status: 'ready',
     requiresBackend: false,
+    goal: "Handle native browser events that occur outside the page DOM — alert, confirm, and prompt dialogs; file uploads; and file downloads — using Playwright's event-driven APIs.",
+    guidance: [
+      'There are three dialog types: alert, confirm, and prompt. Each needs a handler registered on the page *before* the action that triggers it fires. What happens if you register the handler after the click?',
+      'For a confirm dialog, you can either accept or dismiss. How do you tell the handler which action to take, and how do you assert the outcome reflected back on the page?',
+      'For a prompt dialog, the handler can supply a return value. How would you assert the page displays the string you provided?',
+      'The file upload section uses a hidden file input. How do you set files on an input element in Playwright without needing a real file picker interaction?',
+      'If a download is triggered, how do you capture the download event, wait for it to complete, and assert on the file name?',
+    ],
+    docsUrl: 'https://playwright.dev/docs/dialogs',
   },
   {
     slug: 'frames-contexts',
@@ -73,6 +144,15 @@ export const labs: Lab[] = [
     apis: ['page.frameLocator', 'BrowserContext', 'context.newPage'],
     status: 'ready',
     requiresBackend: false,
+    goal: 'Practice scoping locators inside embedded iframes and understand how browser contexts isolate cookies, storage, and session state from one another.',
+    guidance: [
+      'Elements inside an iframe are not reachable with a plain page locator. Which Playwright API scopes all subsequent locator calls to the content inside a specific frame?',
+      'The embedded counter iframe has increment, decrement, and reset buttons. Locate the increment button inside the frame, click it several times, and assert the displayed count matches the expected value.',
+      'The frame also contains a form with input fields. Fill them in and submit — think about whether the steps differ from filling a top-level page form once you have scoped to the frame.',
+      'Open a second browser context from the same browser. Does it share cookies or localStorage with the first context? Write a test that explores this isolation.',
+      'What is the conceptual difference between an iframe (a frame inside a page) and a browser context? When is each the right tool for test isolation?',
+    ],
+    docsUrl: 'https://playwright.dev/docs/frames',
   },
   {
     slug: 'emulation-input',
@@ -81,6 +161,15 @@ export const labs: Lab[] = [
     apis: ['page.keyboard', 'page.mouse', 'page.setViewportSize', 'devices'],
     status: 'ready',
     requiresBackend: false,
+    goal: 'Practice synthesizing keyboard shortcuts, mouse movements, and viewport changes to test interactions that cannot be driven by high-level click or fill actions.',
+    guidance: [
+      'The command palette opens with a keyboard shortcut. How do you send a modifier+key chord in Playwright? Be precise about which API sends a combination versus individual key presses.',
+      'With the palette open, use arrow keys to move the selection and Enter to confirm. Assert the correct command name appears in the result area after selection.',
+      'Close the palette with the Escape key and assert it is no longer visible.',
+      'There is a tooltip that appears on mouse hover. How do you move the pointer to an element to trigger a hover-dependent UI state without clicking?',
+      'Resize the viewport to a narrow mobile width. How does the layout respond, and how would you assert a state that only appears on smaller screens?',
+    ],
+    docsUrl: 'https://playwright.dev/docs/input#keys-and-shortcuts',
   },
   {
     slug: 'debugging-reporting',
@@ -89,6 +178,15 @@ export const labs: Lab[] = [
     apis: ['context.tracing', 'testInfo.attach', 'test.describe.configure', 'screenshot'],
     status: 'ready',
     requiresBackend: false,
+    goal: "Use Playwright's tracing, screenshot, and retry tooling to diagnose tests that fail intermittently or involve slow operations, and attach diagnostic artifacts to the test report.",
+    guidance: [
+      'The flaky button fails on every third click. Configure your test suite to retry on failure and observe how the retry count appears in the HTML report — what changes between attempts?',
+      "Enable tracing only on retry using the tracing fixture. After a failure, open the saved trace in Playwright's trace viewer and identify the exact action that caused the failure.",
+      "The slow operation takes two seconds to complete. How does Playwright's default timeout interact with this? How do you raise the timeout for a specific assertion when you know a step will be slow?",
+      'Configure the test runner to automatically take a screenshot on failure. After triggering a failure, verify a screenshot file is saved in the test results directory.',
+      'Use `testInfo.attach()` inside a test to attach extra diagnostic data — a screenshot taken at a specific step, or the current page HTML — and verify it appears in the HTML report.',
+    ],
+    docsUrl: 'https://playwright.dev/docs/trace-viewer-intro',
   },
   {
     slug: 'websocket-interception',
@@ -97,6 +195,15 @@ export const labs: Lab[] = [
     apis: ['page.routeWebSocket', 'WebSocketRoute.send', 'WebSocketRoute.onMessage'],
     status: 'ready',
     requiresBackend: true,
+    goal: 'Intercept WebSocket connections to inject server-side messages and observe client-sent messages, enabling deterministic testing of real-time UIs without relying on a live server.',
+    guidance: [
+      'Connect to the WebSocket server using the button. How would you assert the status indicator transitions from "connecting" to "connected"?',
+      'Before navigating to the page, register a WebSocket route handler. What does this API let you do that the standard `page.route()` network interception cannot?',
+      'From inside the handler, push a fabricated message to the client as if it came from the server. Assert that message appears in the chat log.',
+      'Intercept a message the client sends to the server and assert that its text matches what the user typed in the input field.',
+      "Consider test isolation: with a real WebSocket connection, one test's messages can bleed into another test's chat log. What does stubbing the WebSocket connection solve, and what does it sacrifice?",
+    ],
+    docsUrl: 'https://playwright.dev/docs/network#websocket-mocking',
   },
   {
     slug: 'aria-snapshots',
@@ -105,6 +212,15 @@ export const labs: Lab[] = [
     apis: ['expect(page).toMatchAriaSnapshot', 'accessibility tree', '/children: equal'],
     status: 'ready',
     requiresBackend: false,
+    goal: 'Assert the structural shape of the accessibility tree to catch semantic regressions — changed heading levels, missing landmarks, reordered list items — that pixel screenshots cannot detect.',
+    guidance: [
+      'Run `expect(locator).toMatchAriaSnapshot()` against the accordion in its default (all-collapsed) state. On first run Playwright generates a baseline — read it and understand what each YAML line represents.',
+      'Expand one accordion section and capture the snapshot again. How does the tree change? Explore what the `/children: equal` constraint does to matching strictness.',
+      'The multi-step wizard shows which step is current and which are completed. Assert the stepper\'s tree structure — consider which ARIA attributes drive the "current" and "completed" states.',
+      'Modify your snapshot template to use a flexible regex match for a value that may vary, while keeping the structural hierarchy strict. How do partial-match patterns differ from exact strings in the YAML template?',
+      'Intentionally change a heading level in DevTools and re-run the test. How does the snapshot diff report the regression? How do you update a stored snapshot when an intentional UI change is made?',
+    ],
+    docsUrl: 'https://playwright.dev/docs/aria-snapshots',
   },
   {
     slug: 'clock-timers',
@@ -113,6 +229,15 @@ export const labs: Lab[] = [
     apis: ['page.clock.install', 'clock.tick', 'clock.fastForward', 'clock.setFixedTime'],
     status: 'ready',
     requiresBackend: false,
+    goal: 'Control the browser clock to test time-dependent UI — countdowns, scheduled toasts, and session expiry warnings — without waiting for real time to pass.',
+    guidance: [
+      'Install the fake clock before navigating to the page. What is the difference between `page.clock.install()` and `page.clock.setFixedTime()`? Which one lets you advance time programmatically?',
+      'Start the countdown timer and advance the fake clock by a known amount. Assert the displayed time reflects exactly that elapsed duration without any real waiting.',
+      'The session expiry toast appears after a delay. Advance the clock to the moment the toast should appear and assert it becomes visible — then advance past its expiry time and assert the final expired state.',
+      'Advance the clock in small steps and assert intermediate states on the way — for example, the countdown value at 30 seconds remaining. This verifies the UI updates correctly at each tick.',
+      'Consider: if you advance the clock by a large amount all at once using `fastForward`, do all intermediate `setInterval` callbacks fire? Verify your understanding by checking whether skipped states are reflected.',
+    ],
+    docsUrl: 'https://playwright.dev/docs/clock',
   },
   {
     slug: 'api-request-context',
@@ -121,6 +246,15 @@ export const labs: Lab[] = [
     apis: ['request.get', 'request.post', 'request.put', 'request.delete', 'APIRequestContext'],
     status: 'ready',
     requiresBackend: true,
+    goal: "Use Playwright's built-in HTTP client to call your backend directly in test setup and teardown — seeding data before a test and cleaning up after — without touching the browser UI.",
+    guidance: [
+      'The `request` fixture gives you an HTTP client that operates outside the browser. Make a GET request to `/api/tasks` and assert on the response status and body shape — no `page.goto()` needed.',
+      'In a `beforeEach` hook, use `request.post()` to create a known task before the test navigates to the page. This guarantees predictable seed data without relying on prior UI interactions.',
+      'After a test that creates a task through the UI, use `request.delete()` in `afterEach` to remove it — keeping the server state clean between test runs.',
+      'Write a test that only uses the `request` fixture with no browser page at all. Assert the full API contract: create a task, update it, and delete it — verifying each step through the response.',
+      'Consider the difference between using the `request` fixture and calling `page.evaluate(() => fetch(...))` from inside the browser. When would you choose each approach?',
+    ],
+    docsUrl: 'https://playwright.dev/docs/api-testing',
   },
   {
     slug: 'storage-state',
@@ -129,6 +263,15 @@ export const labs: Lab[] = [
     apis: ['context.storageState', 'browser.newContext', 'context.addCookies'],
     status: 'ready',
     requiresBackend: true,
+    goal: 'Serialize authenticated session state to a file so tests can start pre-logged-in without repeating the UI login flow, and run parallel scenarios for different user roles in isolated contexts.',
+    guidance: [
+      'After logging in through the UI (or via the API), call `context.storageState({ path })` to save the session to a file. Open the file and explore what it contains — what data makes the server trust this session?',
+      'Load the saved state into a fresh browser context with `browser.newContext({ storageState })`. Navigate to the profile page and assert the correct user is displayed — no login step needed.',
+      'The page shows different content for admin and regular users. Create two separate storage state files — one per role — and write tests that load each one and assert role-specific UI.',
+      'Use the `request` fixture (without a browser) to authenticate as each user and capture their storage state. This avoids a full browser startup just for the setup step.',
+      'Think about where storage state files should live in a CI pipeline: should they be committed, generated at test runtime, or cached? What happens if they expire?',
+    ],
+    docsUrl: 'https://playwright.dev/docs/auth',
   },
   {
     slug: 'visual-regression',
@@ -137,6 +280,15 @@ export const labs: Lab[] = [
     apis: ['expect(page).toHaveScreenshot', 'expect(locator).toHaveScreenshot', 'maxDiffPixels'],
     status: 'ready',
     requiresBackend: false,
+    goal: 'Take and compare pixel-level screenshots of page regions to catch unintended visual changes, and handle dynamic content areas that would otherwise cause false failures.',
+    guidance: [
+      'Take a full-page screenshot baseline with `expect(page).toHaveScreenshot()`. On the first run Playwright creates the baseline file — subsequent runs compare against it. Where is the file stored?',
+      'Scope a screenshot to an individual section using `expect(locator).toHaveScreenshot()`. The button showcase and color palette sections are stable candidates — how do you locate each section?',
+      'If a section contains a value that changes between runs (a live timestamp or a counter), use the `mask` option to exclude that region from the comparison. How do you supply a locator as a mask?',
+      "Intentionally change a button's background color in DevTools and rerun the test. Observe the diff output — what information does Playwright provide about the pixel difference?",
+      'Explore the `maxDiffPixels` and `maxDiffPixelRatio` threshold options. When would a ratio be more useful than an absolute pixel count?',
+    ],
+    docsUrl: 'https://playwright.dev/docs/screenshots',
   },
   {
     slug: 'drag-and-drop',
@@ -145,6 +297,15 @@ export const labs: Lab[] = [
     apis: ['locator.dragTo', 'locator.drop', 'DataTransfer', 'dispatchEvent'],
     status: 'ready',
     requiresBackend: false,
+    goal: 'Trigger drag-and-drop interactions and assert on the resulting layout — from high-level convenience APIs down to low-level mouse event simulation when needed.',
+    guidance: [
+      'Use `locator.dragTo(target)` to drag a Kanban card from one column to another. Assert the card is now in the target column and no longer in the source column.',
+      'Not all drag implementations respond to the high-level API — some require dispatching raw mouse events. If `dragTo` does not produce the expected result, explore how to simulate a drag using sequential mouse down, move, and up calls.',
+      'After a drag, assert the card counts in both columns changed as expected: the source column should have one fewer card, the target one more.',
+      'The sortable list lets you reorder items within the same container. How would you assert the new item order after dragging one item above another?',
+      'Consider: if a card has both a drag handle and other interactive children (buttons, links), how do you ensure your drag targets the handle specifically?',
+    ],
+    docsUrl: 'https://playwright.dev/docs/input#drag-and-drop',
   },
   {
     slug: 'har-recording',
@@ -153,6 +314,15 @@ export const labs: Lab[] = [
     apis: ['page.routeFromHAR', 'tracing.startHar', 'tracing.stopHar'],
     status: 'ready',
     requiresBackend: true,
+    goal: 'Record a real network session into a HAR file and replay it in tests so the full request/response history is served from the file instead of hitting a live server.',
+    guidance: [
+      'Record a HAR by passing `{ update: true }` to `page.routeFromHAR()` before navigating. This saves every response to the file rather than replaying from it. Navigate to the page and stop recording.',
+      'In a second test, call `page.routeFromHAR()` without `{ update }` to enter replay mode. Navigate to the page and assert the product list renders with the data you recorded.',
+      'Combine HAR replay with `page.route()` to override a single endpoint with a mock response while all other requests are served from the HAR. What does the precedence between the two look like?',
+      'Think about when HAR replay is more useful than manually written mocks: HAR captures real response headers, cookies, and timing — mocks give you full control. When would you choose each approach?',
+      'HAR files can be committed to source control as test fixtures. What kinds of UI changes would require re-recording the HAR, and which ones would not?',
+    ],
+    docsUrl: 'https://playwright.dev/docs/network#record-and-replay-requests',
   },
   {
     slug: 'multi-tab',
@@ -161,6 +331,15 @@ export const labs: Lab[] = [
     apis: ['context.waitForEvent("page")', 'page.waitForEvent("popup")', 'context.pages'],
     status: 'ready',
     requiresBackend: false,
+    goal: 'Capture and interact with pages opened in new browser tabs and popup windows, and understand how multiple pages within the same browser context share state.',
+    guidance: [
+      'When a button opens a new tab, Playwright must capture the new page object. You need to set up the event listener *before* clicking — why does the order matter, and what pattern ensures you never miss the event?',
+      'Once you have the new page reference, interact with it like any other page. Navigate, locate a heading, assert its text, then close the tab.',
+      'The second button opens a popup window (not a tab). How does the event you listen for differ from the new-tab case, and what is the API difference?',
+      'The page has a section about shared state between tabs in the same context. Write to localStorage in one page and read it from a second page — does the value appear?',
+      'Think about test cleanup: if a test opens extra pages and does not close them, what could go wrong in subsequent tests that run in the same context?',
+    ],
+    docsUrl: 'https://playwright.dev/docs/pages',
   },
   {
     slug: 'service-workers',
@@ -174,5 +353,14 @@ export const labs: Lab[] = [
     ],
     status: 'ready',
     requiresBackend: false,
+    goal: "Understand how service workers intercept network requests before Playwright's routing layer, and practice both blocking them entirely and routing through them intentionally.",
+    guidance: [
+      'Register the service worker using the button, then fetch the items. Notice the response source changes. How would you assert whether data came from the service worker cache versus the real network?',
+      'Create a browser context with the service worker blocking option enabled. Navigate to the same page and use `page.route()` to intercept a request — does it work now? What does this tell you about interception order?',
+      'Without blocking service workers, try registering a `page.route()` handler for the same request the service worker intercepts. Which one takes precedence, and how can you verify it?',
+      'Use `context.setOffline(true)` to take the context offline while the service worker is active. What does the UI show? Now do the same with the service worker blocked — does the result differ?',
+      'Consider when you would *not* want to block service workers: if you are specifically testing the caching strategy or offline behavior, the service worker must be active. How would you structure those tests differently from the rest of the suite?',
+    ],
+    docsUrl: 'https://playwright.dev/docs/service-workers-experimental',
   },
 ];

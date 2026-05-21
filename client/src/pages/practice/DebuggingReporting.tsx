@@ -43,12 +43,6 @@ export function DebuggingReporting() {
     <div>
       <LabHeader lab={lab} />
 
-      <p className="mb-8 text-sm text-muted">
-        Playwright&apos;s trace API, screenshots, and retry options are most useful when tests fail
-        unexpectedly. This lab exposes deliberately unreliable components so you can practice
-        diagnosing failures.
-      </p>
-
       <div className="space-y-10">
         {/* ── Flaky button ───────────────────────────────────────────────── */}
         <section aria-labelledby="flaky-heading">
@@ -56,13 +50,8 @@ export function DebuggingReporting() {
             Flaky component
           </h2>
           <p className="mb-1 text-sm text-muted">
-            This button fails every third click. Configure{' '}
-            <code className="rounded bg-surface-raised px-1 text-xs">
-              test.describe.configure(&#123; retries: 2 &#125;)
-            </code>{' '}
-            and observe how Playwright retries. Use{' '}
-            <code className="rounded bg-surface-raised px-1 text-xs">context.tracing.start()</code>{' '}
-            on retry to capture a trace.
+            This button fails every third click. Explore how to configure automatic retries and how
+            to capture a trace only when a retry occurs.
           </p>
           <p className="mb-4 text-xs text-muted">
             Click count: {flakyCount} — fails on clicks 3, 6, 9…
@@ -104,9 +93,8 @@ export function DebuggingReporting() {
             Slow component
           </h2>
           <p className="mb-4 text-sm text-muted">
-            Takes 2 seconds to complete. Practice attaching a screenshot at a key point with{' '}
-            <code className="rounded bg-surface-raised px-1 text-xs">testInfo.attach()</code> and
-            configuring a step-level timeout.
+            Takes 2 seconds to complete. Practice attaching a diagnostic artifact at a key point and
+            configuring a step-level timeout so the test does not time out prematurely.
           </p>
           <button
             type="button"
@@ -145,11 +133,9 @@ export function DebuggingReporting() {
             Non-deterministic content
           </h2>
           <p className="mb-4 text-sm text-muted">
-            This counter updates every second. A naive{' '}
-            <code className="rounded bg-surface-raised px-1 text-xs">toHaveText()</code> on the raw
-            number will be flaky. Use{' '}
-            <code className="rounded bg-surface-raised px-1 text-xs">expect.poll()</code> or assert
-            a regex that matches any number, not a specific value.
+            This counter updates every second. A naive exact-text assertion on the raw number will
+            be flaky. Think about what kind of assertion stays reliable when the value keeps
+            changing.
           </p>
           <div className="inline-flex items-center gap-3 rounded-xl border border-edge bg-surface px-4 py-3">
             <span className="text-xs uppercase tracking-wider text-muted">Uptime</span>
@@ -169,11 +155,8 @@ export function DebuggingReporting() {
             Screenshot attachment
           </h2>
           <p className="mb-4 text-sm text-muted">
-            Toggle the panel below, then use{' '}
-            <code className="rounded bg-surface-raised px-1 text-xs">
-              testInfo.attach(&apos;panel-open&apos;, &#123; body: await page.screenshot() &#125;)
-            </code>{' '}
-            to embed it in the HTML report.
+            Toggle the panel below, then attach a screenshot of this state to the test report so it
+            is visible in the HTML output.
           </p>
           <button
             type="button"
