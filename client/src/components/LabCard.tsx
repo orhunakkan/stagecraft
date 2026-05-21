@@ -46,13 +46,13 @@ export function LabCard({ lab, completed = false }: LabCardProps) {
         {lab.apis.slice(0, 3).map((api) => (
           <span
             key={api}
-            className="rounded bg-surface-raised px-1.5 py-0.5 font-mono text-[10px] text-muted leading-normal"
+            className="rounded bg-surface-raised px-1.5 py-0.5 font-mono text-[10px] text-content leading-normal"
           >
             {api}
           </span>
         ))}
         {lab.apis.length > 3 && (
-          <span className="rounded bg-surface-raised px-1.5 py-0.5 font-mono text-[10px] text-muted leading-normal">
+          <span className="rounded bg-surface-raised px-1.5 py-0.5 font-mono text-[10px] text-content leading-normal">
             +{lab.apis.length - 3}
           </span>
         )}
