@@ -14,6 +14,7 @@ export const openApiDocument = {
     { name: 'Tasks' },
     { name: 'Products' },
     { name: 'Service Workers' },
+    { name: 'Feed' },
   ],
   paths: {
     '/health': {
@@ -330,6 +331,37 @@ export const openApiDocument = {
         },
       },
     },
+    '/api/feed': {
+      get: {
+        tags: ['Feed'],
+        summary: 'Paginated activity feed',
+        operationId: 'getFeed',
+        parameters: [
+          {
+            name: 'page',
+            in: 'query',
+            description: '1-based page number.',
+            schema: { type: 'integer', minimum: 1, default: 1 },
+          },
+          {
+            name: 'pageSize',
+            in: 'query',
+            description: 'Number of items per page (1–100).',
+            schema: { type: 'integer', minimum: 1, maximum: 100, default: 10 },
+          },
+        ],
+        responses: {
+          '200': {
+            description: 'A page of feed items.',
+            content: {
+              'application/json': {
+                schema: { $ref: '#/components/schemas/FeedPage' },
+              },
+            },
+          },
+        },
+      },
+    },
   },
   components: {
     securitySchemes: {
@@ -488,6 +520,30 @@ export const openApiDocument = {
           id: { type: 'integer', example: 1 },
           name: { type: 'string', example: 'Fresh Widget' },
           source: { type: 'string', enum: ['network'], example: 'network' },
+        },
+      },
+      FeedItem: {
+        type: 'object',
+        required: ['id', 'title', 'body', 'createdAt'],
+        properties: {
+          id: { type: 'integer', example: 1 },
+          title: { type: 'string', example: 'Deployed new feature' },
+          body: { type: 'string', example: 'Rolled out dark mode to all users.' },
+          createdAt: { type: 'string', format: 'date-time', example: '2026-05-01T08:00:00Z' },
+        },
+      },
+      FeedPage: {
+        type: 'object',
+        required: ['items', 'page', 'pageSize', 'total', 'hasMore'],
+        properties: {
+          items: {
+            type: 'array',
+            items: { $ref: '#/components/schemas/FeedItem' },
+          },
+          page: { type: 'integer', example: 1 },
+          pageSize: { type: 'integer', example: 8 },
+          total: { type: 'integer', example: 42 },
+          hasMore: { type: 'boolean', example: true },
         },
       },
     },

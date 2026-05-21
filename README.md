@@ -1,10 +1,10 @@
 # Stagecraft
 
-Stagecraft is a hands-on Playwright practice application for developers who already know JavaScript or TypeScript and want realistic browser automation scenarios. It provides 20 interactive labs that learners can open in the browser, explore manually, and test from a separate Playwright project.
+Stagecraft is a hands-on Playwright practice application for developers who already know JavaScript or TypeScript and want realistic browser automation scenarios. It provides 25 interactive labs that learners can open in the browser, explore manually, and test from a separate Playwright project.
 
-Each lab has a dedicated route under `/practice/<slug>` (e.g. `/practice/network-api`). All 20 lab components are loaded lazily and wrapped in an `ErrorBoundary`. A registered slug that has no route yet renders a "coming soon" page via a catch-all route, while an unknown slug redirects to the lab catalog.
+Each lab has a dedicated route under `/practice/<slug>` (e.g. `/practice/network-api`). All 25 lab components are loaded lazily and wrapped in an `ErrorBoundary`. A registered slug that has no route yet renders a "coming soon" page via a catch-all route, while an unknown slug redirects to the lab catalog.
 
-The app intentionally does not ship answer tests for learners. Its job is to provide stable, realistic UI and API surfaces for practicing locators, network interception, storage state, WebSockets, visual assertions, service workers, multi-tab flows, and other Playwright APIs.
+The app intentionally does not ship answer tests for learners. Its job is to provide stable, realistic UI and API surfaces for practicing locators, network interception, storage state, WebSockets, visual assertions, service workers, multi-tab flows, permissions, media emulation, accessibility scanning, infinite scroll, and other Playwright APIs.
 
 ## Contents
 
@@ -181,34 +181,40 @@ In production, the client is built to `client/dist`, the server is built to `ser
 - Fake authentication uses server-side sessions via `express-session`.
 - The fake-auth session cookie is httpOnly; Playwright can still persist it through `storageState` for the auth-state lab.
 - WebSockets are attached to the same HTTP server as Express and are available at `/ws`.
+- The scroll and lazy-loading lab uses a deterministic, in-memory `/api/feed` endpoint so infinite-scroll tests can exercise real pagination without external services.
 - Backend data is in-memory and resets when the server restarts.
 
 ## Labs
 
 All labs are registered in `client/src/labs/index.ts`. Each registry entry defines the route slug, display title, topic, relevant Playwright APIs, status, and whether the lab needs the backend.
 
-| Slug                     | Lab                    | Backend | Focus                                                       |
-| ------------------------ | ---------------------- | ------- | ----------------------------------------------------------- |
-| `accessible-locators`    | Accessible Locators    | No      | Roles, labels, headings, alt text, accessible names.        |
-| `forms-validation`       | Forms & Validation     | No      | Form controls, validation messages, disabled submit states. |
-| `tables-filtering`       | Tables & Filtering     | No      | Search, sort, filter, pagination, row actions.              |
-| `async-ui`               | Async UI               | No      | Loading states, retries, delayed UI changes.                |
-| `network-api`            | Network & API          | Yes     | API-backed UI and network synchronization.                  |
-| `fake-auth`              | Fake Auth              | Yes     | Login, protected routes, logout, session state.             |
-| `browser-events`         | Browser Events         | No      | Dialogs, files, downloads, browser events.                  |
-| `frames-contexts`        | Frames & Contexts      | No      | Iframes and browser context concepts.                       |
-| `emulation-input`        | Emulation & Input      | No      | Keyboard, mouse, viewport, device emulation.                |
-| `debugging-reporting`    | Debugging & Reporting  | No      | Trace viewer, screenshots, retries, timeouts.               |
-| `websocket-interception` | WebSocket Interception | Yes     | WebSocket messages and interception.                        |
-| `aria-snapshots`         | ARIA Snapshots         | No      | Accessibility tree regression assertions.                   |
-| `clock-timers`           | Clock & Timers         | No      | Controlling time with Playwright clock APIs.                |
-| `api-request-context`    | API Request Context    | Yes     | Using Playwright's HTTP client fixture.                     |
-| `storage-state`          | Storage State          | Yes     | Auth serialization and multi-user contexts.                 |
-| `visual-regression`      | Visual Regression      | No      | Screenshots and visual diffing.                             |
-| `drag-and-drop`          | Drag & Drop            | No      | Drag actions, drop zones, DataTransfer.                     |
-| `har-recording`          | HAR Recording          | Yes     | HAR recording, replay, and network stubs.                   |
-| `multi-tab`              | Multi-Tab              | No      | Popups, multiple pages, shared same-origin state.           |
-| `service-workers`        | Service Workers        | Yes     | Service worker interception and offline testing.            |
+| Slug                      | Lab                       | Backend | Focus                                                       |
+| ------------------------- | ------------------------- | ------- | ----------------------------------------------------------- |
+| `accessible-locators`     | Accessible Locators       | No      | Roles, labels, headings, alt text, accessible names.        |
+| `forms-validation`        | Forms & Validation        | No      | Form controls, validation messages, disabled submit states. |
+| `tables-filtering`        | Tables & Filtering        | No      | Search, sort, filter, pagination, row actions.              |
+| `async-ui`                | Async UI                  | No      | Loading states, retries, delayed UI changes.                |
+| `network-api`             | Network & API             | Yes     | API-backed UI and network synchronization.                  |
+| `fake-auth`               | Fake Auth                 | Yes     | Login, protected routes, logout, session state.             |
+| `browser-events`          | Browser Events            | No      | Dialogs, files, downloads, browser events.                  |
+| `frames-contexts`         | Frames & Contexts         | No      | Iframes and browser context concepts.                       |
+| `emulation-input`         | Emulation & Input         | No      | Keyboard, mouse, viewport, device emulation.                |
+| `debugging-reporting`     | Debugging & Reporting     | No      | Trace viewer, screenshots, retries, timeouts.               |
+| `websocket-interception`  | WebSocket Interception    | Yes     | WebSocket messages and interception.                        |
+| `aria-snapshots`          | ARIA Snapshots            | No      | Accessibility tree regression assertions.                   |
+| `clock-timers`            | Clock & Timers            | No      | Controlling time with Playwright clock APIs.                |
+| `api-request-context`     | API Request Context       | Yes     | Using Playwright's HTTP client fixture.                     |
+| `storage-state`           | Storage State             | Yes     | Auth serialization and multi-user contexts.                 |
+| `visual-regression`       | Visual Regression         | No      | Screenshots and visual diffing.                             |
+| `drag-and-drop`           | Drag & Drop               | No      | Drag actions, drop zones, DataTransfer.                     |
+| `har-recording`           | HAR Recording             | Yes     | HAR recording, replay, and network stubs.                   |
+| `multi-tab`               | Multi-Tab                 | No      | Popups, multiple pages, shared same-origin state.           |
+| `service-workers`         | Service Workers           | Yes     | Service worker interception and offline testing.            |
+| `geolocation-permissions` | Geolocation & Permissions | No      | Permission grants, geolocation, clipboard interactions.     |
+| `locator-handlers`        | Locator Handlers          | No      | Auto-dismiss overlays with locator handlers.                |
+| `media-locale`            | Media & Locale Emulation  | No      | CSS media features, locale, and timezone emulation.         |
+| `scroll-lazy-loading`     | Scroll & Lazy Loading     | Yes     | Infinite scroll, viewport assertions, paginated data.       |
+| `accessibility-scanning`  | Accessibility Scanning    | No      | Axe scans, scoped scans, WCAG tag filtering.                |
 
 ## Backend Fixtures
 
@@ -254,6 +260,7 @@ Fake users:
 | `GET`                          | `/api/products`     | Product list fixture.                                                          |
 | `GET`                          | `/api/products/:id` | Product detail fixture.                                                        |
 | `GET`                          | `/api/sw-items`     | Fresh server data used by the service worker lab.                              |
+| `GET`                          | `/api/feed`         | Paginated activity feed used by the scroll and lazy-loading lab.               |
 | WebSocket                      | `/ws`               | Sends a welcome message, periodic ticker messages, and echoes client messages. |
 
 ## Testing
@@ -284,7 +291,7 @@ Use UI mode while authoring or debugging:
 npm run test:e2e:ui
 ```
 
-The E2E suite verifies that the practice app itself remains stable. It is separate from learner-written tests.
+The E2E suite verifies that the practice app itself remains stable, including one focused spec per ready lab. It is separate from learner-written tests.
 
 ### Type, Lint, and Format Checks
 

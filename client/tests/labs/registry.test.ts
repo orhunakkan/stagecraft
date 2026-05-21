@@ -2,8 +2,8 @@ import { describe, test, expect } from 'vitest';
 import { labs } from '../../src/labs';
 
 describe('lab registry', () => {
-  test('all 20 labs are registered', () => {
-    expect(labs).toHaveLength(20);
+  test('all 25 labs are registered', () => {
+    expect(labs).toHaveLength(25);
   });
 
   test('every lab has a unique slug', () => {

@@ -56,6 +56,23 @@ const labComponentMap: Record<string, ComponentType> = {
   ),
   'storage-state': lazyNamed(() => import('./pages/practice/StorageState'), 'StorageState'),
   'har-recording': lazyNamed(() => import('./pages/practice/HarRecording'), 'HarRecording'),
+  'geolocation-permissions': lazyNamed(
+    () => import('./pages/practice/GeolocationPermissions'),
+    'GeolocationPermissions',
+  ),
+  'locator-handlers': lazyNamed(
+    () => import('./pages/practice/LocatorHandlers'),
+    'LocatorHandlers',
+  ),
+  'media-locale': lazyNamed(() => import('./pages/practice/MediaLocale'), 'MediaLocale'),
+  'scroll-lazy-loading': lazyNamed(
+    () => import('./pages/practice/ScrollLazyLoading'),
+    'ScrollLazyLoading',
+  ),
+  'accessibility-scanning': lazyNamed(
+    () => import('./pages/practice/AccessibilityScanning'),
+    'AccessibilityScanning',
+  ),
 };
 
 // Extra sub-routes for labs with multi-page flows (not derivable from a single slug)

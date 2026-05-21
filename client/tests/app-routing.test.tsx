@@ -26,6 +26,10 @@ beforeEach(() => {
     vi.fn((input: RequestInfo | URL) => {
       const url = String(input);
       if (url.endsWith('/api/auth/me')) return Promise.resolve(jsonResponse({}, 401));
+      if (url.includes('/api/feed'))
+        return Promise.resolve(
+          jsonResponse({ items: [], page: 1, pageSize: 8, total: 0, hasMore: false }),
+        );
       return Promise.resolve(jsonResponse([]));
     }),
   );

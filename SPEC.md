@@ -8,10 +8,10 @@ Stagecraft is a web application that provides hands-on Playwright practice labs 
 
 **Success looks like:**
 
-- A developer can navigate to any of the 20 lab routes and interact with a realistic UI
+- A developer can navigate to any of the 25 lab routes and interact with a realistic UI
 - Each lab clearly explains its topic, the Playwright APIs involved, and what the user is expected to test
 - Labs that require API, WebSocket, or auth scenarios have a working Express backend supporting them
-- All 20 labs are scaffolded; at minimum 5 core labs are fully implemented at launch
+- All 25 labs are production-ready and covered by focused regression tests
 
 **User stories:**
 
@@ -19,7 +19,7 @@ Stagecraft is a web application that provides hands-on Playwright practice labs 
 - As a learner, I can navigate to a lab route (`/practice/<slug>`) and see a topic description and interactive UI
 - As a learner, I can interact with the lab UI in my browser while writing Playwright tests in a separate project
 - As a learner, I receive clear hints about which Playwright APIs apply to each lab
-- As a developer, incomplete labs show a "Coming Soon" placeholder so routing never breaks
+- As a developer, any future incomplete lab can show a "Coming Soon" placeholder so routing never breaks
 
 ---
 
@@ -27,14 +27,14 @@ Stagecraft is a web application that provides hands-on Playwright practice labs 
 
 | Layer          | Technology                     | Version  |
 | -------------- | ------------------------------ | -------- |
-| Frontend       | React + TypeScript             | React 18 |
-| Frontend Build | Vite                           | ^6       |
+| Frontend       | React + TypeScript             | React 19 |
+| Frontend Build | Vite                           | ^8       |
 | Backend        | Express.js + TypeScript        | ^5       |
 | Styling        | Tailwind CSS                   | ^4       |
-| Unit Tests     | Vitest + React Testing Library | ^3       |
-| E2E Tests      | Playwright                     | ^1.50    |
+| Unit Tests     | Vitest + React Testing Library | ^4       |
+| E2E Tests      | Playwright                     | ^1.60    |
 | Package Mgr    | npm workspaces (monorepo)      | npm 10+  |
-| Runtime        | Node.js                        | ^22      |
+| Runtime        | Node.js                        | 24.x     |
 
 ---
 
@@ -46,7 +46,7 @@ Run all commands from the **repository root** unless otherwise noted.
 # Install all workspace dependencies
 npm install
 
-# Start both client (Vite dev) and server (ts-node-dev) concurrently
+# Start both client (Vite dev) and server (tsx watch) concurrently
 npm run dev
 
 # Start only the frontend (port 5173)
@@ -94,7 +94,6 @@ stagecraft/
 │   ├── vite.config.ts
 │   ├── tsconfig.json
 │   ├── index.html
-│   ├── tailwind.config.ts
 │   ├── src/
 │   │   ├── main.tsx          # App entry point
 │   │   ├── App.tsx           # Router root
@@ -131,7 +130,7 @@ stagecraft/
 
 ## Lab Registry
 
-All 20 labs are registered in `client/src/labs/index.ts`. Each entry carries:
+All 25 labs are registered in `client/src/labs/index.ts`. Each entry carries:
 
 ```ts
 export interface Lab {
@@ -141,21 +140,26 @@ export interface Lab {
   apis: string[]; // Key Playwright APIs covered
   status: 'ready' | 'coming-soon';
   requiresBackend: boolean;
+  goal?: string; // Learner-facing outcome
+  guidance?: string[]; // Hints shown in the lab header
+  docsUrl?: string; // Relevant Playwright docs
 }
 ```
 
-Labs that require a backend (`requiresBackend: true`): `network-api`, `fake-auth`, `websocket-interception`, `har-recording`, `api-request-context`, `storage-state`.
+Labs that require a backend (`requiresBackend: true`): `network-api`, `fake-auth`, `websocket-interception`, `har-recording`, `api-request-context`, `storage-state`, `service-workers`, `scroll-lazy-loading`.
+
+**Feed API (scroll-lazy-loading lab):** `GET /api/feed` serves deterministic in-memory feed items with `page`, `pageSize`, `total`, and `hasMore` metadata. It supports infinite-scroll practice without external services or persistent storage.
 
 **Authentication (fake-auth lab):** `express-session` with a signed cookie (server-side session). The session cookie is intentionally capturable by Playwright's `storageState`, making it the natural predecessor to the `storage-state` lab.
 
 **WebSocket (websocket-interception lab):** The `ws` library upgrades connections from the same Express HTTP server on the same port (`server.on('upgrade', wsHandler)`). Single port, no CORS config required.
 
-**Initial launch status:**
+**Current lab status:**
 
-| Status        | Labs                                                                              |
-| ------------- | --------------------------------------------------------------------------------- |
-| `ready`       | `accessible-locators`, `forms-validation`, `async-ui`, `network-api`, `fake-auth` |
-| `coming-soon` | All remaining 15 labs                                                             |
+| Status        | Labs                   |
+| ------------- | ---------------------- |
+| `ready`       | All 25 registered labs |
+| `coming-soon` | None                   |
 
 **Lab completion tracking:** Tracked client-side in `localStorage` as a `Set` of completed slugs (`stagecraft:completed`). No user accounts or backend storage required. The home page reads this on mount to render completion badges.
 
@@ -243,7 +247,7 @@ test('every lab has a unique slug', () => {
 ### E2E Tests (Playwright)
 
 - **Location:** `e2e/`
-- **Scope:** Each "ready" lab has a spec that verifies: page loads, UI is interactive, key elements are present
+- **Scope:** Each ready lab has a spec that verifies the page loads, the UI is interactive, and the key learner-facing elements are present
 - **Purpose:** Prevent regressions in the UI that learners test against — the labs themselves must stay reliable
 - **Run:** `npm run test:e2e`
 - **Config:** `playwright.config.ts` at root; `baseURL: http://localhost:5173`; `webServer` auto-starts `npm run dev`
@@ -294,11 +298,11 @@ Learners write their own Playwright tests in a separate project. Stagecraft itse
 The spec is complete when:
 
 - [ ] `npm run dev` starts both client (port 5173) and server (port 3001) cleanly
-- [ ] The home page lists all 20 labs with correct status badges
-- [ ] The 5 "ready" labs have fully functional interactive UIs
-- [ ] The 15 "coming-soon" labs render a placeholder page (no 404s)
+- [ ] The home page lists all 25 labs with correct status badges
+- [ ] All 25 ready labs have fully functional interactive UIs
+- [ ] Any future `coming-soon` lab renders a placeholder page instead of a 404
 - [ ] `npm run test:run` passes with ≥80% coverage on utility code
-- [ ] `npm run test:e2e` passes for all 5 ready labs
+- [ ] `npm run test:e2e` passes for all 25 ready labs
 - [ ] `npm run typecheck` and `npm run lint` exit with 0 errors
 
 ---
@@ -311,7 +315,7 @@ The spec is complete when:
 Phase 1: Monorepo scaffold            (no deps)
 Phase 2: Shell UI + lab registry      (needs Phase 1)
 Phase 3: Express server baseline      (needs Phase 1)
-Phase 4: 5 ready labs (client UI)     (needs Phase 2)
+Phase 4: Initial ready labs (client UI) (needs Phase 2)
 Phase 5: Backend routes for 3 labs    (needs Phase 3)
 Phase 6: Lab completion tracking      (needs Phase 2)
 Phase 7: Deployment setup             (needs Phase 4+5)
@@ -326,7 +330,7 @@ Phase 8: E2E test suite               (needs Phase 4+5)
 | -------------------------------------------------------------------------- | ----------------------------------------------------------------------------- |
 | WebSocket upgrade conflicts with Express middleware                        | Wire `ws` after all Express routes are registered                             |
 | `express-session` cookie not captured by Playwright in `storage-state` lab | Use `sameSite: 'lax'`; Playwright `storageState` can capture httpOnly cookies |
-| Tailwind purge removing dynamic class names from labs                      | Add lab directories to `content` glob in `tailwind.config.ts`                 |
+| Tailwind CSS source discovery missing dynamic lab classes                  | Keep lab source under `client/src` so Tailwind 4 scans the same app tree      |
 | Vite proxy to Express needed in dev                                        | Configure `server.proxy` in `vite.config.ts` for `/api` and `/ws`             |
 
 ---
@@ -343,7 +347,7 @@ Phase 8: E2E test suite               (needs Phase 4+5)
 - [ ] **Task 1.2:** Scaffold `client/` with Vite + React + TypeScript + Tailwind
   - Acceptance: `npm run dev:client` serves on port 5173; Tailwind classes render
   - Verify: Browser shows default Vite+React page with a Tailwind-styled element
-  - Files: `client/package.json`, `client/vite.config.ts`, `client/tailwind.config.ts`, `client/src/main.tsx`, `client/index.html`
+  - Files: `client/package.json`, `client/vite.config.ts`, `client/src/main.tsx`, `client/index.html`
 
 - [ ] **Task 1.3:** Scaffold `server/` with Express + TypeScript
   - Acceptance: `npm run dev:server` starts on port 3001; `GET /health` returns `{ ok: true }`
@@ -358,13 +362,13 @@ Phase 8: E2E test suite               (needs Phase 4+5)
 ### Phase 2 — Shell UI + Lab Registry
 
 - [ ] **Task 2.1:** Define `Lab` interface and registry (`client/src/labs/index.ts`)
-  - Acceptance: All 20 labs registered with correct slugs, status, `requiresBackend`
+  - Acceptance: All registered labs have correct slugs, status, `requiresBackend`, learner goals, guidance, and docs links
   - Verify: `npm run test:run` — registry uniqueness test passes
   - Files: `client/src/labs/index.ts`, `client/tests/labs/registry.test.ts`
 
 - [ ] **Task 2.2:** Navigation layout and home page (`/`)
-  - Acceptance: Home lists all 20 labs; `coming-soon` labs have a distinct badge; `ready` labs link to `/practice/<slug>`
-  - Verify: Playwright smoke test — home page renders 20 lab cards
+  - Acceptance: Home lists all registered labs; `coming-soon` labs have a distinct badge; `ready` labs link to `/practice/<slug>`
+  - Verify: Playwright smoke test — home page renders all registry cards
   - Files: `client/src/layouts/Shell.tsx`, `client/src/pages/Home.tsx`, `client/src/components/LabCard.tsx`
 
 - [ ] **Task 2.3:** `coming-soon` placeholder page
@@ -459,7 +463,7 @@ Covered inline in Tasks 4.4 and 4.5 above. Separate task for WebSocket:
   - Files: `playwright.config.ts`
 
 - [ ] **Task 8.2:** Home page smoke spec
-  - Acceptance: All 20 lab cards rendered; no broken links for `ready` labs
+  - Acceptance: All registered lab cards rendered; no broken links for `ready` labs
   - Files: `e2e/home.spec.ts`
 
 - [ ] **Task 8.3–8.7:** One E2E spec per ready lab (Tasks 4.1–4.5)

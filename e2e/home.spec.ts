@@ -9,9 +9,9 @@ test.describe('Home page', () => {
     await expect(page.getByRole('heading', { name: 'Practice Labs', level: 1 })).toBeVisible();
   });
 
-  test('ready labs section contains all 20 lab cards', async ({ page }) => {
+  test('ready labs section contains all 25 lab cards', async ({ page }) => {
     const section = page.getByRole('region', { name: 'Ready labs' });
-    await expect(section.getByRole('article')).toHaveCount(20);
+    await expect(section.getByRole('article')).toHaveCount(25);
   });
 
   test('coming soon section contains no lab cards', async ({ page }) => {

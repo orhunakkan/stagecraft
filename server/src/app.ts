@@ -10,6 +10,7 @@ import authRouter from './routes/auth';
 import tasksRouter from './routes/tasks';
 import productsRouter from './routes/products';
 import swItemsRouter from './routes/swItems';
+import feedRouter from './routes/feed';
 import { openApiDocument } from './openapi';
 import { logger } from './lib/logger';
 
@@ -131,6 +132,7 @@ app.use('/api/auth', authRouter);
 app.use('/api/tasks', tasksRouter);
 app.use('/api/products', productsRouter);
 app.use('/api/sw-items', swItemsRouter);
+app.use('/api/feed', feedRouter);
 
 app.use(
   (error: unknown, _req: express.Request, res: express.Response, next: express.NextFunction) => {
