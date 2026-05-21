@@ -43,7 +43,7 @@ export function FakeAuth() {
       <div className="max-w-sm">
         <form onSubmit={(e) => void handleSubmit(e)} aria-label="Login form" className="space-y-4">
           <div className="flex flex-col gap-1">
-            <label htmlFor="username" className="text-sm font-medium text-zinc-700">
+            <label htmlFor="username" className="text-sm font-medium text-muted">
               Username
             </label>
             <input
@@ -53,12 +53,12 @@ export function FakeAuth() {
               onChange={(e) => setUsername(e.target.value)}
               autoComplete="username"
               required
-              className="rounded-lg border border-zinc-300 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+              className="rounded-lg border border-edge px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
             />
           </div>
 
           <div className="flex flex-col gap-1">
-            <label htmlFor="password" className="text-sm font-medium text-zinc-700">
+            <label htmlFor="password" className="text-sm font-medium text-muted">
               Password
             </label>
             <input
@@ -68,12 +68,12 @@ export function FakeAuth() {
               onChange={(e) => setPassword(e.target.value)}
               autoComplete="current-password"
               required
-              className="rounded-lg border border-zinc-300 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+              className="rounded-lg border border-edge px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
             />
           </div>
 
           {error && (
-            <p role="alert" className="text-sm text-red-600">
+            <p role="alert" className="text-sm text-red-600 dark:text-red-400">
               {error}
             </p>
           )}
@@ -87,11 +87,11 @@ export function FakeAuth() {
           </button>
         </form>
 
-        <div className="mt-6 rounded-lg border border-zinc-200 bg-zinc-50 p-3">
-          <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-zinc-500">
+        <div className="mt-6 rounded-lg border border-edge bg-canvas p-3">
+          <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-muted">
             Test credentials
           </p>
-          <div className="space-y-1 font-mono text-xs text-zinc-600">
+          <div className="space-y-1 font-mono text-xs text-muted">
             <p>alice / password123</p>
             <p>bob / letmein</p>
           </div>

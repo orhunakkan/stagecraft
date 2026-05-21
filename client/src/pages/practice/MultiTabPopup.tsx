@@ -25,27 +25,27 @@ export function MultiTabPopup() {
   };
 
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center bg-white p-6">
-      <h1 className="text-xl font-bold text-zinc-900">Popup Window</h1>
-      <p className="mt-2 max-w-sm text-center text-sm text-zinc-500">
+    <div className="flex min-h-screen flex-col items-center justify-center bg-canvas p-6">
+      <h1 className="text-xl font-bold text-content">Popup Window</h1>
+      <p className="mt-2 max-w-sm text-center text-sm text-muted">
         This is a popup. After clicking &quot;Send result&quot;, the opener page receives a message
-        via <code className="rounded bg-zinc-100 px-1 text-xs">window.postMessage</code>. Playwright
-        captures popups with{' '}
-        <code className="rounded bg-zinc-100 px-1 text-xs">
+        via <code className="rounded bg-surface-raised px-1 text-xs">window.postMessage</code>.
+        Playwright captures popups with{' '}
+        <code className="rounded bg-surface-raised px-1 text-xs">
           page.waitForEvent(&apos;popup&apos;)
         </code>
         .
       </p>
 
       <div className="mt-6 w-full max-w-xs space-y-3">
-        <label className="block text-xs font-medium text-zinc-600">
+        <label className="block text-xs font-medium text-muted">
           Value to send
           <input
             type="text"
             value={value}
             onChange={(e) => setValue(e.target.value)}
             aria-label="Value to send to opener"
-            className="mt-1 block w-full rounded-lg border border-zinc-300 px-3 py-1.5 text-sm focus:border-indigo-500 focus:outline-none"
+            className="mt-1 block w-full rounded-lg border border-edge px-3 py-1.5 text-sm focus:border-indigo-500 focus:outline-none"
           />
         </label>
         <button
@@ -57,7 +57,11 @@ export function MultiTabPopup() {
           Send result to opener
         </button>
         {sent && (
-          <p role="status" aria-live="polite" className="text-center text-sm text-emerald-600">
+          <p
+            role="status"
+            aria-live="polite"
+            className="text-center text-sm text-emerald-600 dark:text-emerald-400"
+          >
             ✓ Sent!
           </p>
         )}

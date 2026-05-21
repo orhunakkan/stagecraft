@@ -16,9 +16,9 @@ export function MultiTab() {
     <div>
       <LabHeader lab={lab} />
 
-      <p className="mb-8 text-sm text-zinc-500">
+      <p className="mb-8 text-sm text-muted">
         When a link or button opens a new tab or popup, Playwright captures it with{' '}
-        <code className="rounded bg-zinc-100 px-1 text-xs">
+        <code className="rounded bg-surface-raised px-1 text-xs">
           context.waitForEvent(&apos;page&apos;)
         </code>
         . You must set up the listener <em>before</em> triggering the action.
@@ -26,12 +26,12 @@ export function MultiTab() {
 
       <div className="space-y-10">
         <section aria-labelledby="newtab-heading">
-          <h2 id="newtab-heading" className="mb-1 text-base font-semibold text-zinc-900">
+          <h2 id="newtab-heading" className="mb-1 text-base font-semibold text-content">
             Challenge 1 — New tab
           </h2>
-          <p className="mb-4 text-sm text-zinc-500">
+          <p className="mb-4 text-sm text-muted">
             Click the button below. Playwright must capture the new page via{' '}
-            <code className="rounded bg-zinc-100 px-1 text-xs">
+            <code className="rounded bg-surface-raised px-1 text-xs">
               const [newPage] = await Promise.all([context.waitForEvent(&apos;page&apos;),
               button.click()])
             </code>
@@ -47,21 +47,24 @@ export function MultiTab() {
         </section>
 
         <section aria-labelledby="popup-heading">
-          <h2 id="popup-heading" className="mb-1 text-base font-semibold text-zinc-900">
+          <h2 id="popup-heading" className="mb-1 text-base font-semibold text-content">
             Challenge 2 — Popup window
           </h2>
-          <p className="mb-4 text-sm text-zinc-500">
+          <p className="mb-4 text-sm text-muted">
             This button opens a popup window (not a tab). Use{' '}
-            <code className="rounded bg-zinc-100 px-1 text-xs">
+            <code className="rounded bg-surface-raised px-1 text-xs">
               page.waitForEvent(&apos;popup&apos;)
             </code>{' '}
             to capture it. The popup can communicate back to the opener via{' '}
-            <code className="rounded bg-zinc-100 px-1 text-xs">window.opener.postMessage()</code>.
+            <code className="rounded bg-surface-raised px-1 text-xs">
+              window.opener.postMessage()
+            </code>
+            .
           </p>
           <button
             type="button"
             onClick={openPopup}
-            className="rounded-lg border border-indigo-300 px-4 py-2 text-sm font-medium text-indigo-700 hover:bg-indigo-50"
+            className="rounded-lg border border-indigo-300 px-4 py-2 text-sm font-medium text-indigo-700 hover:bg-indigo-50 dark:border-indigo-600 dark:text-indigo-300 dark:hover:bg-indigo-950"
           >
             Open popup window
           </button>
@@ -69,25 +72,26 @@ export function MultiTab() {
             id="opener-result"
             role="status"
             aria-live="polite"
-            className="mt-3 text-sm text-zinc-500"
+            className="mt-3 text-sm text-muted"
           />
         </section>
 
         <section aria-labelledby="storage-heading">
-          <h2 id="storage-heading" className="mb-1 text-base font-semibold text-zinc-900">
+          <h2 id="storage-heading" className="mb-1 text-base font-semibold text-content">
             Challenge 3 — Cross-tab storage
           </h2>
-          <p className="mb-4 text-sm text-zinc-500">
+          <p className="mb-4 text-sm text-muted">
             Both the main page and the new tab share the same{' '}
-            <code className="rounded bg-zinc-100 px-1 text-xs">localStorage</code> (same origin).
-            Write a value in the new tab and assert it&apos;s visible here after switching back.
+            <code className="rounded bg-surface-raised px-1 text-xs">localStorage</code> (same
+            origin). Write a value in the new tab and assert it&apos;s visible here after switching
+            back.
           </p>
-          <div className="rounded-xl border border-zinc-200 bg-white p-4">
-            <p className="text-sm text-zinc-600">
+          <div className="rounded-xl border border-edge bg-surface p-4">
+            <p className="text-sm text-muted">
               Storage key:{' '}
-              <code className="rounded bg-zinc-100 px-1 text-xs">multi-tab:shared</code>
+              <code className="rounded bg-surface-raised px-1 text-xs">multi-tab:shared</code>
             </p>
-            <p className="mt-1 text-sm text-zinc-500">
+            <p className="mt-1 text-sm text-muted">
               Current value:{' '}
               <span data-testid="shared-storage-value" className="font-mono">
                 {localStorage.getItem('multi-tab:shared') ?? '(none)'}
@@ -96,7 +100,7 @@ export function MultiTab() {
             <button
               type="button"
               onClick={() => window.location.reload()}
-              className="mt-2 text-xs text-indigo-600 underline hover:text-indigo-800"
+              className="mt-2 text-xs text-accent underline hover:text-indigo-800 dark:hover:text-indigo-300"
             >
               Reload to refresh value
             </button>
