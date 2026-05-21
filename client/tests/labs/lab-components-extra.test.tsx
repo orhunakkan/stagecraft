@@ -233,18 +233,21 @@ describe('GeolocationPermissions', () => {
 describe('MediaLocale', () => {
   test('reacts to media query changes for colour scheme, motion, and print', () => {
     const listeners = new Map<string, (event: MediaQueryListEvent) => void>();
-    window.matchMedia = vi.fn((query: string) => ({
-      matches: query === '(prefers-color-scheme: dark)',
-      media: query,
-      onchange: null,
-      addListener: () => {},
-      removeListener: () => {},
-      addEventListener: (_event: string, listener: (event: MediaQueryListEvent) => void) => {
-        listeners.set(query, listener);
-      },
-      removeEventListener: () => {},
-      dispatchEvent: () => false,
-    }));
+    window.matchMedia = vi.fn(
+      (query: string) =>
+        ({
+          matches: query === '(prefers-color-scheme: dark)',
+          media: query,
+          onchange: null,
+          addListener: () => {},
+          removeListener: () => {},
+          addEventListener: (_event: string, listener: (event: MediaQueryListEvent) => void) => {
+            listeners.set(query, listener);
+          },
+          removeEventListener: () => {},
+          dispatchEvent: () => false,
+        }) as unknown as MediaQueryList,
+    );
 
     render(<MediaLocale />);
 
