@@ -77,7 +77,7 @@ export function AccessibleLocators() {
       {/* Search controls */}
       <section aria-label="Search controls" className="mb-6 flex flex-wrap gap-4">
         <div className="flex flex-col gap-1">
-          <label htmlFor="search-input" className="text-sm font-medium text-zinc-700">
+          <label htmlFor="search-input" className="text-sm font-medium text-muted">
             Search books
           </label>
           <input
@@ -86,19 +86,19 @@ export function AccessibleLocators() {
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Title or author…"
-            className="rounded-lg border border-zinc-300 px-3 py-1.5 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+            className="rounded-lg border border-edge px-3 py-1.5 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
           />
         </div>
 
         <div className="flex flex-col gap-1">
-          <label htmlFor="genre-select" className="text-sm font-medium text-zinc-700">
+          <label htmlFor="genre-select" className="text-sm font-medium text-muted">
             Filter by genre
           </label>
           <select
             id="genre-select"
             value={genre}
             onChange={(e) => setGenre(e.target.value)}
-            className="rounded-lg border border-zinc-300 px-3 py-1.5 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+            className="rounded-lg border border-edge px-3 py-1.5 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
           >
             {GENRES.map((g) => (
               <option key={g} value={g}>
@@ -110,7 +110,7 @@ export function AccessibleLocators() {
       </section>
 
       {/* Live status */}
-      <p role="status" className="mb-4 text-sm text-zinc-500">
+      <p role="status" className="mb-4 text-sm text-muted">
         {filtered.length === 0
           ? 'No books found.'
           : `Showing ${filtered.length} of ${BOOKS.length} books`}
@@ -121,7 +121,7 @@ export function AccessibleLocators() {
         <p
           role="alert"
           aria-live="polite"
-          className="mb-4 rounded-lg bg-indigo-50 px-3 py-2 text-sm text-indigo-700"
+          className="mb-4 rounded-lg bg-indigo-50 px-3 py-2 text-sm text-indigo-700 dark:bg-indigo-950 dark:text-indigo-300"
         >
           {wishlist.length} {wishlist.length === 1 ? 'book' : 'books'} in your wishlist
         </p>
@@ -129,14 +129,14 @@ export function AccessibleLocators() {
 
       {/* Results */}
       <section aria-label="Book results">
-        <h2 className="mb-4 text-base font-semibold text-zinc-900">Results</h2>
+        <h2 className="mb-4 text-base font-semibold text-content">Results</h2>
 
         {filtered.length === 0 ? (
-          <p className="text-sm text-zinc-400">Try a different search or filter.</p>
+          <p className="text-sm text-muted">Try a different search or filter.</p>
         ) : (
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {filtered.map((book, idx) => (
-              <article key={book.id} className="rounded-xl border border-zinc-200 bg-white p-4">
+              <article key={book.id} className="rounded-xl border border-edge bg-surface p-4">
                 <img
                   src={bookCoverSrc(book.title, idx)}
                   alt={`${book.title} book cover`}
@@ -144,17 +144,19 @@ export function AccessibleLocators() {
                   height={88}
                   className="mb-3 rounded"
                 />
-                <h3 className="text-sm font-semibold text-zinc-900">{book.title}</h3>
-                <p className="mt-0.5 text-xs text-zinc-500">{book.author}</p>
+                <h3 className="text-sm font-semibold text-content">{book.title}</h3>
+                <p className="mt-0.5 text-xs text-muted">{book.author}</p>
 
                 <div className="mt-2 flex flex-wrap items-center gap-2">
-                  <span className="rounded bg-zinc-100 px-1.5 py-0.5 text-xs text-zinc-600">
+                  <span className="rounded bg-surface-raised px-1.5 py-0.5 text-xs text-muted">
                     {book.genre}
                   </span>
                   <span
                     className={[
                       'rounded px-1.5 py-0.5 text-xs',
-                      book.available ? 'bg-emerald-50 text-emerald-700' : 'bg-red-50 text-red-600',
+                      book.available
+                        ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300'
+                        : 'bg-red-50 text-red-600 dark:bg-red-950 dark:text-red-400',
                     ].join(' ')}
                   >
                     {book.available ? 'Available' : 'Checked out'}
@@ -170,14 +172,14 @@ export function AccessibleLocators() {
                       'rounded-lg px-3 py-1.5 text-xs font-medium transition-colors',
                       wishlist.includes(book.id)
                         ? 'bg-indigo-600 text-white'
-                        : 'border border-zinc-300 text-zinc-700 hover:bg-zinc-50',
+                        : 'border border-edge text-muted hover:bg-canvas',
                     ].join(' ')}
                   >
                     Add to wishlist
                   </button>
                   <a
                     href={`#book-${book.id}`}
-                    className="rounded-lg border border-zinc-300 px-3 py-1.5 text-xs font-medium text-zinc-700 hover:bg-zinc-50 transition-colors"
+                    className="rounded-lg border border-edge px-3 py-1.5 text-xs font-medium text-muted hover:bg-canvas transition-colors"
                   >
                     View details
                   </a>
@@ -193,15 +195,15 @@ export function AccessibleLocators() {
         <button
           type="button"
           disabled
-          className="rounded-lg border border-zinc-200 px-3 py-1.5 text-sm text-zinc-400 disabled:cursor-not-allowed"
+          className="rounded-lg border border-edge px-3 py-1.5 text-sm text-muted disabled:cursor-not-allowed"
         >
           Previous
         </button>
-        <span className="text-sm text-zinc-500">Page 1 of 1</span>
+        <span className="text-sm text-muted">Page 1 of 1</span>
         <button
           type="button"
           disabled
-          className="rounded-lg border border-zinc-200 px-3 py-1.5 text-sm text-zinc-400 disabled:cursor-not-allowed"
+          className="rounded-lg border border-edge px-3 py-1.5 text-sm text-muted disabled:cursor-not-allowed"
         >
           Next
         </button>

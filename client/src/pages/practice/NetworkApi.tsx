@@ -69,11 +69,11 @@ export function NetworkApi() {
     <div>
       <LabHeader lab={lab} />
 
-      <p className="mb-6 text-sm text-zinc-500">
-        This UI fetches from <code className="rounded bg-zinc-100 px-1 text-xs">/api/notes</code> on
-        load and after mutations. Use{' '}
-        <code className="rounded bg-zinc-100 px-1 text-xs">page.route()</code> to intercept or mock
-        any of these requests.
+      <p className="mb-6 text-sm text-muted">
+        This UI fetches from{' '}
+        <code className="rounded bg-surface-raised px-1 text-xs">/api/notes</code> on load and after
+        mutations. Use <code className="rounded bg-surface-raised px-1 text-xs">page.route()</code>{' '}
+        to intercept or mock any of these requests.
       </p>
 
       {/* Add note form */}
@@ -87,7 +87,7 @@ export function NetworkApi() {
           value={newText}
           onChange={(e) => setNewText(e.target.value)}
           placeholder="Add a note…"
-          className="flex-1 rounded-lg border border-zinc-300 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+          className="flex-1 rounded-lg border border-edge px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
         />
         <button
           type="submit"
@@ -101,7 +101,7 @@ export function NetworkApi() {
       {error && (
         <div
           role="alert"
-          className="mb-4 rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700"
+          className="mb-4 rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700 dark:border-red-800 dark:bg-red-950 dark:text-red-400"
         >
           Error: {error}
         </div>
@@ -110,24 +110,24 @@ export function NetworkApi() {
       {loading ? (
         <div role="status" aria-label="Loading notes" className="space-y-2">
           {[1, 2, 3].map((i) => (
-            <div key={i} className="h-12 animate-pulse rounded-lg bg-zinc-100" />
+            <div key={i} className="h-12 animate-pulse rounded-lg bg-surface-raised" />
           ))}
         </div>
       ) : notes.length === 0 ? (
-        <p className="text-sm text-zinc-400">No notes yet. Add one above.</p>
+        <p className="text-sm text-muted">No notes yet. Add one above.</p>
       ) : (
         <ul className="space-y-2" aria-label="Notes list">
           {notes.map((note) => (
             <li
               key={note.id}
-              className="flex items-center justify-between rounded-lg border border-zinc-200 bg-white px-4 py-3"
+              className="flex items-center justify-between rounded-lg border border-edge bg-surface px-4 py-3"
             >
-              <span className="text-sm text-zinc-800">{note.text}</span>
+              <span className="text-sm text-content">{note.text}</span>
               <button
                 type="button"
                 onClick={() => void deleteNote(note.id)}
                 aria-label={`Delete note: ${note.text}`}
-                className="ml-3 shrink-0 rounded p-1 text-zinc-400 transition-colors hover:bg-red-50 hover:text-red-600"
+                className="ml-3 shrink-0 rounded p-1 text-muted transition-colors hover:bg-red-50 dark:hover:bg-red-950 hover:text-red-600 dark:hover:text-red-400"
               >
                 ✕
               </button>

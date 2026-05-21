@@ -100,9 +100,10 @@ export function FramesContexts() {
     <div>
       <LabHeader lab={lab} />
 
-      <p className="mb-6 text-sm text-zinc-500">
-        Use <code className="rounded bg-zinc-100 px-1 text-xs">page.frameLocator(selector)</code> to
-        scope all subsequent locator calls inside a specific iframe. Locators outside that frame
+      <p className="mb-6 text-sm text-muted">
+        Use{' '}
+        <code className="rounded bg-surface-raised px-1 text-xs">page.frameLocator(selector)</code>{' '}
+        to scope all subsequent locator calls inside a specific iframe. Locators outside that frame
         won&apos;t match elements inside it.
       </p>
 
@@ -119,7 +120,7 @@ export function FramesContexts() {
               'rounded-lg border px-4 py-1.5 text-sm font-medium transition-colors',
               activeChallenge === n
                 ? 'border-indigo-500 bg-indigo-600 text-white'
-                : 'border-zinc-200 text-zinc-600 hover:border-zinc-300 hover:bg-zinc-50',
+                : 'border-edge text-muted hover:border-edge hover:bg-canvas',
             ].join(' ')}
           >
             Challenge {n}
@@ -130,13 +131,13 @@ export function FramesContexts() {
       <div role="tabpanel">
         {activeChallenge === 1 && (
           <div className="space-y-4">
-            <div className="rounded-xl border border-zinc-200 bg-zinc-50 p-4">
-              <h2 className="mb-1 text-sm font-semibold text-zinc-800">
+            <div className="rounded-xl border border-edge bg-canvas p-4">
+              <h2 className="mb-1 text-sm font-semibold text-content">
                 Challenge 1 — Counter in an iframe
               </h2>
-              <p className="mb-4 text-xs text-zinc-500">
+              <p className="mb-4 text-xs text-muted">
                 Use{' '}
-                <code className="rounded bg-zinc-100 px-1 text-xs">
+                <code className="rounded bg-surface-raised px-1 text-xs">
                   page.frameLocator(&apos;iframe[title=&quot;Counter frame&quot;]&apos;)
                 </code>{' '}
                 to interact with the counter and assert its value. Try changing the step size before
@@ -145,7 +146,7 @@ export function FramesContexts() {
               <iframe
                 src={counterSrc}
                 title="Counter frame"
-                className="h-52 w-full rounded-lg border border-zinc-200 bg-white"
+                className="h-52 w-full rounded-lg border border-edge bg-surface"
               />
             </div>
           </div>
@@ -153,20 +154,20 @@ export function FramesContexts() {
 
         {activeChallenge === 2 && (
           <div className="space-y-4">
-            <div className="rounded-xl border border-zinc-200 bg-zinc-50 p-4">
-              <h2 className="mb-1 text-sm font-semibold text-zinc-800">
+            <div className="rounded-xl border border-edge bg-canvas p-4">
+              <h2 className="mb-1 text-sm font-semibold text-content">
                 Challenge 2 — Login form in an iframe
               </h2>
-              <p className="mb-4 text-xs text-zinc-500">
+              <p className="mb-4 text-xs text-muted">
                 Scope a locator into the login iframe and fill the username and password fields.
                 Assert the success message that appears after submitting. Notice that{' '}
-                <code className="rounded bg-zinc-100 px-1 text-xs">page.getByLabel()</code> alone
-                won&apos;t reach inside the frame.
+                <code className="rounded bg-surface-raised px-1 text-xs">page.getByLabel()</code>{' '}
+                alone won&apos;t reach inside the frame.
               </p>
               <iframe
                 src={formSrc}
                 title="Login frame"
-                className="h-56 w-full rounded-lg border border-zinc-200 bg-white"
+                className="h-56 w-full rounded-lg border border-edge bg-surface"
               />
             </div>
           </div>

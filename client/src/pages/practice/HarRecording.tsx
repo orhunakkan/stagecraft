@@ -41,16 +41,16 @@ export function HarRecording() {
     <div>
       <LabHeader lab={lab} />
 
-      <p className="mb-6 text-sm text-zinc-500">
-        <code className="rounded bg-zinc-100 px-1 text-xs">page.routeFromHAR()</code> replays a
-        previously recorded HTTP archive, letting tests run against a real network snapshot without
-        hitting live servers.
+      <p className="mb-6 text-sm text-muted">
+        <code className="rounded bg-surface-raised px-1 text-xs">page.routeFromHAR()</code> replays
+        a previously recorded HTTP archive, letting tests run against a real network snapshot
+        without hitting live servers.
       </p>
 
       <div className="space-y-10">
         {/* ── HAR workflow explainer ────────────────────────────────────── */}
         <section aria-labelledby="har-flow-heading">
-          <h2 id="har-flow-heading" className="mb-3 text-base font-semibold text-zinc-900">
+          <h2 id="har-flow-heading" className="mb-3 text-base font-semibold text-content">
             HAR recording workflow
           </h2>
           <ol className="space-y-2">
@@ -68,11 +68,11 @@ export function HarRecording() {
                 text: 'Selectively override: use page.route() after routeFromHAR() to intercept a specific endpoint with a mock response while replaying the rest from HAR.',
               },
             ].map(({ n, text }) => (
-              <li key={n} className="flex gap-3 rounded-xl border border-zinc-200 bg-white p-4">
-                <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-indigo-100 text-xs font-bold text-indigo-700">
+              <li key={n} className="flex gap-3 rounded-xl border border-edge bg-surface p-4">
+                <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-indigo-100 text-xs font-bold text-indigo-700 dark:bg-indigo-900 dark:text-indigo-300">
                   {n}
                 </span>
-                <p className="text-sm text-zinc-600">{text}</p>
+                <p className="text-sm text-muted">{text}</p>
               </li>
             ))}
           </ol>
@@ -80,13 +80,13 @@ export function HarRecording() {
 
         {/* ── Product catalog ───────────────────────────────────────────── */}
         <section aria-labelledby="products-heading">
-          <h2 id="products-heading" className="mb-1 text-base font-semibold text-zinc-900">
+          <h2 id="products-heading" className="mb-1 text-base font-semibold text-content">
             Product catalog
           </h2>
-          <p className="mb-4 text-sm text-zinc-500">
+          <p className="mb-4 text-sm text-muted">
             This catalog fetches from{' '}
-            <code className="rounded bg-zinc-100 px-1 text-xs">/api/products</code>. Record a HAR
-            snapshot of this request, then replay it in CI without a running server.
+            <code className="rounded bg-surface-raised px-1 text-xs">/api/products</code>. Record a
+            HAR snapshot of this request, then replay it in CI without a running server.
           </p>
 
           <div className="mb-3 flex gap-2">
@@ -95,7 +95,7 @@ export function HarRecording() {
               onClick={() => void fetchProducts()}
               disabled={loading}
               data-testid="fetch-products"
-              className="rounded-lg border border-zinc-300 px-4 py-2 text-sm font-medium text-zinc-700 hover:bg-zinc-50 disabled:opacity-50"
+              className="rounded-lg border border-edge px-4 py-2 text-sm font-medium text-muted hover:bg-canvas disabled:opacity-50"
             >
               Reload products
             </button>
@@ -103,7 +103,7 @@ export function HarRecording() {
               <span
                 role="status"
                 aria-live="polite"
-                className="flex items-center text-xs text-zinc-400"
+                className="flex items-center text-xs text-muted"
               >
                 {products.length} products loaded
               </span>
@@ -114,9 +114,9 @@ export function HarRecording() {
             <div
               role="status"
               aria-label="Loading products"
-              className="flex items-center gap-2 text-sm text-zinc-500"
+              className="flex items-center gap-2 text-sm text-muted"
             >
-              <span className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-zinc-300 border-t-indigo-600" />
+              <span className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-edge border-t-indigo-600" />
               Loading…
             </div>
           )}
@@ -124,7 +124,7 @@ export function HarRecording() {
           {error && (
             <div
               role="alert"
-              className="mb-4 rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700"
+              className="mb-4 rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700 dark:border-red-800 dark:bg-red-950 dark:text-red-400"
             >
               {error}
             </div>
@@ -136,15 +136,17 @@ export function HarRecording() {
                 <article
                   key={p.id}
                   data-testid={`product-${p.id}`}
-                  className="rounded-xl border border-zinc-200 bg-white p-4"
+                  className="rounded-xl border border-edge bg-surface p-4"
                 >
-                  <p className="text-sm font-semibold text-zinc-900">{p.name}</p>
-                  <p className="mt-0.5 text-xs text-zinc-500">{p.category}</p>
+                  <p className="text-sm font-semibold text-content">{p.name}</p>
+                  <p className="mt-0.5 text-xs text-muted">{p.category}</p>
                   <div className="mt-2 flex items-center justify-between">
-                    <p className="text-sm font-bold text-zinc-900">${p.price.toFixed(2)}</p>
+                    <p className="text-sm font-bold text-content">${p.price.toFixed(2)}</p>
                     <span
                       className={`rounded px-1.5 py-0.5 text-xs font-medium ${
-                        p.inStock ? 'bg-emerald-50 text-emerald-700' : 'bg-red-50 text-red-600'
+                        p.inStock
+                          ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300'
+                          : 'bg-red-50 text-red-600 dark:bg-red-950 dark:text-red-400'
                       }`}
                     >
                       {p.inStock ? 'In stock' : 'Out of stock'}
