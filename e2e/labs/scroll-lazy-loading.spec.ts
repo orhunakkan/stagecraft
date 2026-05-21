@@ -77,9 +77,8 @@ test.describe('Scroll & Lazy Loading lab', () => {
 
     await page.goto('/practice/scroll-lazy-loading');
     const feed = page.getByRole('list', { name: 'Activity feed' });
-    // Use first() to avoid strict mode issues if IntersectionObserver fires twice
-    await expect(feed.locator('[data-item-id="1"]').first()).toBeVisible();
-    await expect(feed.locator('[data-item-id="8"]').first()).toBeVisible();
+    await expect(feed.locator('[data-item-id="1"]')).toBeVisible();
+    await expect(feed.locator('[data-item-id="8"]')).toBeVisible();
     // End marker should appear since hasMore is always false
     await expect(page.getByTestId('end-marker')).toBeVisible();
   });

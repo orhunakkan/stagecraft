@@ -29,17 +29,28 @@ export function ScrollLazyLoading() {
   const [jumpValue, setJumpValue] = useState('');
   const sentinelRef = useRef<HTMLDivElement>(null);
   const itemRefs = useRef<Map<number, HTMLLIElement>>(new Map());
+  const inFlightPages = useRef<Set<number>>(new Set());
+  const loadedItemIds = useRef<Set<number>>(new Set());
 
   const fetchPage = useCallback(async (pageNum: number) => {
+    if (inFlightPages.current.has(pageNum)) return;
+
+    inFlightPages.current.add(pageNum);
     setLoading(true);
     try {
       const res = await fetch(`/api/feed?page=${pageNum}&pageSize=${PAGE_SIZE}`);
       if (!res.ok) return;
       const data: FeedPage = (await res.json()) as FeedPage;
-      setItems((prev) => [...prev, ...data.items]);
+      const nextItems = data.items.filter((item) => {
+        if (loadedItemIds.current.has(item.id)) return false;
+        loadedItemIds.current.add(item.id);
+        return true;
+      });
+      setItems((prev) => [...prev, ...nextItems]);
       setHasMore(data.hasMore);
       setPage(pageNum + 1);
     } finally {
+      inFlightPages.current.delete(pageNum);
       setLoading(false);
     }
   }, []);

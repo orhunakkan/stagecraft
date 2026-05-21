@@ -257,6 +257,61 @@ describe('ServiceWorkers', () => {
 });
 
 describe('ScrollLazyLoading', () => {
+  test('does not request or append the first feed page twice when the sentinel intersects during initial load', async () => {
+    const fetchMock = mockFetch();
+    let resolveFirstPage: (response: Response) => void = () => {};
+    const firstPage = new Promise<Response>((resolve) => {
+      resolveFirstPage = resolve;
+    });
+    fetchMock.mockReturnValueOnce(firstPage);
+
+    let observerCallback: IntersectionObserverCallback | undefined;
+    class TriggerableIntersectionObserver {
+      constructor(callback: IntersectionObserverCallback) {
+        observerCallback = callback;
+      }
+      observe() {}
+      unobserve() {}
+      disconnect() {}
+    }
+    window.IntersectionObserver =
+      TriggerableIntersectionObserver as unknown as typeof IntersectionObserver;
+
+    render(<ScrollLazyLoading />);
+
+    await act(async () => {
+      observerCallback?.(
+        [{ isIntersecting: true } as IntersectionObserverEntry],
+        {} as IntersectionObserver,
+      );
+    });
+
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+
+    await act(async () => {
+      resolveFirstPage(
+        jsonResponse({
+          items: [
+            {
+              id: 1,
+              title: 'First feed item',
+              body: 'Loaded once.',
+              createdAt: '2026-05-20T12:00:00Z',
+            },
+          ],
+          page: 1,
+          pageSize: 8,
+          total: 1,
+          hasMore: false,
+        }),
+      );
+      await firstPage;
+    });
+
+    expect(await screen.findByText('First feed item')).toBeVisible();
+    expect(screen.getAllByText('First feed item')).toHaveLength(1);
+  });
+
   test('loads the first feed page and shows the end marker when no more items remain', async () => {
     const fetchMock = mockFetch();
     fetchMock.mockResolvedValueOnce(
