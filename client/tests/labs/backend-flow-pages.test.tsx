@@ -1,4 +1,4 @@
-import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { act, cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { ApiRequestContext } from '../../src/pages/practice/ApiRequestContext';
@@ -6,6 +6,7 @@ import { FakeAuth } from '../../src/pages/practice/FakeAuth';
 import { FakeAuthDashboard } from '../../src/pages/practice/FakeAuthDashboard';
 import { HarRecording } from '../../src/pages/practice/HarRecording';
 import { NetworkApi } from '../../src/pages/practice/NetworkApi';
+import { ScrollLazyLoading } from '../../src/pages/practice/ScrollLazyLoading';
 import { ServiceWorkers } from '../../src/pages/practice/ServiceWorkers';
 
 function jsonResponse(body: unknown, status = 200) {
@@ -252,5 +253,118 @@ describe('ServiceWorkers', () => {
         screen.getAllByRole('alert').some((alert) => alert.textContent?.includes('HTTP 500')),
       ).toBe(true),
     );
+  });
+});
+
+describe('ScrollLazyLoading', () => {
+  test('loads the first feed page and shows the end marker when no more items remain', async () => {
+    const fetchMock = mockFetch();
+    fetchMock.mockResolvedValueOnce(
+      jsonResponse({
+        items: [
+          {
+            id: 1,
+            title: 'First feed item',
+            body: 'Loaded from the feed endpoint.',
+            createdAt: '2026-05-20T12:00:00Z',
+          },
+        ],
+        page: 1,
+        pageSize: 8,
+        total: 1,
+        hasMore: false,
+      }),
+    );
+
+    render(<ScrollLazyLoading />);
+
+    expect(await screen.findByText('First feed item')).toBeVisible();
+    expect(screen.getByTestId('end-marker')).toHaveTextContent("You're all caught up");
+    expect(fetchMock).toHaveBeenCalledWith('/api/feed?page=1&pageSize=8');
+  });
+
+  test('ignores invalid jump targets and handles failed feed requests', async () => {
+    const fetchMock = mockFetch();
+    fetchMock.mockResolvedValueOnce(jsonResponse({}, 500));
+
+    render(<ScrollLazyLoading />);
+
+    await waitFor(() => expect(fetchMock).toHaveBeenCalledOnce());
+    fireEvent.change(screen.getByLabelText('Jump to item number'), { target: { value: 'abc' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Jump' }));
+
+    expect(screen.queryByTestId('end-marker')).not.toBeInTheDocument();
+  });
+
+  test('loads another page when the sentinel intersects and jumps to a loaded item', async () => {
+    const fetchMock = mockFetch();
+    fetchMock
+      .mockResolvedValueOnce(
+        jsonResponse({
+          items: [
+            {
+              id: 1,
+              title: 'First feed item',
+              body: 'Initial page.',
+              createdAt: '2026-05-20T12:00:00Z',
+            },
+          ],
+          page: 1,
+          pageSize: 8,
+          total: 2,
+          hasMore: true,
+        }),
+      )
+      .mockResolvedValueOnce(
+        jsonResponse({
+          items: [
+            {
+              id: 2,
+              title: 'Second feed item',
+              body: 'Loaded by intersection.',
+              createdAt: '2026-05-20T12:05:00Z',
+            },
+          ],
+          page: 2,
+          pageSize: 8,
+          total: 2,
+          hasMore: false,
+        }),
+      );
+
+    const scrollIntoView = vi.fn();
+    Object.defineProperty(HTMLElement.prototype, 'scrollIntoView', {
+      configurable: true,
+      value: scrollIntoView,
+    });
+
+    let observerCallback: IntersectionObserverCallback | undefined;
+    class TriggerableIntersectionObserver {
+      constructor(callback: IntersectionObserverCallback) {
+        observerCallback = callback;
+      }
+      observe() {}
+      unobserve() {}
+      disconnect() {}
+    }
+    window.IntersectionObserver =
+      TriggerableIntersectionObserver as unknown as typeof IntersectionObserver;
+
+    render(<ScrollLazyLoading />);
+
+    expect(await screen.findByText('First feed item')).toBeVisible();
+
+    await act(async () => {
+      observerCallback?.(
+        [{ isIntersecting: true } as IntersectionObserverEntry],
+        {} as IntersectionObserver,
+      );
+    });
+
+    expect(await screen.findByText('Second feed item')).toBeVisible();
+    fireEvent.change(screen.getByLabelText('Jump to item number'), { target: { value: '2' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Jump' }));
+
+    expect(scrollIntoView).toHaveBeenCalledWith({ behavior: 'smooth', block: 'center' });
   });
 });

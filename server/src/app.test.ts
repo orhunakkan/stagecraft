@@ -451,3 +451,53 @@ describe('catalog APIs', () => {
     expect(body).toMatchObject({ id: 1, name: 'Mechanical Keyboard', inStock: true });
   });
 });
+
+describe('activity feed API', () => {
+  test('paginates activity feed items with the default page size', async () => {
+    const { response, body } = await json<{
+      items: Array<{ id: number; title: string }>;
+      page: number;
+      pageSize: number;
+      total: number;
+      hasMore: boolean;
+    }>('/api/feed');
+
+    expect(response.status).toBe(200);
+    expect(body.page).toBe(1);
+    expect(body.pageSize).toBe(10);
+    expect(body.total).toBe(42);
+    expect(body.hasMore).toBe(true);
+    expect(body.items).toHaveLength(10);
+    expect(body.items[0]).toMatchObject({ id: 1, title: 'Deployed new feature' });
+  });
+
+  test('clamps invalid pagination values to supported bounds', async () => {
+    const { response, body } = await json<{
+      items: Array<{ id: number }>;
+      page: number;
+      pageSize: number;
+      hasMore: boolean;
+    }>('/api/feed?page=0&pageSize=500');
+
+    expect(response.status).toBe(200);
+    expect(body.page).toBe(1);
+    expect(body.pageSize).toBe(100);
+    expect(body.hasMore).toBe(false);
+    expect(body.items).toHaveLength(42);
+  });
+
+  test('returns later pages and reports when more feed items remain', async () => {
+    const { response, body } = await json<{
+      items: Array<{ id: number }>;
+      page: number;
+      pageSize: number;
+      hasMore: boolean;
+    }>('/api/feed?page=3&pageSize=8');
+
+    expect(response.status).toBe(200);
+    expect(body.page).toBe(3);
+    expect(body.pageSize).toBe(8);
+    expect(body.hasMore).toBe(true);
+    expect(body.items[0]).toMatchObject({ id: 17 });
+  });
+});

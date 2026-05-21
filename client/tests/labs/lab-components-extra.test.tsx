@@ -1,9 +1,12 @@
-import { act, cleanup, fireEvent, render, screen, within } from '@testing-library/react';
+import { act, cleanup, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
+import { AccessibilityScanning } from '../../src/pages/practice/AccessibilityScanning';
 import { AccessibleLocators } from '../../src/pages/practice/AccessibleLocators';
 import { AriaSnapshots } from '../../src/pages/practice/AriaSnapshots';
 import { BrowserEvents } from '../../src/pages/practice/BrowserEvents';
 import { EmulationInput } from '../../src/pages/practice/EmulationInput';
+import { GeolocationPermissions } from '../../src/pages/practice/GeolocationPermissions';
+import { MediaLocale } from '../../src/pages/practice/MediaLocale';
 import { VisualRegression } from '../../src/pages/practice/VisualRegression';
 import { WebSocketInterception } from '../../src/pages/practice/WebSocketInterception';
 
@@ -14,6 +17,24 @@ beforeEach(() => {
 afterEach(() => {
   cleanup();
   vi.restoreAllMocks();
+  Object.defineProperty(navigator, 'clipboard', { configurable: true, value: undefined });
+  Object.defineProperty(navigator, 'geolocation', { configurable: true, value: undefined });
+});
+
+describe('AccessibilityScanning', () => {
+  test('toggles between the intentionally broken and accessible form states', () => {
+    render(<AccessibilityScanning />);
+
+    expect(screen.getByText('Has violations')).toBeVisible();
+    expect(screen.getByPlaceholderText('Your name')).toBeVisible();
+    expect(screen.getByRole('img', { hidden: true })).toBeInTheDocument();
+
+    fireEvent.click(screen.getByLabelText('Show accessible controls'));
+
+    expect(screen.getByText('Accessible')).toBeVisible();
+    expect(screen.getByLabelText('Your Name')).toBeVisible();
+    expect(screen.getByAltText('Indigo decorative bar')).toBeVisible();
+  });
 });
 
 describe('AccessibleLocators', () => {
@@ -119,6 +140,127 @@ describe('BrowserEvents', () => {
     render(<BrowserEvents />);
 
     expect(screen.getByText('No file selected yet.')).toBeVisible();
+  });
+
+  test('records a dismissed prompt and clears the upload state when files are removed', () => {
+    vi.spyOn(window, 'prompt').mockReturnValue(null);
+    render(<BrowserEvents />);
+
+    fireEvent.click(screen.getByRole('button', { name: 'Trigger prompt' }));
+    expect(screen.getByRole('status')).toHaveTextContent('dismissed');
+
+    const input = screen.getByLabelText('Upload a file') as HTMLInputElement;
+    fireEvent.change(input, { target: { files: [] } });
+    expect(screen.getByText('No file selected yet.')).toBeVisible();
+  });
+});
+
+describe('GeolocationPermissions', () => {
+  test('resolves geolocation and completes clipboard copy and paste flows', async () => {
+    Object.defineProperty(navigator, 'geolocation', {
+      configurable: true,
+      value: {
+        getCurrentPosition: vi.fn((success: PositionCallback) =>
+          success({
+            coords: { latitude: 41.8781, longitude: -87.6298 },
+          } as GeolocationPosition),
+        ),
+      },
+    });
+    Object.defineProperty(navigator, 'clipboard', {
+      configurable: true,
+      value: {
+        writeText: vi.fn().mockResolvedValue(undefined),
+        readText: vi.fn().mockResolvedValue('https://stagecraft.test/share'),
+      },
+    });
+
+    render(<GeolocationPermissions />);
+
+    fireEvent.click(screen.getByRole('button', { name: 'Find Cafés Near Me' }));
+    expect(screen.getByTestId('coords')).toHaveTextContent('41.8781');
+    expect(screen.getByRole('list', { name: 'Nearby cafés' })).toBeVisible();
+
+    fireEvent.click(screen.getByRole('button', { name: 'Copy Share Link' }));
+    expect(await screen.findByRole('status')).toHaveTextContent('Link copied to clipboard!');
+
+    fireEvent.click(screen.getByRole('button', { name: 'Paste' }));
+    expect(await screen.findByLabelText('Pasted URL')).toHaveValue('https://stagecraft.test/share');
+  });
+
+  test('renders permission denial and clipboard failure messages', async () => {
+    Object.defineProperty(navigator, 'geolocation', {
+      configurable: true,
+      value: {
+        getCurrentPosition: vi.fn((_success: PositionCallback, error: PositionErrorCallback) =>
+          error({ message: '' } as GeolocationPositionError),
+        ),
+      },
+    });
+    Object.defineProperty(navigator, 'clipboard', {
+      configurable: true,
+      value: {
+        writeText: vi.fn().mockRejectedValue(new Error('blocked')),
+        readText: vi.fn().mockRejectedValue(new Error('blocked')),
+      },
+    });
+
+    render(<GeolocationPermissions />);
+
+    fireEvent.click(screen.getByRole('button', { name: 'Find Cafés Near Me' }));
+    expect(screen.getByRole('alert')).toHaveTextContent('Location access denied.');
+
+    fireEvent.click(screen.getByRole('button', { name: 'Copy Share Link' }));
+    await waitFor(() =>
+      expect(
+        screen
+          .getAllByRole('alert')
+          .some((alert) => alert.textContent?.includes('Clipboard write blocked.')),
+      ).toBe(true),
+    );
+
+    fireEvent.click(screen.getByRole('button', { name: 'Paste' }));
+    await waitFor(() =>
+      expect(
+        screen
+          .getAllByRole('alert')
+          .some((alert) => alert.textContent?.includes('Clipboard read blocked.')),
+      ).toBe(true),
+    );
+  });
+});
+
+describe('MediaLocale', () => {
+  test('reacts to media query changes for colour scheme, motion, and print', () => {
+    const listeners = new Map<string, (event: MediaQueryListEvent) => void>();
+    window.matchMedia = vi.fn((query: string) => ({
+      matches: query === '(prefers-color-scheme: dark)',
+      media: query,
+      onchange: null,
+      addListener: () => {},
+      removeListener: () => {},
+      addEventListener: (_event: string, listener: (event: MediaQueryListEvent) => void) => {
+        listeners.set(query, listener);
+      },
+      removeEventListener: () => {},
+      dispatchEvent: () => false,
+    }));
+
+    render(<MediaLocale />);
+
+    expect(screen.getByTestId('color-scheme-label')).toHaveTextContent('Dark');
+    expect(screen.getByTestId('motion-label')).toHaveTextContent('Motion on');
+    expect(screen.getByText('(Emulate print media to see the banner.)')).toBeVisible();
+
+    act(() => {
+      listeners.get('(prefers-color-scheme: dark)')?.({ matches: false } as MediaQueryListEvent);
+      listeners.get('(prefers-reduced-motion: reduce)')?.({ matches: true } as MediaQueryListEvent);
+      listeners.get('print')?.({ matches: true } as MediaQueryListEvent);
+    });
+
+    expect(screen.getByTestId('color-scheme-label')).toHaveTextContent('Light');
+    expect(screen.getByTestId('motion-label')).toHaveTextContent('Reduced');
+    expect(screen.getByTestId('print-banner')).toHaveTextContent('Print layout active');
   });
 });
 
@@ -322,6 +464,14 @@ describe('WebSocketInterception', () => {
       this.onmessage?.({ data });
     }
 
+    triggerBinaryMessage() {
+      this.onmessage?.({ data: new Uint8Array([1, 2, 3]) as unknown as string });
+    }
+
+    triggerError() {
+      this.onerror?.();
+    }
+
     send(data: string) {
       this.sent.push(data);
     }
@@ -385,6 +535,31 @@ describe('WebSocketInterception', () => {
     act(() => fake.triggerMessage('echo: hello'));
 
     expect(screen.getByLabelText('WebSocket message log')).toHaveTextContent('echo: hello');
+  });
+
+  test('renders binary frames and socket errors', () => {
+    render(<WebSocketInterception />);
+
+    fireEvent.click(screen.getByTestId('ws-connect'));
+    const fake = FakeWebSocket.instances[0]!;
+    act(() => fake.triggerOpen());
+    act(() => fake.triggerBinaryMessage());
+
+    expect(screen.getByLabelText('WebSocket message log')).toHaveTextContent('[binary]');
+
+    act(() => fake.triggerError());
+    expect(screen.getByTestId('ws-status')).toHaveTextContent('error');
+  });
+
+  test('does not create a second socket while the current one is open', () => {
+    render(<WebSocketInterception />);
+
+    fireEvent.click(screen.getByTestId('ws-connect'));
+    const fake = FakeWebSocket.instances[0]!;
+    act(() => fake.triggerOpen());
+    fireEvent.click(screen.getByTestId('ws-connect'));
+
+    expect(FakeWebSocket.instances).toHaveLength(1);
   });
 
   test('disconnects and returns to the disconnected state', () => {
