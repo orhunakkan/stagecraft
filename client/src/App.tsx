@@ -87,7 +87,7 @@ function lazyElement(Component: ComponentType) {
     <ErrorBoundary>
       <Suspense
         fallback={
-          <div className="rounded-lg border border-dashed border-zinc-200 bg-white p-6 text-sm text-zinc-500">
+          <div className="rounded-lg border border-dashed border-edge bg-surface p-6 text-sm text-muted">
             Loading lab...
           </div>
         }

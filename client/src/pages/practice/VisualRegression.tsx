@@ -38,19 +38,23 @@ export function VisualRegression() {
     <div>
       <LabHeader lab={lab} />
 
-      <p className="mb-8 text-sm text-zinc-500">
+      <p className="mb-8 text-sm text-muted">
         Use{' '}
-        <code className="rounded bg-zinc-100 px-1 text-xs">expect(page).toHaveScreenshot()</code>{' '}
+        <code className="rounded bg-surface-raised px-1 text-xs">
+          expect(page).toHaveScreenshot()
+        </code>{' '}
         and{' '}
-        <code className="rounded bg-zinc-100 px-1 text-xs">expect(locator).toHaveScreenshot()</code>{' '}
+        <code className="rounded bg-surface-raised px-1 text-xs">
+          expect(locator).toHaveScreenshot()
+        </code>{' '}
         for pixel-level comparisons. Mask dynamic regions (timestamps, avatars) with the{' '}
-        <code className="rounded bg-zinc-100 px-1 text-xs">mask</code> option.
+        <code className="rounded bg-surface-raised px-1 text-xs">mask</code> option.
       </p>
 
       <div className="space-y-10">
         {/* ── Button showcase ────────────────────────────────────────────── */}
         <section aria-labelledby="buttons-heading" data-testid="button-showcase">
-          <h2 id="buttons-heading" className="mb-4 text-base font-semibold text-zinc-900">
+          <h2 id="buttons-heading" className="mb-4 text-base font-semibold text-content">
             Button variants
           </h2>
           <div className="flex flex-wrap gap-3">
@@ -69,7 +73,7 @@ export function VisualRegression() {
 
         {/* ── Color palette ──────────────────────────────────────────────── */}
         <section aria-labelledby="colors-heading" data-testid="color-palette">
-          <h2 id="colors-heading" className="mb-4 text-base font-semibold text-zinc-900">
+          <h2 id="colors-heading" className="mb-4 text-base font-semibold text-content">
             Color palette
           </h2>
           <div className="grid grid-cols-3 gap-3 sm:grid-cols-6">
@@ -88,7 +92,7 @@ export function VisualRegression() {
 
         {/* ── Metric cards ───────────────────────────────────────────────── */}
         <section aria-labelledby="cards-heading" data-testid="metric-cards">
-          <h2 id="cards-heading" className="mb-4 text-base font-semibold text-zinc-900">
+          <h2 id="cards-heading" className="mb-4 text-base font-semibold text-content">
             Metric cards
           </h2>
           <div className="grid gap-4 sm:grid-cols-3">
@@ -123,7 +127,7 @@ export function VisualRegression() {
 
         {/* ── Bar chart ──────────────────────────────────────────────────── */}
         <section aria-labelledby="chart-heading" data-testid="bar-chart">
-          <h2 id="chart-heading" className="mb-4 text-base font-semibold text-zinc-900">
+          <h2 id="chart-heading" className="mb-4 text-base font-semibold text-content">
             Bar chart
           </h2>
           <div className="rounded-xl border border-zinc-200 bg-white p-4">
@@ -149,22 +153,27 @@ export function VisualRegression() {
 
         {/* ── ARIA snapshot comparison note ─────────────────────────────── */}
         <section aria-labelledby="aria-note-heading">
-          <h2 id="aria-note-heading" className="mb-1 text-base font-semibold text-zinc-900">
+          <h2 id="aria-note-heading" className="mb-1 text-base font-semibold text-content">
             Visual vs ARIA snapshot
           </h2>
-          <div className="rounded-xl border border-indigo-100 bg-indigo-50 p-4 text-sm text-indigo-800">
+          <div className="rounded-xl border border-indigo-100 bg-indigo-50 p-4 text-sm text-indigo-800 dark:border-indigo-700 dark:bg-indigo-950 dark:text-indigo-300">
             <p>
               <strong>Use visual snapshots</strong> for catching pixel-level regressions (color,
               spacing, typography).
             </p>
             <p className="mt-2">
               <strong>Use ARIA snapshots</strong> (
-              <code className="rounded bg-indigo-100 px-1 text-xs">toMatchAriaSnapshot</code>) for
-              catching structural regressions (missing headings, changed roles, lost landmarks).
+              <code className="rounded bg-indigo-100 px-1 text-xs dark:bg-indigo-900">
+                toMatchAriaSnapshot
+              </code>
+              ) for catching structural regressions (missing headings, changed roles, lost
+              landmarks).
             </p>
             <p className="mt-2">
               See{' '}
-              <code className="rounded bg-indigo-100 px-1 text-xs">/practice/aria-snapshots</code>{' '}
+              <code className="rounded bg-indigo-100 px-1 text-xs dark:bg-indigo-900">
+                /practice/aria-snapshots
+              </code>{' '}
               for the ARIA-focused lab.
             </p>
           </div>
