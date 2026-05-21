@@ -28,7 +28,7 @@ const IFRAME_COUNTER_HTML = `<!DOCTYPE html>
 </head>
 <body>
 <h2>Embedded Counter</h2>
-<p class="count" id="count" aria-live="polite">0</p>
+<p class="count" id="count" role="status" aria-label="Counter value">0</p>
 <button class="primary" onclick="inc()">Increment</button>
 <button onclick="dec()">Decrement</button>
 <button onclick="reset()">Reset</button>

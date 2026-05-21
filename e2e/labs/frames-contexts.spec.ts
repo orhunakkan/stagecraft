@@ -1,15 +1,18 @@
-import { expect, test } from '@playwright/test';
+import { expect, test, type FrameLocator } from '@playwright/test';
 
 test.describe('Frames & Contexts lab', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/practice/frames-contexts');
   });
 
+  const counterValue = (frame: FrameLocator) =>
+    frame.getByRole('status', { name: 'Counter value' });
+
   test('interacts with the counter inside an iframe', async ({ page }) => {
     const frame = page.frameLocator('iframe[title="Counter frame"]');
     await frame.getByRole('button', { name: 'Increment' }).click();
 
-    await expect(frame.locator('#count')).toHaveText('1');
+    await expect(counterValue(frame)).toHaveText('1');
   });
 
   test('respects a custom step size when incrementing inside the iframe', async ({ page }) => {
@@ -18,7 +21,7 @@ test.describe('Frames & Contexts lab', () => {
     await frame.getByRole('button', { name: 'Increment' }).click();
     await frame.getByRole('button', { name: 'Increment' }).click();
 
-    await expect(frame.locator('#count')).toHaveText('10');
+    await expect(counterValue(frame)).toHaveText('10');
   });
 
   test('decrement and reset adjust the iframe counter correctly', async ({ page }) => {
@@ -26,10 +29,10 @@ test.describe('Frames & Contexts lab', () => {
     await frame.getByRole('button', { name: 'Increment' }).click();
     await frame.getByRole('button', { name: 'Decrement' }).click();
     await frame.getByRole('button', { name: 'Decrement' }).click();
-    await expect(frame.locator('#count')).toHaveText('-1');
+    await expect(counterValue(frame)).toHaveText('-1');
 
     await frame.getByRole('button', { name: 'Reset' }).click();
-    await expect(frame.locator('#count')).toHaveText('0');
+    await expect(counterValue(frame)).toHaveText('0');
   });
 
   test('fills and submits the login form inside the second iframe', async ({ page }) => {
