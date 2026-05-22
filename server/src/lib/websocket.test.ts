@@ -1,7 +1,7 @@
 import http from 'node:http';
-import { afterAll, afterEach, beforeAll, describe, expect, test } from 'vitest';
+import { afterAll, afterEach, beforeAll, describe, expect, test, vi } from 'vitest';
 import { WebSocket } from 'ws';
-import { attachWebSocketServer } from './websocket';
+import { attachWebSocketServer, relayWebSocketMessage, sendTicker } from './websocket';
 
 let server: http.Server;
 let baseWsUrl: string;
@@ -19,6 +19,8 @@ afterAll(async () => {
 });
 
 afterEach(() => {
+  vi.useRealTimers();
+
   for (const client of clients) {
     if (client.readyState === WebSocket.OPEN || client.readyState === WebSocket.CONNECTING) {
       client.terminate();
@@ -54,12 +56,16 @@ async function closeServer(serverToClose: http.Server) {
   });
 }
 
-function waitForMessage(ws: WebSocket, predicate: (message: string) => boolean): Promise<string> {
+function waitForMessage(
+  ws: WebSocket,
+  predicate: (message: string) => boolean,
+  timeoutMs = 2000,
+): Promise<string> {
   return new Promise((resolve, reject) => {
     const timeout = setTimeout(() => {
       cleanup();
       reject(new Error('Timed out waiting for WebSocket message'));
-    }, 2000);
+    }, timeoutMs);
 
     const cleanup = () => {
       clearTimeout(timeout);
@@ -140,6 +146,19 @@ describe('attachWebSocketServer', () => {
     ).resolves.toBe('echo: hello stagecraft');
   });
 
+  test('sends ticker messages while the socket stays open', async () => {
+    vi.useFakeTimers();
+
+    const ws = connect('/ws');
+    await waitForWelcomeMessage(ws);
+
+    const tickerMessage = waitForMessage(ws, (message) => message.startsWith('ticker: '), 4000);
+
+    await vi.advanceTimersByTimeAsync(3100);
+
+    await expect(tickerMessage).resolves.toMatch(/^ticker: /);
+  });
+
   test('closes connections that send oversized messages', async () => {
     const ws = connect('/ws');
     await waitForWelcomeMessage(ws);
@@ -155,5 +174,45 @@ describe('attachWebSocketServer', () => {
     await expect(
       waitForConnectionClose(ws, 'connection was not rejected', 'unexpected connection opened'),
     ).resolves.toBeUndefined();
+  });
+});
+
+describe('sendTicker', () => {
+  test('sends a ticker payload for open sockets', () => {
+    const send = vi.fn();
+
+    sendTicker({ readyState: WebSocket.OPEN, send } as unknown as WebSocket);
+
+    expect(send).toHaveBeenCalledWith(expect.stringMatching(/^ticker: /));
+  });
+
+  test('skips ticker payloads for sockets that are not open', () => {
+    const send = vi.fn();
+
+    sendTicker({ readyState: WebSocket.CLOSING, send } as unknown as WebSocket);
+
+    expect(send).not.toHaveBeenCalled();
+  });
+});
+
+describe('relayWebSocketMessage', () => {
+  test('echoes messages that are within the payload limit', () => {
+    const send = vi.fn();
+    const close = vi.fn();
+
+    relayWebSocketMessage({ send, close } as unknown as WebSocket, 'hello stagecraft');
+
+    expect(send).toHaveBeenCalledWith('echo: hello stagecraft');
+    expect(close).not.toHaveBeenCalled();
+  });
+
+  test('closes the socket when a message exceeds the payload limit', () => {
+    const send = vi.fn();
+    const close = vi.fn();
+
+    relayWebSocketMessage({ send, close } as unknown as WebSocket, 'x'.repeat(16 * 1024 + 1));
+
+    expect(close).toHaveBeenCalledWith(1009, 'Message too large');
+    expect(send).not.toHaveBeenCalled();
   });
 });

@@ -114,6 +114,16 @@ describe('BrowserEvents', () => {
     expect(screen.getByRole('status')).toHaveTextContent('dismissed');
   });
 
+  test('records accepted confirm dialog result', () => {
+    vi.spyOn(window, 'confirm').mockReturnValue(true);
+    render(<BrowserEvents />);
+
+    fireEvent.click(screen.getByRole('button', { name: 'Trigger confirm' }));
+
+    expect(screen.getByRole('status')).toHaveTextContent('Last dialog: confirm');
+    expect(screen.getByRole('status')).toHaveTextContent('accepted');
+  });
+
   test('records prompt result with the entered value', () => {
     vi.spyOn(window, 'prompt').mockReturnValue('Stagecraft');
     render(<BrowserEvents />);
@@ -186,6 +196,38 @@ describe('GeolocationPermissions', () => {
 
     fireEvent.click(screen.getByRole('button', { name: 'Paste' }));
     expect(await screen.findByLabelText('Pasted URL')).toHaveValue('https://stagecraft.test/share');
+  });
+
+  test('shows the loading state while geolocation is pending', async () => {
+    let resolvePosition: PositionCallback | undefined;
+    Object.defineProperty(navigator, 'geolocation', {
+      configurable: true,
+      value: {
+        getCurrentPosition: vi.fn((success: PositionCallback) => {
+          resolvePosition = success;
+        }),
+      },
+    });
+    Object.defineProperty(navigator, 'clipboard', {
+      configurable: true,
+      value: {
+        writeText: vi.fn().mockResolvedValue(undefined),
+        readText: vi.fn().mockResolvedValue(''),
+      },
+    });
+
+    render(<GeolocationPermissions />);
+
+    fireEvent.click(screen.getByRole('button', { name: 'Find Cafés Near Me' }));
+    expect(screen.getByText('Requesting location…')).toBeVisible();
+
+    act(() => {
+      resolvePosition?.({
+        coords: { latitude: 41.8781, longitude: -87.6298 },
+      } as GeolocationPosition);
+    });
+
+    expect(screen.getByTestId('coords')).toHaveTextContent('41.8781');
   });
 
   test('renders permission denial and clipboard failure messages', async () => {
@@ -265,6 +307,40 @@ describe('MediaLocale', () => {
     expect(screen.getByTestId('motion-label')).toHaveTextContent('Reduced');
     expect(screen.getByTestId('print-banner')).toHaveTextContent('Print layout active');
   });
+
+  test('supports the opposite initial media states and flips them back', () => {
+    const listeners = new Map<string, (event: MediaQueryListEvent) => void>();
+    window.matchMedia = vi.fn(
+      (query: string) =>
+        ({
+          matches: query === '(prefers-reduced-motion: reduce)',
+          media: query,
+          onchange: null,
+          addListener: () => {},
+          removeListener: () => {},
+          addEventListener: (_event: string, listener: (event: MediaQueryListEvent) => void) => {
+            listeners.set(query, listener);
+          },
+          removeEventListener: () => {},
+          dispatchEvent: () => false,
+        }) as unknown as MediaQueryList,
+    );
+
+    render(<MediaLocale />);
+
+    expect(screen.getByTestId('color-scheme-label')).toHaveTextContent('Light');
+    expect(screen.getByTestId('motion-label')).toHaveTextContent('Reduced');
+
+    act(() => {
+      listeners.get('(prefers-color-scheme: dark)')?.({ matches: true } as MediaQueryListEvent);
+      listeners.get('(prefers-reduced-motion: reduce)')?.({
+        matches: false,
+      } as MediaQueryListEvent);
+    });
+
+    expect(screen.getByTestId('color-scheme-label')).toHaveTextContent('Dark');
+    expect(screen.getByTestId('motion-label')).toHaveTextContent('Motion on');
+  });
 });
 
 describe('EmulationInput', () => {
@@ -302,6 +378,16 @@ describe('EmulationInput', () => {
     expect(screen.getByRole('status')).toHaveTextContent('Executed: Save');
   });
 
+  test('selects a command directly from the list', () => {
+    render(<EmulationInput />);
+
+    fireEvent.click(screen.getByRole('button', { name: 'Open command palette' }));
+    fireEvent.click(screen.getByRole('option', { name: /Open terminal/ }));
+
+    expect(screen.queryByRole('dialog', { name: 'Command palette' })).not.toBeInTheDocument();
+    expect(screen.getByRole('status')).toHaveTextContent('Executed: Open terminal');
+  });
+
   test('arrow up does not go below the first item', () => {
     render(<EmulationInput />);
 
@@ -323,6 +409,31 @@ describe('EmulationInput', () => {
     fireEvent.mouseLeave(button);
 
     expect(screen.queryByRole('tooltip')).not.toBeInTheDocument();
+  });
+
+  test('updates the scroll state when the scroll container moves', () => {
+    render(<EmulationInput />);
+
+    const container = screen.getByTestId('scroll-container');
+    Object.defineProperty(container, 'scrollTop', {
+      configurable: true,
+      value: 80,
+    });
+
+    fireEvent.scroll(container);
+
+    expect(screen.getByRole('button', { name: '↑ Scroll to top' })).toBeVisible();
+  });
+
+  test('toggles the palette closed when Ctrl+K is pressed again', () => {
+    render(<EmulationInput />);
+
+    fireEvent.keyDown(window, { key: 'k', ctrlKey: true });
+    expect(screen.getByRole('dialog', { name: 'Command palette' })).toBeVisible();
+
+    fireEvent.keyDown(window, { key: 'k', ctrlKey: true });
+
+    expect(screen.queryByRole('dialog', { name: 'Command palette' })).not.toBeInTheDocument();
   });
 });
 
@@ -380,6 +491,18 @@ describe('AriaSnapshots', () => {
     expect(screen.getByRole('form', { name: 'Profile step' })).toBeVisible();
   });
 
+  test('jumps directly to a wizard step when clicking the step button', () => {
+    render(<AriaSnapshots />);
+
+    fireEvent.click(screen.getByRole('button', { name: '3. Preferences' }));
+
+    expect(screen.getByRole('button', { name: '3. Preferences' })).toHaveAttribute(
+      'aria-current',
+      'step',
+    );
+    expect(screen.getByRole('form', { name: 'Preferences step' })).toBeVisible();
+  });
+
   test('Back button is disabled on the first step and Next is disabled on the last step', () => {
     render(<AriaSnapshots />);
 
@@ -391,6 +514,21 @@ describe('AriaSnapshots', () => {
 
     expect(screen.getByRole('button', { name: 'Next' })).toBeDisabled();
     expect(screen.getByRole('button', { name: 'Back' })).toBeEnabled();
+  });
+
+  test('moves back from the last wizard step', () => {
+    render(<AriaSnapshots />);
+
+    fireEvent.click(screen.getByRole('button', { name: '4. Review' }));
+    expect(screen.getByRole('form', { name: 'Review step' })).toBeVisible();
+
+    fireEvent.click(screen.getByRole('button', { name: 'Back' }));
+
+    expect(screen.getByRole('button', { name: '3. Preferences' })).toHaveAttribute(
+      'aria-current',
+      'step',
+    );
+    expect(screen.getByRole('form', { name: 'Preferences step' })).toBeVisible();
   });
 });
 
@@ -560,7 +698,11 @@ describe('WebSocketInterception', () => {
     fireEvent.click(screen.getByTestId('ws-connect'));
     const fake = FakeWebSocket.instances[0]!;
     act(() => fake.triggerOpen());
-    fireEvent.click(screen.getByTestId('ws-connect'));
+
+    const connectButton = screen.getByTestId('ws-connect') as HTMLButtonElement;
+    connectButton.disabled = false;
+    connectButton.removeAttribute('disabled');
+    fireEvent.click(connectButton);
 
     expect(FakeWebSocket.instances).toHaveLength(1);
   });
@@ -592,5 +734,35 @@ describe('WebSocketInterception', () => {
 
     expect(screen.getByTestId('ws-send')).toBeDisabled();
     expect(fake.sent).toEqual([]);
+  });
+
+  test('does not send messages when the socket is no longer open', () => {
+    render(<WebSocketInterception />);
+
+    fireEvent.click(screen.getByTestId('ws-connect'));
+    const fake = FakeWebSocket.instances[0]!;
+    act(() => fake.triggerOpen());
+
+    const input = screen.getByLabelText('Message to send');
+
+    fireEvent.change(input, { target: { value: 'queued message' } });
+
+    fake.readyState = FakeWebSocket.CLOSED;
+    fireEvent.click(screen.getByTestId('ws-send'));
+
+    expect(fake.sent).toEqual([]);
+    expect(screen.getByLabelText('WebSocket message log')).not.toHaveTextContent('queued message');
+  });
+
+  test('closes the active socket on unmount', () => {
+    const { unmount } = render(<WebSocketInterception />);
+
+    fireEvent.click(screen.getByTestId('ws-connect'));
+    const fake = FakeWebSocket.instances[0]!;
+    act(() => fake.triggerOpen());
+
+    unmount();
+
+    expect(fake.readyState).toBe(FakeWebSocket.CLOSED);
   });
 });

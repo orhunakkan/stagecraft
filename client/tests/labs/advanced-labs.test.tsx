@@ -116,7 +116,15 @@ describe('ServerSentEvents', () => {
 
   test('clicking Start Stream a second time is a no-op (guard branch)', async () => {
     await startEventStream();
-    await clickButton('Start Stream');
+
+    const startButton = screen.getByRole('button', { name: 'Start Stream' }) as HTMLButtonElement;
+    startButton.disabled = false;
+    startButton.removeAttribute('disabled');
+
+    await act(async () => {
+      fireEvent.click(startButton);
+    });
+
     // Only one EventSource should have been created
     expect(MockEventSource.instances).toHaveLength(1);
   });
@@ -182,8 +190,16 @@ describe('ServerSentEvents', () => {
 
   test('stopStream when not streaming is a no-op (guard branch)', async () => {
     render(<ServerSentEvents />);
+
+    const stopButton = screen.getByRole('button', { name: 'Stop Stream' }) as HTMLButtonElement;
+    stopButton.disabled = false;
+    stopButton.removeAttribute('disabled');
+
     // Stop without ever starting — should not throw
-    await clickButton('Stop Stream');
+    await act(async () => {
+      fireEvent.click(stopButton);
+    });
+
     expect(screen.getByLabelText('Empty log message')).toBeVisible();
   });
 
@@ -312,6 +328,30 @@ describe('TouchGestures', () => {
     expect(screen.getByLabelText('Slide 1 — Tap', { exact: true })).toBeVisible();
   });
 
+  test('touchStart without touch points keeps the carousel stable', async () => {
+    render(<TouchGestures />);
+    const carousel = screen.getByRole('region', { name: /^Carousel$/ });
+
+    await act(async () => {
+      fireEvent.touchStart(carousel, { touches: [] });
+      fireEvent.touchEnd(carousel, { changedTouches: [{ clientX: 50, clientY: 100 }] });
+    });
+
+    expect(screen.getByLabelText('Slide 1 — Tap', { exact: true })).toBeVisible();
+  });
+
+  test('touchEnd without changed touch points falls back to zero movement', async () => {
+    render(<TouchGestures />);
+    const carousel = screen.getByRole('region', { name: /^Carousel$/ });
+
+    await act(async () => {
+      fireEvent.touchStart(carousel, { touches: [{ clientX: 10, clientY: 100 }] });
+      fireEvent.touchEnd(carousel, { changedTouches: [] });
+    });
+
+    expect(screen.getByLabelText('Slide 1 — Tap', { exact: true })).toBeVisible();
+  });
+
   test('dot indicator buttons navigate to a specific slide', () => {
     render(<TouchGestures />);
     fireEvent.click(screen.getByRole('button', { name: 'Go to Slide 3 — Pinch' }));
@@ -409,6 +449,13 @@ describe('InitScripts', () => {
     setWindowFlags({ betaFeature: true });
     render(<InitScripts />);
     expect(screen.getByRole('banner', { name: 'Beta feature banner' })).toBeVisible();
+  });
+
+  test('dark experiment note is visible when the darkExperiment flag is true', () => {
+    setWindowFlags({ darkExperiment: true });
+    render(<InitScripts />);
+
+    expect(screen.getByRole('note')).toHaveTextContent('Dark Experiment active');
   });
 
   test('no banner when __FLAGS__ is not set', () => {

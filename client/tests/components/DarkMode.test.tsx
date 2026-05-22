@@ -4,7 +4,7 @@
  * strings because jsdom cannot evaluate CSS — token class presence is the
  * only testable proxy for "this element will be readable in dark mode".
  */
-import { cleanup, render, screen } from '@testing-library/react';
+import { cleanup, fireEvent, render, screen } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, test } from 'vitest';
 import { MemoryRouter } from 'react-router-dom';
 import { LabCard } from '../../src/components/LabCard';
@@ -112,6 +112,17 @@ describe('LabHeader token classes', () => {
     const btn = screen.getByRole('button', { name: 'Mark complete' });
     expect(btn.className).toContain('bg-surface');
     expect(btn.className).not.toContain('bg-white');
+  });
+
+  test('Mark complete toggles the completed state label', () => {
+    wrap(<LabHeader lab={readyLab} />);
+
+    fireEvent.click(screen.getByRole('button', { name: 'Mark complete' }));
+
+    expect(screen.getByRole('button', { name: '✓ Completed' })).toHaveAttribute(
+      'aria-pressed',
+      'true',
+    );
   });
 });
 

@@ -1,9 +1,19 @@
-import { act, cleanup, fireEvent, render, screen, within } from '@testing-library/react';
+import {
+  act,
+  cleanup,
+  createEvent,
+  fireEvent,
+  render,
+  screen,
+  within,
+} from '@testing-library/react';
+import { MemoryRouter } from 'react-router-dom';
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 import { AsyncUi } from '../../src/pages/practice/AsyncUi';
 import { ClockTimers } from '../../src/pages/practice/ClockTimers';
 import { DragAndDrop } from '../../src/pages/practice/DragAndDrop';
 import { FormsValidation } from '../../src/pages/practice/FormsValidation';
+import { LocatorHandlers } from '../../src/pages/practice/LocatorHandlers';
 import { TablesFiltering } from '../../src/pages/practice/TablesFiltering';
 
 beforeEach(() => {
@@ -12,7 +22,88 @@ beforeEach(() => {
 
 afterEach(() => {
   cleanup();
+  vi.restoreAllMocks();
   vi.useRealTimers();
+});
+
+describe('LocatorHandlers', () => {
+  test('shows the first forced overlay when advancing the checkout flow', () => {
+    render(
+      <MemoryRouter>
+        <LocatorHandlers />
+      </MemoryRouter>,
+    );
+
+    fireEvent.click(screen.getByLabelText('Force overlays every step'));
+    fireEvent.click(screen.getByRole('button', { name: 'Next' }));
+
+    expect(screen.getByRole('dialog', { name: 'Get 10% off your next order!' })).toBeVisible();
+  });
+
+  test('cycles through forced overlays and can restart after confirmation', () => {
+    render(
+      <MemoryRouter>
+        <LocatorHandlers />
+      </MemoryRouter>,
+    );
+
+    fireEvent.click(screen.getByLabelText('Force overlays every step'));
+
+    fireEvent.click(screen.getByRole('button', { name: 'Next' }));
+    fireEvent.click(screen.getByRole('button', { name: 'No thanks' }));
+
+    fireEvent.click(screen.getByRole('button', { name: 'Next' }));
+    expect(screen.getByRole('alertdialog', { name: 'Quick Session Survey' })).toBeVisible();
+    fireEvent.click(screen.getByRole('button', { name: 'Skip Survey' }));
+
+    fireEvent.click(screen.getByRole('button', { name: 'Place Order' }));
+    expect(screen.getByRole('dialog', { name: 'Cookie Consent' })).toBeVisible();
+    expect(screen.getByRole('status')).toHaveTextContent('Order Confirmed!');
+
+    fireEvent.click(screen.getByRole('button', { name: 'Accept & Close' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Start over' }));
+
+    expect(screen.getByText(/Step 1 of 3:/)).toBeVisible();
+    expect(screen.queryByText('Order Confirmed!')).not.toBeInTheDocument();
+  });
+
+  test('skips overlays when the random chooser returns null', () => {
+    vi.spyOn(Math, 'random').mockReturnValue(0.25);
+
+    render(
+      <MemoryRouter>
+        <LocatorHandlers />
+      </MemoryRouter>,
+    );
+
+    fireEvent.click(screen.getByRole('button', { name: 'Next' }));
+
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+    expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
+  });
+
+  test('can finish and restart when random overlays are shown', () => {
+    vi.spyOn(Math, 'random').mockReturnValue(0.75);
+
+    render(
+      <MemoryRouter>
+        <LocatorHandlers />
+      </MemoryRouter>,
+    );
+
+    fireEvent.click(screen.getByRole('button', { name: 'Next' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Skip Survey' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Next' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Skip Survey' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Place Order' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Skip Survey' }));
+
+    expect(screen.getByRole('status')).toHaveTextContent('Order Confirmed!');
+
+    fireEvent.click(screen.getByRole('button', { name: 'Start over' }));
+
+    expect(screen.getByText(/Step 1 of 3:/)).toBeVisible();
+  });
 });
 
 describe('FormsValidation', () => {
@@ -39,6 +130,44 @@ describe('FormsValidation', () => {
 
     expect(screen.getByRole('form', { name: 'Newsletter signup form' })).toBeVisible();
     expect(screen.getByRole('button', { name: 'Subscribe' })).toBeDisabled();
+  });
+
+  test('shows validation after blurring empty and invalid required fields', () => {
+    render(<FormsValidation />);
+
+    fireEvent.blur(screen.getByLabelText(/Full name/));
+    expect(screen.getByText('Full name must be at least 2 characters.')).toBeVisible();
+
+    fireEvent.change(screen.getByLabelText(/Email address/), {
+      target: { value: 'not-an-email' },
+    });
+    fireEvent.blur(screen.getByLabelText(/Email address/));
+    expect(screen.getByText('Enter a valid email address.')).toBeVisible();
+
+    fireEvent.blur(screen.getByLabelText(/Topic category/));
+    expect(screen.getByText('Please select a category.')).toBeVisible();
+  });
+
+  test('shows the selected file name after choosing a file', () => {
+    render(<FormsValidation />);
+
+    fireEvent.change(screen.getByLabelText(/Profile picture/), {
+      target: {
+        files: [new File(['avatar'], 'avatar.png', { type: 'image/png' })],
+      },
+    });
+
+    expect(screen.getByText('Selected: avatar.png')).toBeVisible();
+  });
+
+  test('does not submit when the form is force-submitted with invalid values', () => {
+    render(<FormsValidation />);
+
+    fireEvent.submit(screen.getByRole('form', { name: 'Newsletter signup form' }));
+
+    expect(screen.queryByText('Subscribed!')).not.toBeInTheDocument();
+    expect(screen.getByText('Full name must be at least 2 characters.')).toBeVisible();
+    expect(screen.getByText('Enter a valid email address.')).toBeVisible();
   });
 });
 
@@ -160,6 +289,25 @@ describe('TablesFiltering', () => {
     });
     expect(screen.queryByRole('alert')).not.toBeInTheDocument();
   });
+
+  test('switches sort columns, toggles sort direction back to ascending, and closes action menus', () => {
+    render(<TablesFiltering />);
+
+    fireEvent.click(screen.getByRole('button', { name: 'Sort by department ascending' }));
+    expect(screen.getByRole('button', { name: 'Sort by department descending' })).toBeVisible();
+
+    fireEvent.click(screen.getByRole('button', { name: 'Sort by department descending' }));
+    expect(screen.getByRole('button', { name: 'Sort by department ascending' })).toBeVisible();
+
+    fireEvent.click(screen.getByRole('button', { name: 'Sort by department ascending' }));
+    expect(screen.getByRole('button', { name: 'Sort by department descending' })).toBeVisible();
+
+    fireEvent.click(screen.getByRole('button', { name: 'Actions for Alice Chen' }));
+    expect(screen.getByRole('menu', { name: 'Alice Chen actions' })).toBeVisible();
+
+    fireEvent.click(screen.getByRole('button', { name: 'Actions for Alice Chen' }));
+    expect(screen.queryByRole('menu', { name: 'Alice Chen actions' })).not.toBeInTheDocument();
+  });
 });
 
 describe('ClockTimers', () => {
@@ -262,6 +410,66 @@ describe('DragAndDrop', () => {
     });
 
     expect(screen.getByTestId('dropped-file')).toHaveTextContent('stagecraft.txt (0.0 KB)');
+  });
+
+  test('prevents default while dragging over valid drop targets', () => {
+    render(<DragAndDrop />);
+
+    const todoColumn = screen.getByLabelText('To Do column');
+    const doneColumn = screen.getByLabelText('Done column');
+    const kanbanCard = within(todoColumn).getByLabelText('Write Playwright tests');
+    fireEvent.dragStart(kanbanCard);
+
+    const columnDragOverEvent = createEvent.dragOver(doneColumn);
+    Object.defineProperty(columnDragOverEvent, 'preventDefault', { value: vi.fn() });
+    fireEvent(doneColumn, columnDragOverEvent);
+
+    expect(columnDragOverEvent.preventDefault).toHaveBeenCalled();
+
+    const alpha = screen.getByTestId('sort-item-alpha');
+    const delta = screen.getByTestId('sort-item-delta');
+    fireEvent.dragStart(delta);
+
+    const listDragOverEvent = createEvent.dragOver(alpha);
+    Object.defineProperty(listDragOverEvent, 'preventDefault', { value: vi.fn() });
+    fireEvent(alpha, listDragOverEvent);
+
+    expect(listDragOverEvent.preventDefault).toHaveBeenCalled();
+  });
+
+  test('ignores drops without an active drag, same-target drops, and empty file drops', () => {
+    render(<DragAndDrop />);
+
+    const todoColumn = screen.getByLabelText('To Do column');
+    const doneColumn = screen.getByLabelText('Done column');
+    const kanbanCard = within(todoColumn).getByLabelText('Write Playwright tests');
+
+    fireEvent.drop(doneColumn);
+    expect(within(doneColumn).queryByText('Write Playwright tests')).not.toBeInTheDocument();
+
+    fireEvent.dragStart(kanbanCard);
+    fireEvent.drop(todoColumn);
+    expect(within(todoColumn).getAllByText('Write Playwright tests')).toHaveLength(1);
+
+    const dropZone = screen.getByTestId('drop-zone');
+    fireEvent.drop(dropZone, { dataTransfer: { files: [] } });
+    expect(screen.queryByTestId('dropped-file')).not.toBeInTheDocument();
+
+    const list = screen.getByRole('list', { name: 'Sortable list' });
+    const alpha = screen.getByTestId('sort-item-alpha');
+    const originalOrder = within(list)
+      .getAllByRole('listitem')
+      .map((item) => item.textContent);
+
+    fireEvent.drop(alpha);
+    fireEvent.dragStart(alpha);
+    fireEvent.drop(alpha);
+
+    expect(
+      within(list)
+        .getAllByRole('listitem')
+        .map((item) => item.textContent),
+    ).toEqual(originalOrder);
   });
 
   test('reorders the sortable list with drag and drop', () => {

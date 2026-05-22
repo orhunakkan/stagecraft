@@ -18,9 +18,12 @@ export function MultiTabPopup() {
   }, [value]);
 
   const sendResult = () => {
-    if (window.opener) {
-      window.opener.postMessage({ type: 'POPUP_RESULT', value }, window.location.origin);
+    if (!window.opener) {
+      setSent(false);
+      return;
     }
+
+    window.opener.postMessage({ type: 'POPUP_RESULT', value }, window.location.origin);
     setSent(true);
   };
 

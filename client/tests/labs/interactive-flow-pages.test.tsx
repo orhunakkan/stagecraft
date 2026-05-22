@@ -22,6 +22,7 @@ function mockFetch() {
 
 beforeEach(() => {
   localStorage.clear();
+  Object.defineProperty(window, 'opener', { configurable: true, value: undefined });
 });
 
 afterEach(() => {
@@ -146,6 +147,48 @@ describe('MultiTab flows', () => {
       window.location.origin,
     );
     expect(screen.getByRole('status')).toHaveTextContent('Sent!');
+  });
+
+  test('handles incoming opener requests without losing the popup form', () => {
+    const postMessage = vi.fn();
+    Object.defineProperty(window, 'opener', {
+      configurable: true,
+      value: { postMessage },
+    });
+
+    render(<MultiTabPopup />);
+
+    window.dispatchEvent(new MessageEvent('message', { data: { type: 'REQUEST_VALUE' } }));
+
+    expect(postMessage).toHaveBeenCalledWith(
+      { type: 'POPUP_RESULT', value: 'Hello from popup' },
+      '*',
+    );
+    expect(screen.getByLabelText('Value to send to opener')).toBeVisible();
+  });
+
+  test('ignores unrelated opener messages', () => {
+    const postMessage = vi.fn();
+    Object.defineProperty(window, 'opener', {
+      configurable: true,
+      value: { postMessage },
+    });
+
+    render(<MultiTabPopup />);
+
+    window.dispatchEvent(new MessageEvent('message', { data: { type: 'IGNORED' } }));
+
+    expect(postMessage).not.toHaveBeenCalled();
+    expect(screen.getByLabelText('Value to send to opener')).toBeVisible();
+  });
+
+  test('does not show a sent state when no opener exists', () => {
+    render(<MultiTabPopup />);
+
+    fireEvent.click(screen.getByTestId('send-result'));
+
+    expect(screen.queryByRole('status')).not.toBeInTheDocument();
+    expect(screen.getByLabelText('Value to send to opener')).toBeVisible();
   });
 });
 

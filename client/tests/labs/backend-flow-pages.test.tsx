@@ -74,6 +74,21 @@ describe('ApiRequestContext', () => {
     await waitFor(() => expect(screen.queryByText('Seed task')).not.toBeInTheDocument());
   });
 
+  test('ignores blank task submissions', async () => {
+    const fetchMock = mockFetch();
+    fetchMock.mockResolvedValueOnce(jsonResponse([]));
+
+    render(<ApiRequestContext />);
+
+    await screen.findByText('No tasks yet. Add one above or POST via the request fixture.');
+
+    const input = screen.getByLabelText('New task title');
+    fireEvent.change(input, { target: { value: '   ' } });
+    fireEvent.submit(input.closest('form')!);
+
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+  });
+
   test('shows the API error message when task loading fails', async () => {
     const fetchMock = mockFetch();
     fetchMock.mockResolvedValueOnce(jsonResponse({ message: 'Nope' }, 500));
@@ -146,6 +161,26 @@ describe('FakeAuth', () => {
     expect(await screen.findByText('Dashboard route')).toBeVisible();
   });
 
+  test('shows a generic error when login fails with a non-401 response', async () => {
+    const fetchMock = mockFetch();
+    fetchMock.mockResolvedValueOnce(jsonResponse({}, 503));
+
+    renderWithRouter(
+      <Routes>
+        <Route path="/" element={<FakeAuth />} />
+        <Route path="/practice/fake-auth/dashboard" element={<p>Dashboard route</p>} />
+      </Routes>,
+    );
+
+    fireEvent.change(screen.getByLabelText('Username'), { target: { value: 'alice' } });
+    fireEvent.change(screen.getByLabelText('Password'), { target: { value: 'password123' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Sign in' }));
+
+    expect(await screen.findByRole('alert')).toHaveTextContent(
+      'Something went wrong. Please try again.',
+    );
+  });
+
   test('redirects the dashboard when unauthenticated and signs out an authenticated user', async () => {
     const fetchMock = mockFetch();
     fetchMock.mockResolvedValueOnce(jsonResponse({}, 401));
@@ -206,6 +241,15 @@ describe('HarRecording', () => {
 
     expect(await screen.findByRole('alert')).toHaveTextContent('HTTP 502');
   });
+
+  test('falls back to "Unknown error" for non-Error fetch failures', async () => {
+    const fetchMock = mockFetch();
+    fetchMock.mockRejectedValueOnce('boom');
+
+    render(<HarRecording />);
+
+    expect(await screen.findByRole('alert')).toHaveTextContent('Unknown error');
+  });
 });
 
 describe('ServiceWorkers', () => {
@@ -234,18 +278,29 @@ describe('ServiceWorkers', () => {
     expect(screen.getByText('network')).toBeVisible();
   });
 
-  test('reports unsupported service workers and failed item fetches', async () => {
-    const fetchMock = mockFetch();
-    fetchMock.mockResolvedValueOnce(jsonResponse({}, 500));
+  test('reports unsupported service workers when the API is unavailable', () => {
     Object.defineProperty(navigator, 'serviceWorker', {
       configurable: true,
       value: undefined,
     });
+    delete (navigator as Navigator & { serviceWorker?: unknown }).serviceWorker;
 
     render(<ServiceWorkers />);
 
     fireEvent.click(screen.getByRole('button', { name: 'Register service worker' }));
+
     expect(screen.getByRole('alert')).toHaveTextContent('Registration failed');
+  });
+
+  test('reports failed item fetches', async () => {
+    const fetchMock = mockFetch();
+    fetchMock.mockResolvedValueOnce(jsonResponse({}, 500));
+    Object.defineProperty(navigator, 'serviceWorker', {
+      configurable: true,
+      value: { register: vi.fn().mockResolvedValue({}) },
+    });
+
+    render(<ServiceWorkers />);
 
     fireEvent.click(screen.getByTestId('fetch-items-btn'));
     await waitFor(() =>
@@ -253,6 +308,21 @@ describe('ServiceWorkers', () => {
         screen.getAllByRole('alert').some((alert) => alert.textContent?.includes('HTTP 500')),
       ).toBe(true),
     );
+  });
+
+  test('falls back to "Unknown error" for non-Error fetch failures', async () => {
+    const fetchMock = mockFetch();
+    fetchMock.mockRejectedValueOnce('boom');
+    Object.defineProperty(navigator, 'serviceWorker', {
+      configurable: true,
+      value: { register: vi.fn().mockResolvedValue({}) },
+    });
+
+    render(<ServiceWorkers />);
+
+    fireEvent.click(screen.getByTestId('fetch-items-btn'));
+
+    expect(await screen.findByRole('alert')).toHaveTextContent('Unknown error');
   });
 });
 

@@ -1,8 +1,9 @@
 import http from 'node:http';
 import fs from 'node:fs/promises';
 import path from 'node:path';
+import express from 'express';
 import { afterAll, afterEach, beforeAll, describe, expect, test, vi } from 'vitest';
-import app from './app';
+import app, { apiErrorHandler } from './app';
 
 let server: http.Server;
 let baseUrl: string;
@@ -235,6 +236,21 @@ describe('production startup configuration', () => {
     }
   });
 
+  test('serves index.html through static middleware with no-cache headers', async () => {
+    const { productionBaseUrl, productionServer } = await startProductionApp();
+
+    try {
+      const response = await fetch(`${productionBaseUrl}/index.html`);
+      const html = await response.text();
+
+      expect(response.status).toBe(200);
+      expect(response.headers.get('cache-control')).toBe('no-cache');
+      expect(html).toContain('Stagecraft production shell');
+    } finally {
+      await closeServer(productionServer);
+    }
+  });
+
   test('does not serve the SPA shell for API or non-GET requests', async () => {
     const { productionBaseUrl, productionServer } = await startProductionApp();
 
@@ -256,6 +272,24 @@ describe('production startup configuration', () => {
 });
 
 describe('notes API', () => {
+  test('returns the seed notes array', async () => {
+    const { response, body } =
+      await json<Array<{ id: number; text: string; createdAt: string }>>('/api/notes');
+
+    expect(response.status).toBe(200);
+    expect(body).toHaveLength(3);
+    expect(body).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ id: 1, text: 'Intercept network requests with page.route()' }),
+        expect.objectContaining({
+          id: 2,
+          text: 'Use waitForResponse() to synchronise on API calls',
+        }),
+        expect.objectContaining({ id: 3, text: 'Mock responses with route.fulfill()' }),
+      ]),
+    );
+  });
+
   test('creates and deletes a note', async () => {
     const text = `Server note ${Date.now()}`;
     const created = await json<{ id: number; text: string }>('/api/notes', {
@@ -311,6 +345,46 @@ describe('auth API', () => {
 
     expect(me.response.status).toBe(200);
     expect(me.body).toMatchObject({ username: 'alice', role: 'admin' });
+  });
+
+  test('logs out an authenticated session', async () => {
+    const login = await json<{ username: string; role: string }>('/api/auth/login', {
+      method: 'POST',
+      body: JSON.stringify({ username: 'alice', password: 'password123' }),
+    });
+    const cookie = login.response.headers.get('set-cookie');
+
+    const logout = await fetch(`${baseUrl}/api/auth/logout`, {
+      method: 'POST',
+      headers: { Cookie: cookie ?? '' },
+    });
+
+    expect(logout.status).toBe(204);
+
+    const me = await json<{ error: string }>('/api/auth/me', {
+      headers: { Cookie: cookie ?? '' },
+    });
+
+    expect(me.response.status).toBe(401);
+    expect(me.body.error).toBe('Not authenticated');
+  });
+
+  test('returns admin stats for an admin session', async () => {
+    const login = await json<{ username: string }>('/api/auth/login', {
+      method: 'POST',
+      body: JSON.stringify({ username: 'alice', password: 'password123' }),
+    });
+    const cookie = login.response.headers.get('set-cookie');
+
+    const stats = await json<{ totalUsers: number; pendingReviews: number }>(
+      '/api/auth/admin/stats',
+      {
+        headers: { Cookie: cookie ?? '' },
+      },
+    );
+
+    expect(stats.response.status).toBe(200);
+    expect(stats.body).toEqual({ totalUsers: 2, pendingReviews: 3 });
   });
 
   test('blocks admin stats for a regular user', async () => {
@@ -374,6 +448,23 @@ describe('auth API', () => {
 });
 
 describe('tasks API', () => {
+  test('returns the seed tasks array', async () => {
+    const { response, body } =
+      await json<Array<{ id: number; title: string; done: boolean; createdAt: string }>>(
+        '/api/tasks',
+      );
+
+    expect(response.status).toBe(200);
+    expect(body).toHaveLength(3);
+    expect(body).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ id: 1, title: 'Write a Playwright test', done: false }),
+        expect.objectContaining({ id: 2, title: 'Use the request fixture', done: false }),
+        expect.objectContaining({ id: 3, title: 'Seed data via API before UI test', done: false }),
+      ]),
+    );
+  });
+
   test('creates, updates, and deletes a task', async () => {
     const title = `Server task ${Date.now()}`;
     const created = await json<{ id: number; title: string; done: boolean }>('/api/tasks', {
@@ -390,6 +481,27 @@ describe('tasks API', () => {
     });
     expect(updated.response.status).toBe(200);
     expect(updated.body.done).toBe(true);
+
+    const deleted = await fetch(`${baseUrl}/api/tasks/${created.body.id}`, { method: 'DELETE' });
+    expect(deleted.status).toBe(204);
+  });
+
+  test('updates a task title without changing its done state', async () => {
+    const created = await json<{ id: number; title: string; done: boolean }>('/api/tasks', {
+      method: 'POST',
+      body: JSON.stringify({ title: `Rename me ${Date.now()}` }),
+    });
+
+    const updated = await json<{ id: number; title: string; done: boolean }>(
+      `/api/tasks/${created.body.id}`,
+      {
+        method: 'PUT',
+        body: JSON.stringify({ title: 'Updated server task title' }),
+      },
+    );
+
+    expect(updated.response.status).toBe(200);
+    expect(updated.body).toMatchObject({ title: 'Updated server task title', done: false });
 
     const deleted = await fetch(`${baseUrl}/api/tasks/${created.body.id}`, { method: 'DELETE' });
     expect(deleted.status).toBe(204);
@@ -552,6 +664,32 @@ describe('activity feed API', () => {
     expect(body.items).toHaveLength(2);
   });
 
+  test('defaults an empty page query to the first page', async () => {
+    const { response, body } = await json<{
+      items: Array<{ id: number }>;
+      page: number;
+      pageSize: number;
+    }>('/api/feed?page=');
+
+    expect(response.status).toBe(200);
+    expect(body.page).toBe(1);
+    expect(body.pageSize).toBe(10);
+    expect(body.items).toHaveLength(10);
+  });
+
+  test('falls back to defaults for non-numeric pagination values', async () => {
+    const { response, body } = await json<{
+      items: Array<{ id: number }>;
+      page: number;
+      pageSize: number;
+    }>('/api/feed?page=abc&pageSize=nope');
+
+    expect(response.status).toBe(200);
+    expect(body.page).toBe(1);
+    expect(body.pageSize).toBe(10);
+    expect(body.items).toHaveLength(10);
+  });
+
   test('returns later pages and reports when more feed items remain', async () => {
     const { response, body } = await json<{
       items: Array<{ id: number }>;
@@ -565,5 +703,70 @@ describe('activity feed API', () => {
     expect(body.pageSize).toBe(8);
     expect(body.hasMore).toBe(true);
     expect(body.items[0]).toMatchObject({ id: 17 });
+  });
+});
+
+describe('error handling', () => {
+  test('returns a generic JSON error for non-syntax errors', async () => {
+    const failingApp = express();
+    failingApp.get('/boom', (_req, _res, next) => {
+      next(new Error('boom'));
+    });
+    failingApp.use(apiErrorHandler);
+
+    const failingServer = http.createServer(failingApp);
+    const failingBaseUrl = await listenOnRandomPort(
+      failingServer,
+      'Unable to resolve failing test server address',
+    );
+
+    try {
+      const response = await fetch(`${failingBaseUrl}/boom`);
+      const body = (await response.json()) as { error: string };
+
+      expect(response.status).toBe(500);
+      expect(body).toEqual({ error: 'Internal server error' });
+    } finally {
+      await closeServer(failingServer);
+    }
+  });
+
+  test('does not write a second response when headers were already sent', async () => {
+    const failingApp = express();
+    failingApp.get('/partial-boom', (_req, res, next) => {
+      res.write('partial');
+      next(new Error('boom'));
+    });
+    failingApp.use(apiErrorHandler);
+    failingApp.use(
+      (
+        error: unknown,
+        _req: express.Request,
+        res: express.Response,
+        _next: express.NextFunction,
+      ) => {
+        expect(error).toBeInstanceOf(Error);
+        if (!res.writableEnded) {
+          res.end();
+        }
+      },
+    );
+
+    const failingServer = http.createServer(failingApp);
+    const failingBaseUrl = await listenOnRandomPort(
+      failingServer,
+      'Unable to resolve headers-sent test server address',
+    );
+
+    try {
+      const response = await fetch(`${failingBaseUrl}/partial-boom`);
+      const body = await response.text();
+
+      expect(response.status).toBe(200);
+      expect(response.headers.get('content-type')).toBeNull();
+      expect(body).toBe('partial');
+    } finally {
+      await closeServer(failingServer);
+    }
   });
 });

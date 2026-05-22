@@ -114,4 +114,16 @@ describe('Shell theme toggle', () => {
     expect(document.documentElement.classList.contains('dark')).toBe(false);
     expect(localStorage.getItem('stagecraft:theme')).toBe('light');
   });
+
+  test('falls back to light mode when matchMedia is unavailable', () => {
+    vi.unstubAllGlobals();
+    Object.defineProperty(window, 'matchMedia', {
+      configurable: true,
+      value: undefined,
+    });
+
+    renderShell();
+
+    expect(document.documentElement.classList.contains('dark')).toBe(false);
+  });
 });
