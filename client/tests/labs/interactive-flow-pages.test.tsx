@@ -112,7 +112,7 @@ describe('MultiTab flows', () => {
     expect(openSpy).toHaveBeenCalledWith(
       '/practice/multi-tab/popup',
       'stagecraft-popup',
-      'width=480,height=360,noopener',
+      'width=480,height=360',
     );
   });
 

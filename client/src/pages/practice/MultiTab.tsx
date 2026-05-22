@@ -9,7 +9,7 @@ export function MultiTab() {
   };
 
   const openPopup = () => {
-    window.open('/practice/multi-tab/popup', 'stagecraft-popup', 'width=480,height=360,noopener');
+    window.open('/practice/multi-tab/popup', 'stagecraft-popup', 'width=480,height=360');
   };
 
   return (
