@@ -73,6 +73,14 @@ const labComponentMap: Record<string, ComponentType> = {
     () => import('./pages/practice/AccessibilityScanning'),
     'AccessibilityScanning',
   ),
+  'shadow-dom': lazyNamed(() => import('./pages/practice/ShadowDom'), 'ShadowDom'),
+  'touch-gestures': lazyNamed(() => import('./pages/practice/TouchGestures'), 'TouchGestures'),
+  'init-scripts': lazyNamed(() => import('./pages/practice/InitScripts'), 'InitScripts'),
+  'server-sent-events': lazyNamed(
+    () => import('./pages/practice/ServerSentEvents'),
+    'ServerSentEvents',
+  ),
+  'soft-assertions': lazyNamed(() => import('./pages/practice/SoftAssertions'), 'SoftAssertions'),
 };
 
 // Extra sub-routes for labs with multi-page flows (not derivable from a single slug)

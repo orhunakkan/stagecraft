@@ -1,4 +1,8 @@
 import { test, expect } from '@playwright/test';
+import { labs } from '../client/src/labs';
+
+const readyLabCount = labs.filter((lab) => lab.status === 'ready').length;
+const comingSoonLabCount = labs.filter((lab) => lab.status === 'coming-soon').length;
 
 test.describe('Home page', () => {
   test.beforeEach(async ({ page }) => {
@@ -9,14 +13,14 @@ test.describe('Home page', () => {
     await expect(page.getByRole('heading', { name: 'Practice Labs', level: 1 })).toBeVisible();
   });
 
-  test('ready labs section contains all 25 lab cards', async ({ page }) => {
+  test('ready labs section contains every ready lab card', async ({ page }) => {
     const section = page.getByRole('region', { name: 'Ready labs' });
-    await expect(section.getByRole('article')).toHaveCount(25);
+    await expect(section.getByRole('article')).toHaveCount(readyLabCount);
   });
 
-  test('coming soon section contains no lab cards', async ({ page }) => {
+  test('coming soon section contains every coming soon lab card', async ({ page }) => {
     const section = page.getByRole('region', { name: 'Coming soon labs' });
-    await expect(section.getByRole('article')).toHaveCount(0);
+    await expect(section.getByRole('article')).toHaveCount(comingSoonLabCount);
   });
 
   test('clicking a ready lab card navigates to the lab page', async ({ page }) => {

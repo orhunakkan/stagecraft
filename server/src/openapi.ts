@@ -15,6 +15,7 @@ export const openApiDocument = {
     { name: 'Products' },
     { name: 'Service Workers' },
     { name: 'Feed' },
+    { name: 'SSE' },
   ],
   paths: {
     '/health': {
@@ -356,6 +357,25 @@ export const openApiDocument = {
             content: {
               'application/json': {
                 schema: { $ref: '#/components/schemas/FeedPage' },
+              },
+            },
+          },
+        },
+      },
+    },
+    '/api/sse': {
+      get: {
+        tags: ['SSE'],
+        summary: 'Stream build/deploy status events',
+        operationId: 'getSseStream',
+        description:
+          'Opens a Server-Sent Events stream that emits `log` events (info / warn / error) at 600 ms intervals, followed by a `done` event when the sequence is complete.',
+        responses: {
+          '200': {
+            description: 'SSE stream of build events.',
+            content: {
+              'text/event-stream': {
+                schema: { type: 'string' },
               },
             },
           },
