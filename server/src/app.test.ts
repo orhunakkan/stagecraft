@@ -70,6 +70,45 @@ describe('ready endpoint', () => {
   });
 });
 
+describe('server-sent events API', () => {
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
+  test('streams build log events and a completion event', async () => {
+    vi.useFakeTimers();
+
+    const response = await fetch(`${baseUrl}/api/sse`);
+    const reader = response.body?.getReader();
+    const decoder = new TextDecoder();
+    let stream = '';
+
+    expect(response.status).toBe(200);
+    expect(response.headers.get('content-type')).toContain('text/event-stream');
+    expect(response.headers.get('cache-control')).toContain('no-cache');
+    expect(reader).toBeDefined();
+
+    for (let tick = 0; tick < 12; tick += 1) {
+      const read = reader!.read();
+      await vi.advanceTimersByTimeAsync(600);
+      const result = await read;
+
+      if (result.value) {
+        stream += decoder.decode(result.value, { stream: !result.done });
+      }
+
+      if (stream.includes('event: done')) {
+        break;
+      }
+    }
+
+    expect(stream).toContain('event: log');
+    expect(stream).toContain('"type":"info","message":"Build started"');
+    expect(stream).toContain('"type":"error","message":"Health-check failed — retrying…"');
+    expect(stream).toContain('event: done');
+  });
+});
+
 describe('API documentation', () => {
   test('serves the OpenAPI document', async () => {
     const { response, body } = await json<{

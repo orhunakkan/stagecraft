@@ -1,5 +1,11 @@
 import { test, expect } from '@playwright/test';
 
+declare global {
+  interface Window {
+    __FLAGS__?: Record<string, boolean>;
+  }
+}
+
 test.describe('Init Scripts & Seeding lab', () => {
   test('onboarding modal is visible without any seeding', async ({ page }) => {
     await page.goto('/practice/init-scripts');

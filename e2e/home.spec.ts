@@ -1,10 +1,15 @@
 import { test, expect } from '@playwright/test';
-import { labs } from '../client/src/labs';
 
-const readyLabCount = labs.filter((lab) => lab.status === 'ready').length;
-const comingSoonLabCount = labs.filter((lab) => lab.status === 'coming-soon').length;
+let readyLabCount = 0;
+let comingSoonLabCount = 0;
 
 test.describe('Home page', () => {
+  test.beforeAll(async () => {
+    const { labs } = await import('../client/src/labs/index.js');
+    readyLabCount = labs.filter((lab) => lab.status === 'ready').length;
+    comingSoonLabCount = labs.filter((lab) => lab.status === 'coming-soon').length;
+  });
+
   test.beforeEach(async ({ page }) => {
     await page.goto('/');
   });
