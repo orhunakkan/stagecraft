@@ -16,7 +16,7 @@ test.describe('Server-Sent Events lab', () => {
     await expect
       .poll(
         async () => {
-          return await page.getByLabel('SSE event log').getByRole('listitem').count();
+          return page.getByLabel('SSE event log').getByRole('listitem').count();
         },
         { timeout: 10_000 },
       )

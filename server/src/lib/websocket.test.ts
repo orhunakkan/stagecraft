@@ -11,25 +11,11 @@ beforeAll(async () => {
   server = http.createServer();
   attachWebSocketServer(server);
 
-  await new Promise<void>((resolve) => {
-    server.listen(0, '127.0.0.1', () => {
-      const address = server.address();
-      if (!address || typeof address === 'string') {
-        throw new Error('Unable to resolve WebSocket test server address');
-      }
-      baseWsUrl = `ws://127.0.0.1:${address.port}`;
-      resolve();
-    });
-  });
+  baseWsUrl = await listenOnRandomPort(server);
 });
 
 afterAll(async () => {
-  await new Promise<void>((resolve, reject) => {
-    server.close((error) => {
-      if (error) reject(error);
-      else resolve();
-    });
-  });
+  await closeServer(server);
 });
 
 afterEach(() => {
@@ -45,6 +31,27 @@ function connect(path: string): WebSocket {
   const ws = new WebSocket(`${baseWsUrl}${path}`);
   clients.push(ws);
   return ws;
+}
+
+async function listenOnRandomPort(serverToListen: http.Server) {
+  return new Promise<string>((resolve) => {
+    serverToListen.listen(0, '127.0.0.1', () => {
+      const address = serverToListen.address();
+      if (!address || typeof address === 'string') {
+        throw new Error('Unable to resolve WebSocket test server address');
+      }
+      resolve(`ws://127.0.0.1:${address.port}`);
+    });
+  });
+}
+
+async function closeServer(serverToClose: http.Server) {
+  await new Promise<void>((resolve, reject) => {
+    serverToClose.close((error) => {
+      if (error) reject(error);
+      else resolve();
+    });
+  });
 }
 
 function waitForMessage(ws: WebSocket, predicate: (message: string) => boolean): Promise<string> {
@@ -76,21 +83,55 @@ function waitForMessage(ws: WebSocket, predicate: (message: string) => boolean):
   });
 }
 
+function waitForWelcomeMessage(ws: WebSocket) {
+  return waitForMessage(ws, (message) => message === 'Welcome to the Stagecraft WebSocket server!');
+}
+
+function waitForConnectionClose(
+  ws: WebSocket,
+  failureMessage: string,
+  unexpectedOpenMessage?: string,
+) {
+  return new Promise<void>((resolve, reject) => {
+    const timeout = setTimeout(() => {
+      cleanup();
+      reject(new Error(failureMessage));
+    }, 1000);
+    const cleanup = () => {
+      clearTimeout(timeout);
+      ws.off('close', finish);
+      ws.off('error', finish);
+      ws.off('open', onOpen);
+    };
+    const finish = () => {
+      cleanup();
+      resolve();
+    };
+    const onOpen = () => {
+      cleanup();
+      reject(new Error(unexpectedOpenMessage));
+    };
+
+    ws.once('close', finish);
+    ws.once('error', finish);
+    if (unexpectedOpenMessage) {
+      ws.once('open', onOpen);
+    }
+  });
+}
+
 describe('attachWebSocketServer', () => {
   test('accepts clients on /ws and sends a welcome message', async () => {
     const ws = connect('/ws');
 
-    await expect(
-      waitForMessage(ws, (message) => message === 'Welcome to the Stagecraft WebSocket server!'),
-    ).resolves.toBe('Welcome to the Stagecraft WebSocket server!');
+    await expect(waitForWelcomeMessage(ws)).resolves.toBe(
+      'Welcome to the Stagecraft WebSocket server!',
+    );
   });
 
   test('echoes client messages back on the WebSocket connection', async () => {
     const ws = connect('/ws');
-    await waitForMessage(
-      ws,
-      (message) => message === 'Welcome to the Stagecraft WebSocket server!',
-    );
+    await waitForWelcomeMessage(ws);
 
     ws.send('hello stagecraft');
 
@@ -101,44 +142,18 @@ describe('attachWebSocketServer', () => {
 
   test('closes connections that send oversized messages', async () => {
     const ws = connect('/ws');
-    await waitForMessage(
-      ws,
-      (message) => message === 'Welcome to the Stagecraft WebSocket server!',
-    );
+    await waitForWelcomeMessage(ws);
 
     ws.send('x'.repeat(16 * 1024 + 1));
 
-    await expect(
-      new Promise<void>((resolve, reject) => {
-        const timeout = setTimeout(() => reject(new Error('connection stayed open')), 1000);
-        ws.once('close', () => {
-          clearTimeout(timeout);
-          resolve();
-        });
-        ws.once('error', () => {
-          clearTimeout(timeout);
-          resolve();
-        });
-      }),
-    ).resolves.toBeUndefined();
+    await expect(waitForConnectionClose(ws, 'connection stayed open')).resolves.toBeUndefined();
   });
 
   test('rejects upgrade requests outside the /ws path', async () => {
     const ws = connect('/not-ws');
 
     await expect(
-      new Promise<void>((resolve, reject) => {
-        const timeout = setTimeout(() => reject(new Error('connection was not rejected')), 1000);
-        ws.once('open', () => reject(new Error('unexpected connection opened')));
-        ws.once('close', () => {
-          clearTimeout(timeout);
-          resolve();
-        });
-        ws.once('error', () => {
-          clearTimeout(timeout);
-          resolve();
-        });
-      }),
+      waitForConnectionClose(ws, 'connection was not rejected', 'unexpected connection opened'),
     ).resolves.toBeUndefined();
   });
 });

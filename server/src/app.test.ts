@@ -9,25 +9,11 @@ let baseUrl: string;
 
 beforeAll(async () => {
   server = http.createServer(app);
-  await new Promise<void>((resolve) => {
-    server.listen(0, '127.0.0.1', () => {
-      const address = server.address();
-      if (!address || typeof address === 'string') {
-        throw new Error('Unable to resolve test server address');
-      }
-      baseUrl = `http://127.0.0.1:${address.port}`;
-      resolve();
-    });
-  });
+  baseUrl = await listenOnRandomPort(server, 'Unable to resolve test server address');
 });
 
 afterAll(async () => {
-  await new Promise<void>((resolve, reject) => {
-    server.close((error) => {
-      if (error) reject(error);
-      else resolve();
-    });
-  });
+  await closeServer(server);
 });
 
 async function json<T>(path: string, init?: RequestInit): Promise<{ response: Response; body: T }> {
@@ -40,6 +26,27 @@ async function json<T>(path: string, init?: RequestInit): Promise<{ response: Re
   });
   const body = (await response.json()) as T;
   return { response, body };
+}
+
+async function listenOnRandomPort(serverToListen: http.Server, errorMessage: string) {
+  return new Promise<string>((resolve) => {
+    serverToListen.listen(0, '127.0.0.1', () => {
+      const address = serverToListen.address();
+      if (!address || typeof address === 'string') {
+        throw new Error(errorMessage);
+      }
+      resolve(`http://127.0.0.1:${address.port}`);
+    });
+  });
+}
+
+async function closeServer(serverToClose: http.Server) {
+  await new Promise<void>((resolve, reject) => {
+    serverToClose.close((error) => {
+      if (error) reject(error);
+      else resolve();
+    });
+  });
 }
 
 describe('health endpoint', () => {
@@ -162,29 +169,12 @@ describe('production startup configuration', () => {
 
     const productionApp = (await import('./app.js')).default as unknown as typeof app;
     const productionServer = http.createServer(productionApp);
-    let productionBaseUrl = '';
-
-    await new Promise<void>((resolve) => {
-      productionServer.listen(0, '127.0.0.1', () => {
-        const address = productionServer.address();
-        if (!address || typeof address === 'string') {
-          throw new Error('Unable to resolve production test server address');
-        }
-        productionBaseUrl = `http://127.0.0.1:${address.port}`;
-        resolve();
-      });
-    });
+    const productionBaseUrl = await listenOnRandomPort(
+      productionServer,
+      'Unable to resolve production test server address',
+    );
 
     return { productionBaseUrl, productionServer };
-  }
-
-  async function closeServer(serverToClose: http.Server) {
-    await new Promise<void>((resolve, reject) => {
-      serverToClose.close((error) => {
-        if (error) reject(error);
-        else resolve();
-      });
-    });
   }
 
   afterEach(() => {

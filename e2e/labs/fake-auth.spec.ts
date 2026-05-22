@@ -1,10 +1,5 @@
-import { test, expect, type Page } from '@playwright/test';
-
-async function signIn(page: Page, username: string, password: string) {
-  await page.getByLabel('Username').fill(username);
-  await page.getByLabel('Password').fill(password);
-  await page.getByRole('button', { name: 'Sign in' }).click();
-}
+import { test, expect } from '@playwright/test';
+import { signIn } from './auth-helpers';
 
 test.describe('Fake Auth lab', () => {
   test.beforeEach(async ({ page }) => {

@@ -1,16 +1,9 @@
-import { expect, test, type Page } from '@playwright/test';
-
-async function loginAs(page: Page, username: string, password: string) {
-  await page.goto('/practice/fake-auth');
-  await page.getByLabel('Username').fill(username);
-  await page.getByLabel('Password').fill(password);
-  await page.getByRole('button', { name: 'Sign in' }).click();
-  await expect(page).toHaveURL('/practice/fake-auth/dashboard');
-}
+import { expect, test } from '@playwright/test';
+import { signInAndExpectDashboard } from './auth-helpers';
 
 test.describe('Storage State lab', () => {
   test('shows admin-only content after logging in as alice', async ({ page }) => {
-    await loginAs(page, 'alice', 'password123');
+    await signInAndExpectDashboard(page, 'alice', 'password123');
 
     await page.goto('/practice/storage-state');
 
@@ -26,7 +19,7 @@ test.describe('Storage State lab', () => {
   });
 
   test('hides admin-only content for a regular user session', async ({ page }) => {
-    await loginAs(page, 'bob', 'letmein');
+    await signInAndExpectDashboard(page, 'bob', 'letmein');
 
     await page.goto('/practice/storage-state');
 
@@ -36,7 +29,7 @@ test.describe('Storage State lab', () => {
   });
 
   test('admin panel renders total user and pending review counts as numbers', async ({ page }) => {
-    await loginAs(page, 'alice', 'password123');
+    await signInAndExpectDashboard(page, 'alice', 'password123');
     await page.goto('/practice/storage-state');
 
     await expect(page.getByTestId('total-users')).toHaveText(/^\d+$/);
@@ -48,7 +41,7 @@ test.describe('Storage State lab', () => {
   }) => {
     const adminContext = await browser.newContext();
     const adminPage = await adminContext.newPage();
-    await loginAs(adminPage, 'alice', 'password123');
+    await signInAndExpectDashboard(adminPage, 'alice', 'password123');
     const state = await adminContext.storageState();
     await adminContext.close();
 

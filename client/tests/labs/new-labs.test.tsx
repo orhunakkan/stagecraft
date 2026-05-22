@@ -6,6 +6,10 @@ import { ShadowDom } from '../../src/pages/practice/ShadowDom';
 import { SoftAssertions } from '../../src/pages/practice/SoftAssertions';
 import { TouchGestures } from '../../src/pages/practice/TouchGestures';
 
+type WindowWithFlags = Window & { __FLAGS__?: Record<string, boolean> };
+type RatingElement = HTMLElement & { value: number };
+type LabelledInputElement = HTMLElement & { inputValue: string };
+
 // ---------------------------------------------------------------------------
 // EventSource mock
 // ---------------------------------------------------------------------------
@@ -27,12 +31,16 @@ class MockEventSource extends EventTarget {
   }
 
   emit(type: string, data?: unknown) {
-    const e = Object.assign(new MessageEvent(type, { data: JSON.stringify(data) }));
-    (this.handlers[type] ?? []).forEach((h) => h(e));
+    this.emitRaw(type, JSON.stringify(data));
+  }
+
+  emitRaw(type: string, data: string) {
+    const event = new MessageEvent(type, { data });
+    (this.handlers[type] ?? []).forEach((handler) => handler(event));
   }
 
   emitDone() {
-    (this.handlers['done'] ?? []).forEach((h) => h(new Event('done')));
+    (this.handlers['done'] ?? []).forEach((handler) => handler(new Event('done')));
   }
 
   simulateError() {
@@ -42,6 +50,27 @@ class MockEventSource extends EventTarget {
   close() {
     this.readyState = 2;
   }
+}
+
+async function clickButton(name: string | RegExp) {
+  await act(async () => {
+    fireEvent.click(screen.getByRole('button', { name }));
+  });
+}
+
+async function startEventStream() {
+  render(<ServerSentEvents />);
+  await clickButton('Start Stream');
+  return MockEventSource.instances[0]!;
+}
+
+function setWindowFlags(flags: Record<string, boolean>) {
+  (window as WindowWithFlags).__FLAGS__ = flags;
+}
+
+function setShadowReview(rating: number, inputValue: string) {
+  Object.assign(document.querySelector('rating-widget') as RatingElement, { value: rating });
+  Object.assign(document.querySelector('labelled-input') as LabelledInputElement, { inputValue });
 }
 
 beforeEach(() => {
@@ -61,7 +90,7 @@ beforeEach(() => {
 afterEach(() => {
   cleanup();
   vi.useRealTimers();
-  delete (window as Window & { __FLAGS__?: Record<string, boolean> }).__FLAGS__;
+  delete (window as WindowWithFlags).__FLAGS__;
   vi.restoreAllMocks();
   vi.unstubAllGlobals();
 });
@@ -78,10 +107,7 @@ describe('ServerSentEvents', () => {
   });
 
   test('startStream creates an EventSource and appends a connecting entry', async () => {
-    render(<ServerSentEvents />);
-    await act(async () => {
-      fireEvent.click(screen.getByRole('button', { name: 'Start Stream' }));
-    });
+    await startEventStream();
     expect(MockEventSource.instances).toHaveLength(1);
     expect(screen.getByRole('list', { name: 'SSE event log' })).toBeVisible();
     expect(screen.getByText('Connecting to stream…')).toBeVisible();
@@ -89,23 +115,14 @@ describe('ServerSentEvents', () => {
   });
 
   test('clicking Start Stream a second time is a no-op (guard branch)', async () => {
-    render(<ServerSentEvents />);
-    await act(async () => {
-      fireEvent.click(screen.getByRole('button', { name: 'Start Stream' }));
-    });
-    await act(async () => {
-      fireEvent.click(screen.getByRole('button', { name: 'Start Stream' }));
-    });
+    await startEventStream();
+    await clickButton('Start Stream');
     // Only one EventSource should have been created
     expect(MockEventSource.instances).toHaveLength(1);
   });
 
   test('receiving a log event appends an entry to the list', async () => {
-    render(<ServerSentEvents />);
-    await act(async () => {
-      fireEvent.click(screen.getByRole('button', { name: 'Start Stream' }));
-    });
-    const es = MockEventSource.instances[0]!;
+    const es = await startEventStream();
     await act(async () => {
       es.emit('log', { type: 'info', message: 'Build started' });
     });
@@ -114,11 +131,7 @@ describe('ServerSentEvents', () => {
   });
 
   test('receiving a warn log event shows the warn badge', async () => {
-    render(<ServerSentEvents />);
-    await act(async () => {
-      fireEvent.click(screen.getByRole('button', { name: 'Start Stream' }));
-    });
-    const es = MockEventSource.instances[0]!;
+    const es = await startEventStream();
     await act(async () => {
       es.emit('log', { type: 'warn', message: 'Deprecated API' });
     });
@@ -126,11 +139,7 @@ describe('ServerSentEvents', () => {
   });
 
   test('receiving an error log event shows the error badge', async () => {
-    render(<ServerSentEvents />);
-    await act(async () => {
-      fireEvent.click(screen.getByRole('button', { name: 'Start Stream' }));
-    });
-    const es = MockEventSource.instances[0]!;
+    const es = await startEventStream();
     await act(async () => {
       es.emit('log', { type: 'error', message: 'Health check failed' });
     });
@@ -138,27 +147,16 @@ describe('ServerSentEvents', () => {
   });
 
   test('malformed JSON in log event is silently ignored', async () => {
-    render(<ServerSentEvents />);
-    await act(async () => {
-      fireEvent.click(screen.getByRole('button', { name: 'Start Stream' }));
-    });
-    const es = MockEventSource.instances[0]!;
+    const es = await startEventStream();
     const entryCountBefore = screen.getAllByRole('listitem').length;
-    // Bypass JSON.stringify by directly dispatching a MessageEvent with bad data
     await act(async () => {
-      (es as unknown as { handlers: Record<string, Array<(e: Event) => void>> }).handlers[
-        'log'
-      ]?.forEach((h) => h(new MessageEvent('log', { data: 'not-json{{{' })));
+      es.emitRaw('log', 'not-json{{{');
     });
     expect(screen.getAllByRole('listitem')).toHaveLength(entryCountBefore);
   });
 
   test('done event shows the stream-complete status and disables Stop', async () => {
-    render(<ServerSentEvents />);
-    await act(async () => {
-      fireEvent.click(screen.getByRole('button', { name: 'Start Stream' }));
-    });
-    const es = MockEventSource.instances[0]!;
+    const es = await startEventStream();
     await act(async () => {
       es.emitDone();
     });
@@ -167,11 +165,7 @@ describe('ServerSentEvents', () => {
   });
 
   test('onerror shows an error system entry and stops streaming', async () => {
-    render(<ServerSentEvents />);
-    await act(async () => {
-      fireEvent.click(screen.getByRole('button', { name: 'Start Stream' }));
-    });
-    const es = MockEventSource.instances[0]!;
+    const es = await startEventStream();
     await act(async () => {
       es.simulateError();
     });
@@ -180,13 +174,8 @@ describe('ServerSentEvents', () => {
   });
 
   test('stopStream appends a stopped entry and disables the Stop button', async () => {
-    render(<ServerSentEvents />);
-    await act(async () => {
-      fireEvent.click(screen.getByRole('button', { name: 'Start Stream' }));
-    });
-    await act(async () => {
-      fireEvent.click(screen.getByRole('button', { name: 'Stop Stream' }));
-    });
+    await startEventStream();
+    await clickButton('Stop Stream');
     expect(screen.getByText('Stream stopped by user.')).toBeVisible();
     expect(screen.getByRole('button', { name: 'Stop Stream' })).toBeDisabled();
   });
@@ -194,17 +183,13 @@ describe('ServerSentEvents', () => {
   test('stopStream when not streaming is a no-op (guard branch)', async () => {
     render(<ServerSentEvents />);
     // Stop without ever starting — should not throw
-    await act(async () => {
-      fireEvent.click(screen.getByRole('button', { name: 'Stop Stream' }));
-    });
+    await clickButton('Stop Stream');
     expect(screen.getByLabelText('Empty log message')).toBeVisible();
   });
 
   test('unmount closes an active EventSource connection', async () => {
     const { unmount } = render(<ServerSentEvents />);
-    await act(async () => {
-      fireEvent.click(screen.getByRole('button', { name: 'Start Stream' }));
-    });
+    await clickButton('Start Stream');
 
     const es = MockEventSource.instances[0]!;
     expect(es.readyState).toBe(0);
@@ -356,9 +341,7 @@ describe('ShadowDom', () => {
 
   test('submit with no values shows the validation message', async () => {
     render(<ShadowDom />);
-    await act(async () => {
-      fireEvent.click(screen.getByRole('button', { name: 'Submit' }));
-    });
+    await clickButton('Submit');
     expect(screen.getByRole('status')).toHaveTextContent(
       'Please choose a rating and enter a name.',
     );
@@ -386,25 +369,15 @@ describe('ShadowDom', () => {
   test('submit with rating=3 shows plural "stars" result', async () => {
     render(<ShadowDom />);
     // jsdom renders unknown elements as plain HTMLElement — set the custom properties directly
-    const ratingEl = document.querySelector('rating-widget') as HTMLElement;
-    const inputEl = document.querySelector('labelled-input') as HTMLElement;
-    Object.assign(ratingEl, { value: 3 });
-    Object.assign(inputEl, { inputValue: 'Alice' });
-    await act(async () => {
-      fireEvent.click(screen.getByRole('button', { name: 'Submit' }));
-    });
+    setShadowReview(3, 'Alice');
+    await clickButton('Submit');
     expect(screen.getByRole('status')).toHaveTextContent('You rated "Alice" 3 stars.');
   });
 
   test('submit with rating=1 shows singular "star" result', async () => {
     render(<ShadowDom />);
-    const ratingEl = document.querySelector('rating-widget') as HTMLElement;
-    const inputEl = document.querySelector('labelled-input') as HTMLElement;
-    Object.assign(ratingEl, { value: 1 });
-    Object.assign(inputEl, { inputValue: 'Bob' });
-    await act(async () => {
-      fireEvent.click(screen.getByRole('button', { name: 'Submit' }));
-    });
+    setShadowReview(1, 'Bob');
+    await clickButton('Submit');
     expect(screen.getByRole('status')).toHaveTextContent('You rated "Bob" 1 star.');
   });
 });
@@ -427,20 +400,15 @@ describe('InitScripts', () => {
 
   test('dismissing the modal sets localStorage and hides the dialog', async () => {
     render(<InitScripts />);
-    await act(async () => {
-      fireEvent.click(screen.getByRole('button', { name: /got it/i }));
-    });
+    await clickButton(/got it/i);
     expect(screen.queryByRole('dialog', { name: /welcome/i })).not.toBeInTheDocument();
     expect(localStorage.getItem('onboarded')).toBe('true');
   });
 
   test('beta feature banner is visible when window.__FLAGS__.betaFeature is true', () => {
-    (window as Window & { __FLAGS__?: Record<string, boolean> }).__FLAGS__ = {
-      betaFeature: true,
-    };
+    setWindowFlags({ betaFeature: true });
     render(<InitScripts />);
     expect(screen.getByRole('banner', { name: 'Beta feature banner' })).toBeVisible();
-    delete (window as Window & { __FLAGS__?: Record<string, boolean> }).__FLAGS__;
   });
 
   test('no banner when __FLAGS__ is not set', () => {

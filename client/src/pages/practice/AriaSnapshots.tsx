@@ -27,17 +27,17 @@ const ACCORDION_SECTIONS = [
   },
 ];
 
+type AccordionSection = (typeof ACCORDION_SECTIONS)[number];
+
 export function AriaSnapshots() {
   const [openSection, setOpenSection] = useState<string | null>(null);
   const [step, setStep] = useState(0);
   const [announcement, setAnnouncement] = useState('');
 
-  const toggleSection = (id: string) => {
-    setOpenSection((prev) => (prev === id ? null : id));
-    const section = ACCORDION_SECTIONS.find((s) => s.id === id);
-    setAnnouncement(
-      openSection === id ? `${section?.title} collapsed` : `${section?.title} expanded`,
-    );
+  const toggleSection = (section: AccordionSection) => {
+    const isCurrentlyOpen = openSection === section.id;
+    setOpenSection(isCurrentlyOpen ? null : section.id);
+    setAnnouncement(`${section.title} ${isCurrentlyOpen ? 'collapsed' : 'expanded'}`);
   };
 
   return (
@@ -70,7 +70,7 @@ export function AriaSnapshots() {
                   <h3>
                     <button
                       type="button"
-                      onClick={() => toggleSection(section.id)}
+                      onClick={() => toggleSection(section)}
                       aria-expanded={isOpen}
                       aria-controls={`${section.id}-content`}
                       id={`${section.id}-btn`}

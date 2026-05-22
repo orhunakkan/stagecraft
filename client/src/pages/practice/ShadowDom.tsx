@@ -4,6 +4,9 @@ import { labs } from '../../labs';
 
 const lab = labs.find((l) => l.slug === 'shadow-dom')!;
 
+type RatingWidgetElement = HTMLElement & { value: number };
+type LabelledInputElement = HTMLElement & { inputValue: string };
+
 // ---------------------------------------------------------------------------
 // Custom element: star-rating widget
 // Renders 5 radio-like stars inside an open shadow root.
@@ -123,6 +126,15 @@ function defineLabelledInput() {
   customElements.define('labelled-input', LabelledInput);
 }
 
+function formatReviewResult(rating: number, input: string): string {
+  if (!rating || !input) {
+    return 'Please choose a rating and enter a name.';
+  }
+
+  const starLabel = rating === 1 ? 'star' : 'stars';
+  return `You rated "${input}" ${rating} ${starLabel}.`;
+}
+
 // ---------------------------------------------------------------------------
 // Lab component
 // ---------------------------------------------------------------------------
@@ -137,14 +149,13 @@ export function ShadowDom() {
   }, []);
 
   function handleSubmit() {
-    const rating = (ratingRef.current as unknown as { value: number } | null)?.value ?? 0;
-    const input = (inputRef.current as unknown as { inputValue: string } | null)?.inputValue ?? '';
-    if (resultRef.current) {
-      resultRef.current.textContent =
-        rating && input
-          ? `You rated "${input}" ${rating} star${rating !== 1 ? 's' : ''}.`
-          : 'Please choose a rating and enter a name.';
+    if (!resultRef.current) {
+      return;
     }
+
+    const rating = (ratingRef.current as RatingWidgetElement | null)?.value ?? 0;
+    const input = (inputRef.current as LabelledInputElement | null)?.inputValue ?? '';
+    resultRef.current.textContent = formatReviewResult(rating, input);
   }
 
   return (
