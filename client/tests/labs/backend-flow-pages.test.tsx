@@ -283,7 +283,7 @@ describe('ServiceWorkers', () => {
       configurable: true,
       value: undefined,
     });
-    delete (navigator as Navigator & { serviceWorker?: unknown }).serviceWorker;
+    Reflect.deleteProperty(navigator as unknown as { serviceWorker?: unknown }, 'serviceWorker');
 
     render(<ServiceWorkers />);
 
