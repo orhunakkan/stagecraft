@@ -264,9 +264,21 @@ const FEED_ITEMS: FeedItem[] = [
 
 const router = Router();
 
+function parsePositiveInteger(
+  value: unknown,
+  defaultValue: number,
+  maxValue = Number.MAX_SAFE_INTEGER,
+) {
+  const numericValue =
+    typeof value === 'string' && value.trim() !== '' ? Number(value) : defaultValue;
+  const integerValue = Number.isFinite(numericValue) ? Math.floor(numericValue) : defaultValue;
+
+  return Math.min(maxValue, Math.max(1, integerValue));
+}
+
 router.get('/', (req, res) => {
-  const page = Math.max(1, Number(req.query['page']) || 1);
-  const pageSize = Math.min(100, Math.max(1, Number(req.query['pageSize']) || 10));
+  const page = parsePositiveInteger(req.query['page'], 1);
+  const pageSize = parsePositiveInteger(req.query['pageSize'], 10, 100);
   const total = FEED_ITEMS.length;
   const start = (page - 1) * pageSize;
   const items = FEED_ITEMS.slice(start, start + pageSize);

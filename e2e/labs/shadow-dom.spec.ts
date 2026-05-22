@@ -15,15 +15,16 @@ test.describe('Shadow DOM & Web Components lab', () => {
     await thirdStar.click();
     await expect(thirdStar).toHaveAttribute('aria-checked', 'true');
 
-    // Lower stars should also be checked, upper stars should not
+    // Only the selected radio should be checked; visual fill is separate from ARIA state.
     await expect(page.getByRole('radio', { name: '1 star' })).toHaveAttribute(
       'aria-checked',
-      'true',
+      'false',
     );
     await expect(page.getByRole('radio', { name: '5 stars' })).toHaveAttribute(
       'aria-checked',
       'false',
     );
+    await expect(page.getByRole('radio', { checked: true })).toHaveCount(1);
   });
 
   test('host element value attribute reflects selected rating', async ({ page }) => {

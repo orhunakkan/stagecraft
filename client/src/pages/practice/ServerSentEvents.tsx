@@ -1,4 +1,4 @@
-import { useState, useRef, useCallback } from 'react';
+import { useState, useRef, useCallback, useEffect } from 'react';
 import { LabHeader } from '../../components/LabHeader';
 import { labs } from '../../labs';
 
@@ -26,6 +26,13 @@ export function ServerSentEvents() {
 
   const append = useCallback((type: LogEntry['type'], message: string) => {
     setEntries((prev) => [...prev, { id: idRef.current++, type, message }]);
+  }, []);
+
+  useEffect(() => {
+    return () => {
+      esRef.current?.close();
+      esRef.current = null;
+    };
   }, []);
 
   function startStream() {

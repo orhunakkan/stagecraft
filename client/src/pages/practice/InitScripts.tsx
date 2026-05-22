@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { LabHeader } from '../../components/LabHeader';
 import { labs } from '../../labs';
 
@@ -34,11 +34,6 @@ export function InitScripts() {
   const [flags] = useState<Record<string, boolean>>(readFlags);
   const [luckyNumber] = useState<number>(readLuckyNumber);
   const [onboarded, setOnboarded] = useState<boolean>(readOnboarded);
-
-  // Re-check localStorage after user dismisses the onboarding modal
-  useEffect(() => {
-    if (!onboarded) return;
-  }, [onboarded]);
 
   function dismissOnboarding() {
     localStorage.setItem('onboarded', 'true');

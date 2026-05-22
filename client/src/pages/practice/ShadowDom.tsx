@@ -52,7 +52,7 @@ function defineRatingWidget() {
             font-size: 1.5rem; line-height: 1; padding: 2px;
             color: #d1d5db;
           }
-          button[aria-checked="true"] { color: #f59e0b; }
+          button[data-filled="true"] { color: #f59e0b; }
           button:focus-visible {
             outline: 2px solid #6366f1; outline-offset: 2px; border-radius: 2px;
           }
@@ -62,7 +62,7 @@ function defineRatingWidget() {
             .map(
               (n) =>
                 `<button type="button" role="radio" aria-label="${n} star${n > 1 ? 's' : ''}"
-                  aria-checked="${n <= this._value}" data-value="${n}">★</button>`,
+                  aria-checked="${n === this._value}" data-filled="${n <= this._value}" data-value="${n}">★</button>`,
             )
             .join('')}
         </div>

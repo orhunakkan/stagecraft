@@ -136,6 +136,10 @@ app.use('/api/sw-items', swItemsRouter);
 app.use('/api/feed', feedRouter);
 app.use('/api/sse', sseRouter);
 
+app.use('/api', (_req, res) => {
+  res.status(404).json({ error: 'API route not found' });
+});
+
 app.use(
   (error: unknown, _req: express.Request, res: express.Response, next: express.NextFunction) => {
     if (res.headersSent) {

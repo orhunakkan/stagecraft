@@ -60,6 +60,8 @@ beforeEach(() => {
 
 afterEach(() => {
   cleanup();
+  vi.useRealTimers();
+  delete (window as Window & { __FLAGS__?: Record<string, boolean> }).__FLAGS__;
   vi.restoreAllMocks();
   vi.unstubAllGlobals();
 });
@@ -196,6 +198,20 @@ describe('ServerSentEvents', () => {
       fireEvent.click(screen.getByRole('button', { name: 'Stop Stream' }));
     });
     expect(screen.getByLabelText('Empty log message')).toBeVisible();
+  });
+
+  test('unmount closes an active EventSource connection', async () => {
+    const { unmount } = render(<ServerSentEvents />);
+    await act(async () => {
+      fireEvent.click(screen.getByRole('button', { name: 'Start Stream' }));
+    });
+
+    const es = MockEventSource.instances[0]!;
+    expect(es.readyState).toBe(0);
+
+    unmount();
+
+    expect(es.readyState).toBe(2);
   });
 });
 
@@ -463,7 +479,6 @@ describe('SoftAssertions', () => {
       await vi.advanceTimersByTimeAsync(2100);
     });
     expect(screen.getByTestId('activity-score')).toHaveTextContent('87');
-    vi.useRealTimers();
   });
 
   test('status badge transitions from loading to active after 1.5 s', async () => {
@@ -474,7 +489,6 @@ describe('SoftAssertions', () => {
       await vi.advanceTimersByTimeAsync(1600);
     });
     expect(screen.getByLabelText('Status badge')).toHaveTextContent('active');
-    vi.useRealTimers();
   });
 
   test('profile widget shows correct user details', () => {

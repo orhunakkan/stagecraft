@@ -35,7 +35,7 @@ function ActivityScore() {
 // ---------------------------------------------------------------------------
 // Widget: Status Badge — animates through states before settling
 // ---------------------------------------------------------------------------
-type BadgeStatus = 'loading' | 'active' | 'idle';
+type BadgeStatus = 'loading' | 'active';
 
 function StatusBadge() {
   const [status, setStatus] = useState<BadgeStatus>('loading');
@@ -48,7 +48,6 @@ function StatusBadge() {
   const colours: Record<BadgeStatus, string> = {
     loading: 'bg-yellow-100 text-yellow-800',
     active: 'bg-emerald-100 text-emerald-800',
-    idle: 'bg-gray-100 text-gray-600',
   };
 
   return (

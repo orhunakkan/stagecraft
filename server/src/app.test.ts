@@ -250,11 +250,14 @@ describe('production startup configuration', () => {
 
     try {
       const apiResponse = await fetch(`${productionBaseUrl}/api/missing`);
+      const apiBody = (await apiResponse.json()) as { error: string };
       const postResponse = await fetch(`${productionBaseUrl}/practice/network-api`, {
         method: 'POST',
       });
 
       expect(apiResponse.status).toBe(404);
+      expect(apiResponse.headers.get('content-type')).toContain('application/json');
+      expect(apiBody.error).toBe('API route not found');
       expect(postResponse.status).toBe(404);
     } finally {
       await closeServer(productionServer);
@@ -442,6 +445,27 @@ describe('tasks API', () => {
     expect(body.error).toBe('done must be a boolean');
   });
 
+  test('rejects task updates without any supported fields', async () => {
+    const created = await json<{ id: number }>('/api/tasks', {
+      method: 'POST',
+      body: JSON.stringify({ title: `Empty update validation ${Date.now()}` }),
+    });
+
+    const emptyUpdate = await json<{ error: string }>(`/api/tasks/${created.body.id}`, {
+      method: 'PUT',
+      body: JSON.stringify({}),
+    });
+    expect(emptyUpdate.response.status).toBe(400);
+    expect(emptyUpdate.body.error).toBe('at least one task field is required');
+
+    const unknownOnlyUpdate = await json<{ error: string }>(`/api/tasks/${created.body.id}`, {
+      method: 'PUT',
+      body: JSON.stringify({ priority: 'high' }),
+    });
+    expect(unknownOnlyUpdate.response.status).toBe(400);
+    expect(unknownOnlyUpdate.body.error).toBe('at least one task field is required');
+  });
+
   test('returns not found when updating or deleting a missing task', async () => {
     const updated = await json<{ error: string }>('/api/tasks/999999', {
       method: 'PUT',
@@ -523,6 +547,19 @@ describe('activity feed API', () => {
     expect(body.pageSize).toBe(100);
     expect(body.hasMore).toBe(false);
     expect(body.items).toHaveLength(42);
+  });
+
+  test('normalizes fractional pagination values to integers', async () => {
+    const { response, body } = await json<{
+      items: Array<{ id: number }>;
+      page: number;
+      pageSize: number;
+    }>('/api/feed?page=1.5&pageSize=2.5');
+
+    expect(response.status).toBe(200);
+    expect(body.page).toBe(1);
+    expect(body.pageSize).toBe(2);
+    expect(body.items).toHaveLength(2);
   });
 
   test('returns later pages and reports when more feed items remain', async () => {
