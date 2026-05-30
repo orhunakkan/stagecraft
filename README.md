@@ -2,7 +2,7 @@
 
 Stagecraft is a hands-on Playwright practice application for developers who already know JavaScript or TypeScript and want realistic browser automation scenarios. It provides 30 interactive labs that learners can open in the browser, explore manually, and test from a separate Playwright project.
 
-Each lab has a dedicated route under `/practice/<slug>` (e.g. `/practice/network-api`). All 25 lab components are loaded lazily and wrapped in an `ErrorBoundary`. A registered slug that has no route yet renders a "coming soon" page via a catch-all route, while an unknown slug redirects to the lab catalog.
+Each lab has a dedicated route under `/practice/<slug>` (e.g. `/practice/network-api`). All 30 lab components are loaded lazily and wrapped in an `ErrorBoundary`. A registered slug that has no route yet renders a "coming soon" page via a catch-all route, while an unknown slug redirects to the lab catalog.
 
 The app intentionally does not ship answer tests for learners. Its job is to provide stable, realistic UI and API surfaces for practicing locators, network interception, storage state, WebSockets, visual assertions, service workers, multi-tab flows, permissions, media emulation, accessibility scanning, infinite scroll, and other Playwright APIs.
 
