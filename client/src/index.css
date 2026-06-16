@@ -18,7 +18,7 @@
   --surface: #ffffff; /* white    */
   --surface-raised: #f4f4f5; /* zinc-100 */
   --content: #18181b; /* zinc-900 — text-content on canvas: 14.7:1 ✓ AAA */
-  --muted: #71717a; /* zinc-500 — text-muted on canvas:   4.6:1 ✓ AA  */
+  --muted: #696969; /* #696969 — text-muted on canvas: 5.5:1 ✓ AA; on surface-raised: 5.3:1 ✓ AA */
   --edge: #e4e4e7; /* zinc-200 */
   --accent: #4f46e5; /* indigo-600 */
 }
