@@ -208,7 +208,7 @@ type SortDir = 'asc' | 'desc';
 const statusColor: Record<Employee['status'], string> = {
   Active: 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300',
   'On Leave': 'bg-amber-50 text-amber-700 dark:bg-amber-950 dark:text-amber-300',
-  Terminated: 'bg-red-50 text-red-600 dark:bg-red-950 dark:text-red-400',
+  Terminated: 'bg-red-50 text-red-700 dark:bg-red-950 dark:text-red-400',
 };
 
 function employeeMatchesSearch(employee: Employee, search: string): boolean {

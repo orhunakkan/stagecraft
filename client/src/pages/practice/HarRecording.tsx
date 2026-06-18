@@ -140,7 +140,7 @@ export function HarRecording() {
                       className={`rounded px-1.5 py-0.5 text-xs font-medium ${
                         p.inStock
                           ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300'
-                          : 'bg-red-50 text-red-600 dark:bg-red-950 dark:text-red-400'
+                          : 'bg-red-50 text-red-700 dark:bg-red-950 dark:text-red-400'
                       }`}
                     >
                       {p.inStock ? 'In stock' : 'Out of stock'}
