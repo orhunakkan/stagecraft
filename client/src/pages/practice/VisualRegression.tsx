@@ -94,7 +94,7 @@ export function VisualRegression() {
                 <p className="text-xs uppercase tracking-wider text-muted">{title}</p>
                 <p className="mt-1 text-2xl font-bold text-content">{value}</p>
                 <p
-                  className={`mt-0.5 text-xs font-medium ${up ? 'text-emerald-600' : 'text-red-500'}`}
+                  className={`mt-0.5 text-xs font-medium ${up ? 'text-emerald-800' : 'text-red-700'}`}
                 >
                   {change} vs last week
                 </p>
@@ -131,7 +131,11 @@ export function VisualRegression() {
               aria-label="Weekly sessions bar chart"
             >
               {CHART_DATA.map((pct, i) => (
-                <div key={i} className="flex flex-1 flex-col items-center gap-1">
+                <div
+                  key={i}
+                  className="flex flex-1 flex-col items-center gap-1"
+                  aria-label={`${CHART_DAYS[i]}: ${pct} sessions`}
+                >
                   <div className="w-full rounded-t bg-indigo-500" style={{ height: `${pct}%` }} />
                   <span className="text-xs text-muted">{CHART_DAYS[i]}</span>
                 </div>
