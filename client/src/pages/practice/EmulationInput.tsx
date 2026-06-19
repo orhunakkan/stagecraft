@@ -121,7 +121,12 @@ export function EmulationInput() {
                 <div className="border-b border-edge px-4 py-3 text-xs font-medium text-muted">
                   Command Palette
                 </div>
-                <ul role="listbox" aria-label="Commands" className="max-h-64 overflow-y-auto py-1">
+                <ul
+                  role="listbox"
+                  aria-label="Commands"
+                  className="max-h-64 overflow-y-auto py-1"
+                  tabIndex={0}
+                >
                   {COMMANDS.map((cmd, idx) => (
                     <li
                       key={cmd.id}
