@@ -1,4 +1,5 @@
 import { expect, test } from '@playwright/test';
+import { checkA11y } from '../axe-helper';
 
 test.describe('Service Workers lab', () => {
   test.use({ serviceWorkers: 'block' });
@@ -60,5 +61,10 @@ test.describe('Service Workers lab', () => {
     await page.getByTestId('fetch-items-btn').click();
     await expect(page.getByTestId('sw-item-42')).toContainText('Mocked Item');
     await expect(page.getByTestId('sw-item-42')).toContainText('cache');
+  });
+
+  test('page has no axe accessibility violations', async ({ page }) => {
+    await page.goto('/practice/service-workers');
+    await checkA11y(page);
   });
 });

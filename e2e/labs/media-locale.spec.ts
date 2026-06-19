@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+import { checkA11y } from '../axe-helper';
 
 test.describe('Media & Locale Emulation lab', () => {
   test.beforeEach(async ({ page }) => {
@@ -46,5 +47,9 @@ test.describe('Media & Locale Emulation lab', () => {
     expect(currencyText).toMatch(/1\.234/);
 
     await context.close();
+  });
+
+  test('page has no axe accessibility violations', async ({ page }) => {
+    await checkA11y(page);
   });
 });

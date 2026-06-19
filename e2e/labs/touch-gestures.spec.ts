@@ -6,6 +6,7 @@ import {
   type BrowserContextOptions,
   type Page,
 } from '@playwright/test';
+import { checkA11y } from '../axe-helper';
 
 async function withTouchGesturesPage(
   browser: Browser,
@@ -142,5 +143,9 @@ test.describe('Touch & Mobile Gestures lab', () => {
       const points = parseInt(text?.match(/\d+/)?.[0] ?? '0', 10);
       expect(points).toBeGreaterThan(0);
     });
+  });
+
+  test('page has no axe accessibility violations', async ({ page }) => {
+    await checkA11y(page);
   });
 });

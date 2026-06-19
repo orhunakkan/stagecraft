@@ -1,4 +1,5 @@
 import { expect, test } from '@playwright/test';
+import { checkA11y } from '../axe-helper';
 
 test.describe('Emulation & Input lab', () => {
   test.beforeEach(async ({ page }) => {
@@ -54,5 +55,9 @@ test.describe('Emulation & Input lab', () => {
     await page.setViewportSize({ width: 400, height: 800 });
     await expect(page.getByText('Mobile layout (stacked)')).toBeVisible();
     await expect(page.getByText('Wide layout (side-by-side)')).not.toBeVisible();
+  });
+
+  test('page has no axe accessibility violations', async ({ page }) => {
+    await checkA11y(page);
   });
 });

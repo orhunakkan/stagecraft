@@ -1,4 +1,5 @@
 import { expect, test } from '@playwright/test';
+import { checkA11y } from '../axe-helper';
 
 test.describe('Tables & Filtering lab', () => {
   test.beforeEach(async ({ page }) => {
@@ -47,5 +48,9 @@ test.describe('Tables & Filtering lab', () => {
 
     await expect(page.getByRole('status')).toContainText('No employees found.');
     await expect(page.getByText('No employees match your filters.')).toBeVisible();
+  });
+
+  test('page has no axe accessibility violations', async ({ page }) => {
+    await checkA11y(page);
   });
 });

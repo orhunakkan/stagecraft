@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+import { checkA11y } from '../axe-helper';
 
 test.describe('Soft Assertions & Test Steps lab', () => {
   test.beforeEach(async ({ page }) => {
@@ -62,5 +63,9 @@ test.describe('Soft Assertions & Test Steps lab', () => {
     // Check immediately after load — before the 2-second timer
     const score = await page.getByTestId('activity-score').textContent();
     expect(Number(score)).toBe(0);
+  });
+
+  test('page has no axe accessibility violations', async ({ page }) => {
+    await checkA11y(page);
   });
 });

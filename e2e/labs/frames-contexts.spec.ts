@@ -1,4 +1,5 @@
 import { expect, test, type FrameLocator } from '@playwright/test';
+import { checkA11y } from '../axe-helper';
 
 test.describe('Frames & Contexts lab', () => {
   test.beforeEach(async ({ page }) => {
@@ -53,5 +54,9 @@ test.describe('Frames & Contexts lab', () => {
     await frame.getByRole('button', { name: 'Sign in' }).click();
 
     await expect(frame.getByRole('status')).toHaveText('Username required');
+  });
+
+  test('page has no axe accessibility violations', async ({ page }) => {
+    await checkA11y(page);
   });
 });

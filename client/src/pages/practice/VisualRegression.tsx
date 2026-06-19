@@ -5,12 +5,17 @@ const lab = labs.find((l) => l.slug === 'visual-regression')!;
 
 const BUTTONS = [
   { label: 'Primary', className: 'bg-indigo-600 text-white hover:bg-indigo-700' },
-  { label: 'Secondary', className: 'border border-zinc-300 text-zinc-700 hover:bg-zinc-50' },
+  {
+    label: 'Secondary',
+    className:
+      'border border-zinc-300 dark:border-edge text-zinc-700 dark:text-muted hover:bg-zinc-50 dark:hover:bg-canvas',
+  },
   { label: 'Danger', className: 'bg-red-600 text-white hover:bg-red-700' },
   { label: 'Ghost', className: 'text-indigo-700 hover:bg-indigo-50' },
   {
     label: 'Disabled',
-    className: 'border border-zinc-200 text-zinc-400 cursor-not-allowed opacity-50',
+    className:
+      'border border-zinc-200 dark:border-edge text-zinc-400 dark:text-muted cursor-not-allowed opacity-50',
   },
 ];
 
@@ -70,8 +75,8 @@ export function VisualRegression() {
                   className={`h-12 w-full rounded-lg ${swatch}`}
                   aria-label={`${name} color swatch`}
                 />
-                <p className="text-center text-xs text-zinc-600">{name}</p>
-                <p className="font-mono text-xs text-zinc-400">{hex}</p>
+                <p className="text-center text-xs text-muted">{name}</p>
+                <p className="font-mono text-xs text-muted">{hex}</p>
               </div>
             ))}
           </div>
@@ -84,9 +89,9 @@ export function VisualRegression() {
           </h2>
           <div className="grid gap-4 sm:grid-cols-3">
             {CARDS.map(({ title, value, change, up }) => (
-              <div key={title} className="rounded-xl border border-zinc-200 bg-white p-4">
-                <p className="text-xs uppercase tracking-wider text-zinc-400">{title}</p>
-                <p className="mt-1 text-2xl font-bold text-zinc-900">{value}</p>
+              <div key={title} className="rounded-xl border border-edge bg-surface p-4">
+                <p className="text-xs uppercase tracking-wider text-muted">{title}</p>
+                <p className="mt-1 text-2xl font-bold text-content">{value}</p>
                 <p
                   className={`mt-0.5 text-xs font-medium ${up ? 'text-emerald-600' : 'text-red-500'}`}
                 >
@@ -95,7 +100,7 @@ export function VisualRegression() {
                 {/* Dynamic region — mask this in visual tests */}
                 <p
                   data-testid="dynamic-timestamp"
-                  className="mt-2 text-xs text-zinc-400"
+                  className="mt-2 text-xs text-muted"
                   aria-label="Last updated timestamp"
                 >
                   Updated: {new Date().toLocaleTimeString()}
@@ -103,9 +108,9 @@ export function VisualRegression() {
               </div>
             ))}
           </div>
-          <p className="mt-2 text-xs text-zinc-400">
+          <p className="mt-2 text-xs text-muted">
             Tip: mask{' '}
-            <code className="rounded bg-zinc-100 px-1">
+            <code className="rounded bg-surface-raised px-1">
               [data-testid=&quot;dynamic-timestamp&quot;]
             </code>{' '}
             to prevent timestamp drift from failing the screenshot.
@@ -117,8 +122,8 @@ export function VisualRegression() {
           <h2 id="chart-heading" className="mb-4 text-base font-semibold text-content">
             Bar chart
           </h2>
-          <div className="rounded-xl border border-zinc-200 bg-white p-4">
-            <p className="mb-4 text-xs font-medium text-zinc-600">Weekly sessions</p>
+          <div className="rounded-xl border border-edge bg-surface p-4">
+            <p className="mb-4 text-xs font-medium text-muted">Weekly sessions</p>
             <div
               className="flex h-32 items-end gap-2"
               role="img"
@@ -131,7 +136,7 @@ export function VisualRegression() {
                     style={{ height: `${pct}%` }}
                     aria-label={`${CHART_DAYS[i]}: ${pct}%`}
                   />
-                  <span className="text-xs text-zinc-400">{CHART_DAYS[i]}</span>
+                  <span className="text-xs text-muted">{CHART_DAYS[i]}</span>
                 </div>
               ))}
             </div>

@@ -202,7 +202,7 @@ export function AsyncUi() {
             type="button"
             onClick={() => void triggerToast()}
             disabled={toastPending || toastVisible}
-            className="rounded-lg bg-zinc-800 px-3 py-1.5 text-sm font-medium text-white transition-colors hover:bg-zinc-900 disabled:cursor-not-allowed disabled:opacity-50"
+            className="rounded-lg bg-indigo-600 px-3 py-1.5 text-sm font-medium text-white transition-colors hover:bg-indigo-700 disabled:cursor-not-allowed disabled:opacity-50"
           >
             {toastPending ? 'Sending…' : 'Trigger notification'}
           </button>
@@ -214,17 +214,19 @@ export function AsyncUi() {
         <div
           role="alert"
           aria-live="assertive"
-          className="fixed bottom-6 right-6 flex items-start gap-3 rounded-xl bg-zinc-900 px-4 py-3 text-white shadow-lg"
+          className="fixed bottom-6 right-6 flex items-start gap-3 rounded-xl bg-zinc-900 dark:bg-surface-raised px-4 py-3 text-white dark:text-content shadow-lg"
         >
           <div>
             <p className="text-sm font-medium">Notification sent</p>
-            <p className="mt-0.5 text-xs text-zinc-400">Your request was processed.</p>
+            <p className="mt-0.5 text-xs text-zinc-400 dark:text-muted">
+              Your request was processed.
+            </p>
           </div>
           <button
             type="button"
             onClick={() => setToastVisible(false)}
             aria-label="Dismiss notification"
-            className="ml-2 text-zinc-400 transition-colors hover:text-white"
+            className="ml-2 text-zinc-400 dark:text-muted transition-colors hover:text-white dark:hover:text-content"
           >
             ✕
           </button>

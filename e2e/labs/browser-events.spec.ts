@@ -1,4 +1,5 @@
 import { expect, test } from '@playwright/test';
+import { checkA11y } from '../axe-helper';
 
 test.describe('Browser Events lab', () => {
   test.beforeEach(async ({ page }) => {
@@ -51,5 +52,9 @@ test.describe('Browser Events lab', () => {
     const download = await downloadPromise;
 
     expect(download.suggestedFilename()).toBe('stagecraft-sample.txt');
+  });
+
+  test('page has no axe accessibility violations', async ({ page }) => {
+    await checkA11y(page);
   });
 });

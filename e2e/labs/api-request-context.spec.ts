@@ -1,4 +1,5 @@
 import { expect, test } from '@playwright/test';
+import { checkA11y } from '../axe-helper';
 
 test.describe('API Request Context lab', () => {
   test('adds a task through the API-backed UI', async ({ page }) => {
@@ -74,5 +75,10 @@ test.describe('API Request Context lab', () => {
     await expect(reloaded.getByRole('checkbox')).toBeChecked();
 
     await request.delete(`/api/tasks/${id}`);
+  });
+
+  test('page has no axe accessibility violations', async ({ page }) => {
+    await page.goto('/practice/api-request-context');
+    await checkA11y(page);
   });
 });

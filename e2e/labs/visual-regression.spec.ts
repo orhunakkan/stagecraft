@@ -1,4 +1,5 @@
 import { expect, test } from '@playwright/test';
+import { checkA11y } from '../axe-helper';
 
 test.describe('Visual Regression lab', () => {
   test.beforeEach(async ({ page }) => {
@@ -47,5 +48,9 @@ test.describe('Visual Regression lab', () => {
     for (const day of ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']) {
       await expect(chart.getByLabel(new RegExp(`^${day}:`))).toHaveCount(1);
     }
+  });
+
+  test('page has no axe accessibility violations', async ({ page }) => {
+    await checkA11y(page);
   });
 });

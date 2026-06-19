@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+import { checkA11y } from '../axe-helper';
 
 test.describe('Locator Handlers lab', () => {
   test.beforeEach(async ({ page }) => {
@@ -60,5 +61,10 @@ test.describe('Locator Handlers lab', () => {
     // After removal the overlay is no longer auto-dismissed — just verify we can still interact
     // (no assertion on blocking overlay since overlay type cycles)
     await expect(page.locator('body')).toBeVisible();
+  });
+
+  test('page has no axe accessibility violations', async ({ page }) => {
+    await page.goto('/practice/locator-handlers');
+    await checkA11y(page);
   });
 });

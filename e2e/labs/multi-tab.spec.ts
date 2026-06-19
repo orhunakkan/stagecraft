@@ -1,4 +1,5 @@
 import { expect, test } from '@playwright/test';
+import { checkA11y } from '../axe-helper';
 
 test.describe('Multi-Tab lab', () => {
   test.beforeEach(async ({ page }) => {
@@ -49,5 +50,9 @@ test.describe('Multi-Tab lab', () => {
     expect(context.pages().length).toBe(before + 1);
     expect(newPage.url()).toContain('/practice/multi-tab/window');
     await newPage.close();
+  });
+
+  test('page has no axe accessibility violations', async ({ page }) => {
+    await checkA11y(page);
   });
 });

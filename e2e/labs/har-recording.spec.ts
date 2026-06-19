@@ -1,4 +1,5 @@
 import { expect, test } from '@playwright/test';
+import { checkA11y } from '../axe-helper';
 
 test.describe('HAR Recording lab', () => {
   test('loads products from the API-backed catalog', async ({ page }) => {
@@ -54,5 +55,10 @@ test.describe('HAR Recording lab', () => {
 
     await page.getByTestId('fetch-products').click();
     await expect.poll(() => calls).toBeGreaterThanOrEqual(2);
+  });
+
+  test('page has no axe accessibility violations', async ({ page }) => {
+    await page.goto('/practice/har-recording');
+    await checkA11y(page);
   });
 });

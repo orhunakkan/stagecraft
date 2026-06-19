@@ -179,7 +179,7 @@ export function EmulationInput() {
               <div
                 id="hover-tooltip"
                 role="tooltip"
-                className="absolute bottom-full left-1/2 mb-2 -translate-x-1/2 whitespace-nowrap rounded-lg bg-zinc-800 px-3 py-1.5 text-xs text-white shadow-lg"
+                className="absolute bottom-full left-1/2 mb-2 -translate-x-1/2 whitespace-nowrap rounded-lg bg-content px-3 py-1.5 text-xs text-canvas shadow-lg"
               >
                 You found the tooltip! 🎉
               </div>

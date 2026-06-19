@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+import { checkA11y } from '../axe-helper';
 
 test.describe('Accessible Locators lab', () => {
   test.beforeEach(async ({ page }) => {
@@ -68,5 +69,9 @@ test.describe('Accessible Locators lab', () => {
     for (const img of await imgs.all()) {
       await expect(img).toHaveAttribute('alt', /book cover/i);
     }
+  });
+
+  test('page has no axe accessibility violations', async ({ page }) => {
+    await checkA11y(page);
   });
 });

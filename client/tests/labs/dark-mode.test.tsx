@@ -26,6 +26,16 @@ import { StorageState } from '../../src/pages/practice/StorageState';
 import { TablesFiltering } from '../../src/pages/practice/TablesFiltering';
 import { VisualRegression } from '../../src/pages/practice/VisualRegression';
 import { WebSocketInterception } from '../../src/pages/practice/WebSocketInterception';
+import { GeolocationPermissions } from '../../src/pages/practice/GeolocationPermissions';
+import { LocatorHandlers } from '../../src/pages/practice/LocatorHandlers';
+import { AccessibilityScanning } from '../../src/pages/practice/AccessibilityScanning';
+import { ScrollLazyLoading } from '../../src/pages/practice/ScrollLazyLoading';
+import { TouchGestures } from '../../src/pages/practice/TouchGestures';
+import { ServerSentEvents } from '../../src/pages/practice/ServerSentEvents';
+import { InitScripts } from '../../src/pages/practice/InitScripts';
+import { SoftAssertions } from '../../src/pages/practice/SoftAssertions';
+import { ShadowDom } from '../../src/pages/practice/ShadowDom';
+import { MediaLocale } from '../../src/pages/practice/MediaLocale';
 import type { Lab } from '../../src/labs';
 
 function wrap(ui: React.ReactNode) {
@@ -674,5 +684,232 @@ describe('ErrorBoundary tokens', () => {
     expect(alert?.className).toContain('dark:bg-red-950');
     expect(alert?.className).toContain('dark:text-red-400');
     consoleError.mockRestore();
+  });
+});
+
+// ===========================================================================
+// GeolocationPermissions, LocatorHandlers, AccessibilityScanning
+// ===========================================================================
+
+describe('GeolocationPermissions tokens', () => {
+  test('section panels use bg-surface instead of bg-white', () => {
+    const { container } = wrap(<GeolocationPermissions />);
+    const section = container.querySelector('section');
+    expect(section?.className).toContain('bg-surface');
+    expect(section?.className).not.toContain('bg-white');
+  });
+
+  test('section headings use text-content instead of text-zinc-900', () => {
+    wrap(<GeolocationPermissions />);
+    const heading = screen.getByRole('heading', { name: /Find Nearby/i });
+    expect(heading.className).toContain('text-content');
+    expect(heading.className).not.toContain('text-zinc-900');
+  });
+});
+
+describe('LocatorHandlers tokens', () => {
+  test('controls panel uses bg-surface instead of bg-white', () => {
+    const { container } = wrap(<LocatorHandlers />);
+    const panel = container.querySelector('div.rounded-lg');
+    expect(panel?.className).toContain('bg-surface');
+    expect(panel?.className).not.toContain('bg-white');
+  });
+
+  test('section headings use text-content instead of text-zinc-900', () => {
+    wrap(<LocatorHandlers />);
+    const heading = screen.getByRole('heading', { name: /Checkout Flow/i });
+    expect(heading.className).toContain('text-content');
+    expect(heading.className).not.toContain('text-zinc-900');
+  });
+});
+
+describe('AccessibilityScanning tokens', () => {
+  test('toggle panel uses bg-surface instead of bg-white', () => {
+    const { container } = wrap(<AccessibilityScanning />);
+    const panel = container.querySelector('div.rounded-lg');
+    expect(panel?.className).toContain('bg-surface');
+    expect(panel?.className).not.toContain('bg-white');
+  });
+
+  test('form heading uses text-content instead of text-zinc-900', () => {
+    wrap(<AccessibilityScanning />);
+    const heading = screen.getByRole('heading', { name: /Settings Form/i });
+    expect(heading.className).toContain('text-content');
+    expect(heading.className).not.toContain('text-zinc-900');
+  });
+});
+
+// ===========================================================================
+// ScrollLazyLoading, TouchGestures, ServerSentEvents
+// ===========================================================================
+
+describe('ScrollLazyLoading tokens', () => {
+  beforeEach(() => {
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(() =>
+        Promise.resolve(
+          jsonResponse({ items: [], page: 1, pageSize: 8, total: 0, hasMore: false }),
+        ),
+      ),
+    );
+  });
+
+  test('jump control section uses bg-surface instead of bg-white', () => {
+    const { container } = wrap(<ScrollLazyLoading />);
+    const section = container.querySelector('section');
+    expect(section?.className).toContain('bg-surface');
+    expect(section?.className).not.toContain('bg-white');
+  });
+
+  test('activity feed heading uses text-content instead of text-zinc-900', () => {
+    wrap(<ScrollLazyLoading />);
+    const heading = screen.getByRole('heading', { name: /Activity Feed/i });
+    expect(heading.className).toContain('text-content');
+    expect(heading.className).not.toContain('text-zinc-900');
+  });
+});
+
+describe('TouchGestures tokens', () => {
+  test('section panels use bg-surface instead of bg-white', () => {
+    const { container } = wrap(<TouchGestures />);
+    const section = container.querySelector('section');
+    expect(section?.className).toContain('bg-surface');
+    expect(section?.className).not.toContain('bg-white');
+  });
+
+  test('section headings use text-content instead of text-zinc-900', () => {
+    wrap(<TouchGestures />);
+    const heading = screen.getByRole('heading', { name: /Tap Counter/i });
+    expect(heading.className).toContain('text-content');
+    expect(heading.className).not.toContain('text-zinc-900');
+  });
+
+  test('code elements use bg-surface-raised instead of bg-zinc-100', () => {
+    const { container } = wrap(<TouchGestures />);
+    const code = container.querySelector('code');
+    expect(code?.className).toContain('bg-surface-raised');
+    expect(code?.className).not.toContain('bg-zinc-100');
+  });
+});
+
+describe('ServerSentEvents tokens', () => {
+  test('controls section uses bg-surface instead of bg-white', () => {
+    const { container } = wrap(<ServerSentEvents />);
+    const section = container.querySelector('section');
+    expect(section?.className).toContain('bg-surface');
+    expect(section?.className).not.toContain('bg-white');
+  });
+
+  test('section headings use text-content instead of text-zinc-900', () => {
+    wrap(<ServerSentEvents />);
+    const heading = screen.getByRole('heading', { name: /Build/i });
+    expect(heading.className).toContain('text-content');
+    expect(heading.className).not.toContain('text-zinc-900');
+  });
+
+  test('code elements use bg-surface-raised instead of bg-zinc-100', () => {
+    const { container } = wrap(<ServerSentEvents />);
+    const code = container.querySelector('code');
+    expect(code?.className).toContain('bg-surface-raised');
+    expect(code?.className).not.toContain('bg-zinc-100');
+  });
+});
+
+// ===========================================================================
+// InitScripts, SoftAssertions, ShadowDom, MediaLocale
+// ===========================================================================
+
+describe('InitScripts tokens', () => {
+  test('feature flags section uses bg-surface instead of bg-white', () => {
+    const { container } = wrap(<InitScripts />);
+    const section = container.querySelector('section');
+    expect(section?.className).toContain('bg-surface');
+    expect(section?.className).not.toContain('bg-white');
+  });
+
+  test('section headings use text-content instead of text-zinc-900', () => {
+    wrap(<InitScripts />);
+    const heading = screen.getByRole('heading', { name: /Feature Flags/i });
+    expect(heading.className).toContain('text-content');
+    expect(heading.className).not.toContain('text-zinc-900');
+  });
+
+  test('code elements in sections use bg-surface-raised instead of bg-zinc-100', () => {
+    const { container } = wrap(<InitScripts />);
+    const code = container.querySelector('section code');
+    expect(code?.className).toContain('bg-surface-raised');
+    expect(code?.className).not.toContain('bg-zinc-100');
+  });
+});
+
+describe('SoftAssertions tokens', () => {
+  beforeEach(() => {
+    vi.useFakeTimers();
+  });
+
+  test('dashboard widget cards use bg-surface instead of bg-white', () => {
+    const { container } = wrap(<SoftAssertions />);
+    const card = container.querySelector('div.rounded-lg.border');
+    expect(card?.className).toContain('bg-surface');
+    expect(card?.className).not.toContain('bg-white');
+  });
+
+  test('widget labels use text-muted instead of text-zinc-500', () => {
+    const { container } = wrap(<SoftAssertions />);
+    const label = container.querySelector('p.text-sm.font-medium');
+    expect(label?.className).toContain('text-muted');
+    expect(label?.className).not.toContain('text-zinc-500');
+  });
+});
+
+describe('ShadowDom tokens', () => {
+  test('section panels use bg-surface instead of bg-white', () => {
+    const { container } = wrap(<ShadowDom />);
+    const section = container.querySelector('section');
+    expect(section?.className).toContain('bg-surface');
+    expect(section?.className).not.toContain('bg-white');
+  });
+
+  test('section headings use text-content instead of text-zinc-900', () => {
+    wrap(<ShadowDom />);
+    const heading = screen.getByRole('heading', { name: /Star Rating Widget/i });
+    expect(heading.className).toContain('text-content');
+    expect(heading.className).not.toContain('text-zinc-900');
+  });
+
+  test('code elements use bg-surface-raised instead of bg-zinc-100', () => {
+    const { container } = wrap(<ShadowDom />);
+    const code = container.querySelector('code');
+    expect(code?.className).toContain('bg-surface-raised');
+    expect(code?.className).not.toContain('bg-zinc-100');
+  });
+});
+
+describe('MediaLocale tokens', () => {
+  beforeEach(() => {
+    vi.stubGlobal(
+      'matchMedia',
+      vi.fn((query: string) => ({
+        matches: false,
+        media: query,
+        addEventListener: vi.fn(),
+        removeEventListener: vi.fn(),
+      })),
+    );
+  });
+
+  test('section panels use bg-surface instead of bg-white', () => {
+    const { container } = wrap(<MediaLocale />);
+    const section = container.querySelector('section');
+    expect(section?.className).toContain('bg-surface');
+    expect(section?.className).not.toContain('bg-white');
+  });
+
+  test('section headings use text-content instead of text-zinc-900', () => {
+    wrap(<MediaLocale />);
+    const heading = screen.getByRole('heading', { name: /Colour Scheme/i });
+    expect(heading.className).toContain('text-content');
+    expect(heading.className).not.toContain('text-zinc-900');
   });
 });

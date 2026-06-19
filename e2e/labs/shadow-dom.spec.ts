@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+import { checkA11y } from '../axe-helper';
 
 test.describe('Shadow DOM & Web Components lab', () => {
   test.beforeEach(async ({ page }) => {
@@ -55,5 +56,9 @@ test.describe('Shadow DOM & Web Components lab', () => {
   test('getByText finds text inside shadow root', async ({ page }) => {
     // The radiogroup label "Star rating" lives inside the shadow root
     await expect(page.getByRole('radiogroup', { name: 'Star rating' })).toBeVisible();
+  });
+
+  test('page has no axe accessibility violations', async ({ page }) => {
+    await checkA11y(page);
   });
 });

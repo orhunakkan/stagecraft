@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+import { checkA11y } from '../axe-helper';
 
 test.describe('Server-Sent Events lab', () => {
   test.beforeEach(async ({ page }) => {
@@ -86,5 +87,9 @@ test.describe('Server-Sent Events lab', () => {
       page.getByRole('button', { name: 'Start Stream' }).click(),
     ]);
     expect(response.headers()['content-type']).toContain('text/event-stream');
+  });
+
+  test('page has no axe accessibility violations', async ({ page }) => {
+    await checkA11y(page);
   });
 });

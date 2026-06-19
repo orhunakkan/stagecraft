@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+import { checkA11y } from '../axe-helper';
 
 declare global {
   interface Window {
@@ -60,5 +61,10 @@ test.describe('Init Scripts & Seeding lab', () => {
     await page.getByRole('button', { name: /got it/i }).click();
     await expect(page.getByRole('dialog', { name: /welcome/i })).not.toBeVisible();
     await expect(page.getByLabel('Onboarding state')).toContainText('Complete');
+  });
+
+  test('page has no axe accessibility violations', async ({ page }) => {
+    await page.goto('/practice/init-scripts');
+    await checkA11y(page);
   });
 });

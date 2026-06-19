@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+import { checkA11y } from '../axe-helper';
 
 const STUB_ITEMS = Array.from({ length: 10 }, (_, i) => ({
   id: i + 1,
@@ -81,5 +82,10 @@ test.describe('Scroll & Lazy Loading lab', () => {
     await expect(feed.locator('[data-item-id="8"]')).toBeVisible();
     // End marker should appear since hasMore is always false
     await expect(page.getByTestId('end-marker')).toBeVisible();
+  });
+
+  test('page has no axe accessibility violations', async ({ page }) => {
+    await page.goto('/practice/scroll-lazy-loading');
+    await checkA11y(page);
   });
 });

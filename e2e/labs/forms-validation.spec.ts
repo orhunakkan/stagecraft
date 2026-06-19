@@ -1,4 +1,5 @@
 import { test, expect, type Page } from '@playwright/test';
+import { checkA11y } from '../axe-helper';
 
 async function fillValidForm(page: Page) {
   await page.getByLabel(/Full name/).fill('Alice Smith');
@@ -53,5 +54,9 @@ test.describe('Forms & Validation lab', () => {
     await page.getByLabel(/Full name/).focus();
     await page.getByLabel(/Email address/).focus();
     await expect(page.getByLabel(/Full name/)).toHaveAttribute('aria-invalid', 'true');
+  });
+
+  test('page has no axe accessibility violations', async ({ page }) => {
+    await checkA11y(page);
   });
 });

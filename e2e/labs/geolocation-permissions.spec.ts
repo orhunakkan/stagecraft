@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+import { checkA11y } from '../axe-helper';
 
 test.describe('Geolocation & Permissions lab', () => {
   test.beforeEach(async ({ page }) => {
@@ -35,5 +36,9 @@ test.describe('Geolocation & Permissions lab', () => {
     const pastedInput = page.getByLabel('Pasted URL');
     await expect(pastedInput).toBeVisible();
     await expect(pastedInput).not.toHaveValue('');
+  });
+
+  test('page has no axe accessibility violations', async ({ page }) => {
+    await checkA11y(page);
   });
 });

@@ -1,4 +1,5 @@
 import { expect, test } from '@playwright/test';
+import { checkA11y } from '../axe-helper';
 
 test.describe('WebSocket Interception lab', () => {
   test.beforeEach(async ({ page }) => {
@@ -51,5 +52,9 @@ test.describe('WebSocket Interception lab', () => {
     await page.getByTestId('ws-send').click();
 
     await expect(page.getByLabel('WebSocket message log')).toContainText('mock-echo: ping');
+  });
+
+  test('page has no axe accessibility violations', async ({ page }) => {
+    await checkA11y(page);
   });
 });

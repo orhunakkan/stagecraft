@@ -66,7 +66,7 @@ export function StorageState() {
             <p className="text-xs font-medium text-muted">Regular user</p>
             <p className="font-mono text-xs text-muted">username: bob</p>
             <p className="font-mono text-xs text-muted">password: letmein</p>
-            <span className="mt-1 inline-block rounded bg-surface-raised px-1.5 py-0.5 text-xs text-muted dark:bg-zinc-700">
+            <span className="mt-1 inline-block rounded bg-surface-raised px-1.5 py-0.5 text-xs text-muted dark:bg-edge">
               role: user
             </span>
           </div>

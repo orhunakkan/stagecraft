@@ -1,4 +1,5 @@
 import { expect, test } from '@playwright/test';
+import { checkA11y } from '../axe-helper';
 
 test.describe('Clock & Timers lab', () => {
   test('renders a fixed current date when browser time is controlled', async ({ page }) => {
@@ -59,5 +60,10 @@ test.describe('Clock & Timers lab', () => {
     await expect(page.getByTestId('refresh-count')).toHaveText('Refresh #0');
     await page.clock.fastForward(30_000);
     await expect(page.getByTestId('refresh-count')).toHaveText('Refresh #1');
+  });
+
+  test('page has no axe accessibility violations', async ({ page }) => {
+    await page.goto('/practice/clock-timers');
+    await checkA11y(page);
   });
 });

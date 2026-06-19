@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+import { checkA11y } from '../axe-helper';
 import { signIn } from './auth-helpers';
 
 test.describe('Fake Auth lab', () => {
@@ -51,5 +52,9 @@ test.describe('Fake Auth lab', () => {
     await signIn(page, 'bob', 'letmein');
     await expect(page).toHaveURL('/practice/fake-auth/dashboard');
     await expect(page.getByText('bob')).toBeVisible();
+  });
+
+  test('page has no axe accessibility violations', async ({ page }) => {
+    await checkA11y(page);
   });
 });

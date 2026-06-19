@@ -1,4 +1,5 @@
 import { expect, test } from '@playwright/test';
+import { checkA11y } from '../axe-helper';
 
 test.describe('Drag & Drop lab', () => {
   test.beforeEach(async ({ page }) => {
@@ -65,5 +66,9 @@ test.describe('Drag & Drop lab', () => {
 
     expect(labels).toContain('Write Playwright tests');
     await expect(todoColumn).toContainText('3');
+  });
+
+  test('page has no axe accessibility violations', async ({ page }) => {
+    await checkA11y(page);
   });
 });

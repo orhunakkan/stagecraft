@@ -1,4 +1,5 @@
 import { expect, test } from '@playwright/test';
+import { checkA11y } from '../axe-helper';
 
 test.describe('ARIA Snapshots lab', () => {
   test.beforeEach(async ({ page }) => {
@@ -67,5 +68,9 @@ test.describe('ARIA Snapshots lab', () => {
     await trigger.click();
     await expect(trigger).toHaveAttribute('aria-expanded', 'false');
     await expect(page.getByLabel('Live announcements')).toContainText('collapsed');
+  });
+
+  test('page has no axe accessibility violations', async ({ page }) => {
+    await checkA11y(page);
   });
 });

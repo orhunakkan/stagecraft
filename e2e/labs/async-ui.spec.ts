@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+import { checkA11y } from '../axe-helper';
 
 test.describe('Async UI lab', () => {
   test.beforeEach(async ({ page }) => {
@@ -61,5 +62,9 @@ test.describe('Async UI lab', () => {
     await expect(toast).toBeVisible({ timeout: 3000 });
     await page.getByRole('button', { name: 'Dismiss notification' }).click();
     await expect(toast).not.toBeVisible();
+  });
+
+  test('page has no axe accessibility violations', async ({ page }) => {
+    await checkA11y(page);
   });
 });

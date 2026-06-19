@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+import { checkA11y } from '../axe-helper';
 
 test.describe('Network & API lab', () => {
   test.beforeEach(async ({ page }) => {
@@ -49,5 +50,9 @@ test.describe('Network & API lab', () => {
     await expect(
       page.getByRole('list', { name: 'Notes list' }).getByText('Stubbed note'),
     ).toBeVisible();
+  });
+
+  test('page has no axe accessibility violations', async ({ page }) => {
+    await checkA11y(page);
   });
 });

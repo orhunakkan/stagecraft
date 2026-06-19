@@ -1,4 +1,5 @@
 import { expect, test } from '@playwright/test';
+import { checkA11y } from '../axe-helper';
 
 test.describe('Debugging & Reporting lab', () => {
   test.beforeEach(async ({ page }) => {
@@ -47,5 +48,9 @@ test.describe('Debugging & Reporting lab', () => {
         timeout: 4000,
       })
       .toBeGreaterThan(1);
+  });
+
+  test('page has no axe accessibility violations', async ({ page }) => {
+    await checkA11y(page);
   });
 });

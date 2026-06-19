@@ -1,4 +1,5 @@
 import { expect, test } from '@playwright/test';
+import { checkA11y } from '../axe-helper';
 import { signInAndExpectDashboard } from './auth-helpers';
 
 test.describe('Storage State lab', () => {
@@ -53,5 +54,10 @@ test.describe('Storage State lab', () => {
     await expect(reusedPage.getByTestId('admin-panel')).toBeVisible();
 
     await reusedContext.close();
+  });
+
+  test('page has no axe accessibility violations', async ({ page }) => {
+    await page.goto('/practice/storage-state');
+    await checkA11y(page);
   });
 });
