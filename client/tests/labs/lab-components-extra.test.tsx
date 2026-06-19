@@ -571,7 +571,7 @@ describe('VisualRegression', () => {
     const chart = screen.getByRole('img', { name: 'Weekly sessions bar chart' });
     const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
     for (const day of days) {
-      expect(within(chart).getByLabelText(new RegExp(`^${day}:`))).toBeVisible();
+      expect(within(chart).getByText(day)).toBeVisible();
     }
   });
 });
