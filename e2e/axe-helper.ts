@@ -8,6 +8,7 @@ import { expect } from '@playwright/test';
  * a given lab (e.g. keyboard navigation labs).
  */
 export async function checkA11y(page: Page, disableRules: string[] = []): Promise<void> {
+  await page.waitForSelector('h1', { state: 'visible' });
   const builder = new AxeBuilder({ page });
   if (disableRules.length > 0) {
     builder.disableRules(disableRules);
