@@ -73,6 +73,7 @@ export function VisualRegression() {
               <div key={name} className="flex flex-col items-center gap-1">
                 <div
                   className={`h-12 w-full rounded-lg ${swatch}`}
+                  role="img"
                   aria-label={`${name} color swatch`}
                 />
                 <p className="text-center text-xs text-muted">{name}</p>
@@ -131,11 +132,7 @@ export function VisualRegression() {
             >
               {CHART_DATA.map((pct, i) => (
                 <div key={i} className="flex flex-1 flex-col items-center gap-1">
-                  <div
-                    className="w-full rounded-t bg-indigo-500"
-                    style={{ height: `${pct}%` }}
-                    aria-label={`${CHART_DAYS[i]}: ${pct}%`}
-                  />
+                  <div className="w-full rounded-t bg-indigo-500" style={{ height: `${pct}%` }} />
                   <span className="text-xs text-muted">{CHART_DAYS[i]}</span>
                 </div>
               ))}
