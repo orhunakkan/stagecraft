@@ -158,7 +158,7 @@ export function ScrollLazyLoading() {
         {!hasMore && (
           <p
             data-testid="end-marker"
-            className="mt-6 text-center text-sm font-medium text-emerald-600 dark:text-emerald-400"
+            className="mt-6 text-center text-sm font-medium text-emerald-700 dark:text-emerald-400"
           >
             You&apos;re all caught up
           </p>

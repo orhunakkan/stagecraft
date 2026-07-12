@@ -88,4 +88,18 @@ test.describe('Scroll & Lazy Loading lab', () => {
     await page.goto('/practice/scroll-lazy-loading');
     await checkA11y(page);
   });
+
+  test('end-of-feed state has no axe accessibility violations', async ({ page }) => {
+    await page.goto('/practice/scroll-lazy-loading');
+    const feed = page.getByRole('list', { name: 'Activity feed' });
+
+    // Scroll down repeatedly until all pages load and the end marker appears
+    for (let i = 0; i < 8; i++) {
+      await feed.getByRole('listitem').last().scrollIntoViewIfNeeded();
+      await page.waitForTimeout(300);
+    }
+    await expect(page.getByTestId('end-marker')).toBeVisible({ timeout: 10000 });
+
+    await checkA11y(page);
+  });
 });
