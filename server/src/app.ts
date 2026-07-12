@@ -32,6 +32,7 @@ const APP_CONTENT_SECURITY_POLICY = [
   "script-src 'self'",
   "style-src 'self' 'unsafe-inline'",
   "img-src 'self' data:",
+  "frame-src 'self'",
   "connect-src 'self' ws: wss:",
 ];
 const API_DOCS_CONTENT_SECURITY_POLICY = [
@@ -40,6 +41,20 @@ const API_DOCS_CONTENT_SECURITY_POLICY = [
   "style-src 'self' 'unsafe-inline'",
   "img-src 'self' data:",
   "font-src 'self' data:",
+  "connect-src 'self'",
+];
+// Static, non-user-controlled demo documents framed by the Frames & Contexts lab.
+// They need inline script/handlers and permission to be framed same-origin, which
+// the app-wide policy intentionally denies everywhere else.
+const LAB_FRAMES_CONTENT_SECURITY_POLICY = [
+  "default-src 'self'",
+  "base-uri 'self'",
+  "object-src 'none'",
+  "frame-ancestors 'self'",
+  "form-action 'none'",
+  "script-src 'self' 'unsafe-inline'",
+  "style-src 'self' 'unsafe-inline'",
+  "img-src 'self'",
   "connect-src 'self'",
 ];
 
@@ -56,9 +71,12 @@ function applySecurityHeaders(
   res: express.Response,
   next: express.NextFunction,
 ) {
-  const contentSecurityPolicy = req.path.startsWith('/api-docs')
-    ? API_DOCS_CONTENT_SECURITY_POLICY
-    : APP_CONTENT_SECURITY_POLICY;
+  const isLabFrame = req.path.startsWith('/lab-frames/');
+  const contentSecurityPolicy = isLabFrame
+    ? LAB_FRAMES_CONTENT_SECURITY_POLICY
+    : req.path.startsWith('/api-docs')
+      ? API_DOCS_CONTENT_SECURITY_POLICY
+      : APP_CONTENT_SECURITY_POLICY;
 
   res.setHeader('Content-Security-Policy', contentSecurityPolicy.join('; '));
   res.setHeader('Cross-Origin-Opener-Policy', 'same-origin');
@@ -66,7 +84,7 @@ function applySecurityHeaders(
   res.setHeader('Referrer-Policy', 'no-referrer');
   res.setHeader('X-Content-Type-Options', 'nosniff');
   res.setHeader('X-DNS-Prefetch-Control', 'off');
-  res.setHeader('X-Frame-Options', 'DENY');
+  res.setHeader('X-Frame-Options', isLabFrame ? 'SAMEORIGIN' : 'DENY');
 
   if (isProduction) {
     res.setHeader('Strict-Transport-Security', 'max-age=15552000; includeSubDomains');
