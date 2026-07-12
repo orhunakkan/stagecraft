@@ -122,7 +122,7 @@ export function AriaSnapshots() {
                     className={[
                       'rounded-lg border px-3 py-1.5 text-xs font-medium transition-colors',
                       i === step
-                        ? 'border-indigo-500 bg-indigo-600 text-white'
+                        ? 'border-indigo-500 bg-indigo-700 text-white'
                         : i < step
                           ? 'border-emerald-300 bg-emerald-50 text-emerald-700 dark:border-emerald-700 dark:bg-emerald-950 dark:text-emerald-300'
                           : 'border-edge text-muted',
