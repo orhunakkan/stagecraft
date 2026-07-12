@@ -124,7 +124,7 @@ export function AriaSnapshots() {
                       i === step
                         ? 'border-indigo-500 bg-indigo-700 text-white'
                         : i < step
-                          ? 'border-emerald-300 bg-emerald-50 text-emerald-700 dark:border-emerald-700 dark:bg-emerald-950 dark:text-emerald-300'
+                          ? 'border-emerald-300 bg-emerald-50 text-emerald-800 dark:border-emerald-700 dark:bg-emerald-950 dark:text-emerald-300'
                           : 'border-edge text-muted',
                     ].join(' ')}
                   >
