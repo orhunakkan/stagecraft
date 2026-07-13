@@ -154,14 +154,14 @@ export function GeolocationPermissions() {
         </div>
 
         {clipboard.status === 'copied' && (
-          <p role="status" className="mt-3 text-sm text-emerald-600 dark:text-emerald-400">
+          <p role="status" className="mt-3 text-sm text-emerald-700 dark:text-emerald-300">
             Link copied to clipboard!
           </p>
         )}
 
         {clipboard.status === 'pasted' && (
           <div className="mt-3 space-y-1">
-            <p role="status" className="text-sm text-emerald-600 dark:text-emerald-400">
+            <p role="status" className="text-sm text-emerald-700 dark:text-emerald-300">
               Pasted successfully.
             </p>
             <input
