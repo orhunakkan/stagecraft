@@ -71,7 +71,7 @@ export function ServiceWorkers() {
             <p
               role="status"
               aria-live="polite"
-              className="mt-2 text-sm text-emerald-600 dark:text-emerald-400"
+              className="mt-2 text-sm text-emerald-700 dark:text-emerald-300"
             >
               ✓ Service worker registered
             </p>
