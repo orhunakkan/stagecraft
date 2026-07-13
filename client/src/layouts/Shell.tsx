@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useLayoutEffect, useState } from 'react';
 import { Outlet, Link, useLocation, useSearchParams } from 'react-router-dom';
 
 function resolveInitialTheme(searchParams: URLSearchParams): boolean {
@@ -62,7 +62,7 @@ export function Shell() {
 
   const [isDark, setIsDark] = useState(() => resolveInitialTheme(searchParams));
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     document.documentElement.classList.toggle('dark', isDark);
     localStorage.setItem('stagecraft:theme', isDark ? 'dark' : 'light');
   }, [isDark]);
