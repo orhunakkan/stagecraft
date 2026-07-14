@@ -128,7 +128,7 @@ export function ServerSentEvents() {
           <p
             role="status"
             aria-label="Stream done"
-            className="mt-3 text-sm font-medium text-emerald-600"
+            className="mt-3 text-sm font-medium text-emerald-700"
           >
             ✓ Stream complete
           </p>
