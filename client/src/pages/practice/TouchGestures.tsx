@@ -6,7 +6,7 @@ const lab = labs.find((l) => l.slug === 'touch-gestures')!;
 
 const SLIDES = [
   { id: 1, title: 'Slide 1 — Tap', colour: 'bg-indigo-500', emoji: '👆' },
-  { id: 2, title: 'Slide 2 — Swipe', colour: 'bg-emerald-500', emoji: '👈' },
+  { id: 2, title: 'Slide 2 — Swipe', colour: 'bg-emerald-600', emoji: '👈' },
   { id: 3, title: 'Slide 3 — Pinch', colour: 'bg-rose-500', emoji: '🤏' },
 ];
 
