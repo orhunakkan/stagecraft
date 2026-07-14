@@ -162,7 +162,7 @@ export function InitScripts() {
         </p>
         <p className="mt-3 text-sm text-content" aria-label="Onboarding state">
           Status:{' '}
-          <strong className={onboarded ? 'text-emerald-600' : 'text-rose-600'}>
+          <strong className={onboarded ? 'text-emerald-700' : 'text-rose-600'}>
             {onboarded ? 'Complete' : 'Pending'}
           </strong>
         </p>
