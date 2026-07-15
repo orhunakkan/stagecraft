@@ -10,6 +10,7 @@ export const openApiDocument = {
   tags: [
     { name: 'Health' },
     { name: 'Auth' },
+    { name: 'Passkey' },
     { name: 'Notes' },
     { name: 'Tasks' },
     { name: 'Products' },
@@ -132,6 +133,121 @@ export const openApiDocument = {
           },
           '401': { $ref: '#/components/responses/Unauthorized' },
           '403': { $ref: '#/components/responses/Forbidden' },
+        },
+      },
+    },
+    '/api/passkey/register/challenge': {
+      get: {
+        tags: ['Passkey'],
+        summary: 'Issue a WebAuthn registration challenge for the demo user',
+        operationId: 'getPasskeyRegistrationChallenge',
+        responses: {
+          '200': {
+            description: 'Registration options.',
+            content: {
+              'application/json': {
+                schema: { $ref: '#/components/schemas/PasskeyRegistrationOptions' },
+              },
+            },
+          },
+        },
+      },
+    },
+    '/api/passkey/register': {
+      post: {
+        tags: ['Passkey'],
+        summary: 'Store a newly created passkey credential id',
+        operationId: 'registerPasskey',
+        requestBody: {
+          required: true,
+          content: {
+            'application/json': {
+              schema: { $ref: '#/components/schemas/PasskeyCredentialRequest' },
+            },
+          },
+        },
+        responses: {
+          '201': { description: 'Credential registered.' },
+          '400': { $ref: '#/components/responses/BadRequest' },
+        },
+      },
+    },
+    '/api/passkey/login/challenge': {
+      get: {
+        tags: ['Passkey'],
+        summary: 'Issue a WebAuthn sign-in challenge listing known credential ids',
+        operationId: 'getPasskeyLoginChallenge',
+        responses: {
+          '200': {
+            description: 'Sign-in options.',
+            content: {
+              'application/json': {
+                schema: { $ref: '#/components/schemas/PasskeyLoginOptions' },
+              },
+            },
+          },
+        },
+      },
+    },
+    '/api/passkey/login': {
+      post: {
+        tags: ['Passkey'],
+        summary: 'Sign in with a previously registered passkey credential id',
+        operationId: 'loginWithPasskey',
+        requestBody: {
+          required: true,
+          content: {
+            'application/json': {
+              schema: { $ref: '#/components/schemas/PasskeyCredentialRequest' },
+            },
+          },
+        },
+        responses: {
+          '200': {
+            description: 'Sign-in succeeded.',
+            headers: {
+              'Set-Cookie': {
+                description: 'Session cookie named connect.sid.',
+                schema: { type: 'string' },
+              },
+            },
+            content: {
+              'application/json': {
+                schema: { $ref: '#/components/schemas/PasskeyUser' },
+              },
+            },
+          },
+          '401': { $ref: '#/components/responses/Unauthorized' },
+        },
+      },
+    },
+    '/api/passkey/me': {
+      get: {
+        tags: ['Passkey'],
+        summary: 'Return the current passkey session user',
+        operationId: 'getPasskeyCurrentUser',
+        security: [{ cookieAuth: [] }],
+        responses: {
+          '200': {
+            description: 'Current user.',
+            content: {
+              'application/json': {
+                schema: { $ref: '#/components/schemas/PasskeyUser' },
+              },
+            },
+          },
+          '401': { $ref: '#/components/responses/Unauthorized' },
+        },
+      },
+    },
+    '/api/passkey/logout': {
+      post: {
+        tags: ['Passkey'],
+        summary: 'Destroy the current passkey session',
+        operationId: 'logoutPasskey',
+        security: [{ cookieAuth: [] }],
+        responses: {
+          '204': { description: 'Logout succeeded.' },
         },
       },
     },
@@ -479,6 +595,42 @@ export const openApiDocument = {
         properties: {
           totalUsers: { type: 'integer', example: 2 },
           pendingReviews: { type: 'integer', example: 3 },
+        },
+      },
+      PasskeyRegistrationOptions: {
+        type: 'object',
+        required: ['challenge', 'rpId', 'rpName', 'userId', 'userName', 'userDisplayName'],
+        properties: {
+          challenge: { type: 'string', example: 'Y2hhbGxlbmdl' },
+          rpId: { type: 'string', example: 'localhost' },
+          rpName: { type: 'string', example: 'Stagecraft Labs' },
+          userId: { type: 'string', example: 'MQ' },
+          userName: { type: 'string', example: 'alice' },
+          userDisplayName: { type: 'string', example: 'Alice Chen' },
+        },
+      },
+      PasskeyLoginOptions: {
+        type: 'object',
+        required: ['challenge', 'allowCredentialIds'],
+        properties: {
+          challenge: { type: 'string', example: 'Y2hhbGxlbmdl' },
+          allowCredentialIds: { type: 'array', items: { type: 'string' } },
+        },
+      },
+      PasskeyCredentialRequest: {
+        type: 'object',
+        required: ['credentialId'],
+        properties: {
+          credentialId: { type: 'string', example: 'test-credential-id' },
+        },
+      },
+      PasskeyUser: {
+        type: 'object',
+        required: ['id', 'username', 'displayName'],
+        properties: {
+          id: { type: 'integer', example: 1 },
+          username: { type: 'string', example: 'alice' },
+          displayName: { type: 'string', example: 'Alice Chen' },
         },
       },
       Note: {

@@ -447,6 +447,98 @@ describe('auth API', () => {
   });
 });
 
+describe('passkey API', () => {
+  test('issues a registration challenge for the demo user', async () => {
+    const { response, body } = await json<{
+      challenge: string;
+      rpId: string;
+      userName: string;
+    }>('/api/passkey/register/challenge');
+
+    expect(response.status).toBe(200);
+    expect(body.rpId).toBe('localhost');
+    expect(body.userName).toBe('alice');
+    expect(body.challenge.length).toBeGreaterThan(0);
+  });
+
+  test('registers a credential and signs in with it', async () => {
+    const register = await json<{ ok: boolean }>('/api/passkey/register', {
+      method: 'POST',
+      body: JSON.stringify({ credentialId: 'test-credential-id' }),
+    });
+    expect(register.response.status).toBe(201);
+
+    const loginChallenge = await json<{ allowCredentialIds: string[] }>(
+      '/api/passkey/login/challenge',
+    );
+    expect(loginChallenge.body.allowCredentialIds).toContain('test-credential-id');
+
+    const login = await json<{ username: string }>('/api/passkey/login', {
+      method: 'POST',
+      body: JSON.stringify({ credentialId: 'test-credential-id' }),
+    });
+    expect(login.response.status).toBe(200);
+    expect(login.body.username).toBe('alice');
+
+    const cookie = login.response.headers.get('set-cookie');
+    const me = await json<{ username: string }>('/api/passkey/me', {
+      headers: { Cookie: cookie ?? '' },
+    });
+    expect(me.response.status).toBe(200);
+    expect(me.body.username).toBe('alice');
+  });
+
+  test('rejects sign-in with an unregistered credential id', async () => {
+    const { response, body } = await json<{ error: string }>('/api/passkey/login', {
+      method: 'POST',
+      body: JSON.stringify({ credentialId: 'never-registered' }),
+    });
+
+    expect(response.status).toBe(401);
+    expect(body.error).toBe('No matching passkey found');
+  });
+
+  test('rejects registration without a credential id', async () => {
+    const { response, body } = await json<{ error: string }>('/api/passkey/register', {
+      method: 'POST',
+      body: JSON.stringify({}),
+    });
+
+    expect(response.status).toBe(400);
+    expect(body.error).toBe('credentialId is required');
+  });
+
+  test('logs out a passkey session', async () => {
+    await json('/api/passkey/register', {
+      method: 'POST',
+      body: JSON.stringify({ credentialId: 'logout-credential' }),
+    });
+    const login = await json('/api/passkey/login', {
+      method: 'POST',
+      body: JSON.stringify({ credentialId: 'logout-credential' }),
+    });
+    const cookie = login.response.headers.get('set-cookie');
+
+    const logout = await fetch(`${baseUrl}/api/passkey/logout`, {
+      method: 'POST',
+      headers: { Cookie: cookie ?? '' },
+    });
+    expect(logout.status).toBe(204);
+
+    const me = await json<{ error: string }>('/api/passkey/me', {
+      headers: { Cookie: cookie ?? '' },
+    });
+    expect(me.response.status).toBe(401);
+  });
+
+  test('requires authentication for the current user endpoint', async () => {
+    const { response, body } = await json<{ error: string }>('/api/passkey/me');
+
+    expect(response.status).toBe(401);
+    expect(body.error).toBe('Not authenticated');
+  });
+});
+
 describe('tasks API', () => {
   test('returns the seed tasks array', async () => {
     const { response, body } =

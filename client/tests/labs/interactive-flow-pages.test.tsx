@@ -1,11 +1,17 @@
 import { act, cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
+import { ClientStoragePartitioning } from '../../src/pages/practice/ClientStoragePartitioning';
+import { ConsoleRuntimeDiagnostics } from '../../src/pages/practice/ConsoleRuntimeDiagnostics';
 import { DebuggingReporting } from '../../src/pages/practice/DebuggingReporting';
 import { FramesContexts } from '../../src/pages/practice/FramesContexts';
 import { MultiTab } from '../../src/pages/practice/MultiTab';
 import { MultiTabPopup } from '../../src/pages/practice/MultiTabPopup';
 import { MultiTabWindow } from '../../src/pages/practice/MultiTabWindow';
 import { StorageState } from '../../src/pages/practice/StorageState';
+
+function clearWidgetCookie() {
+  document.cookie = 'widget_partitioned=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+}
 
 function jsonResponse(body: unknown, status = 200) {
   return new Response(JSON.stringify(body), {
@@ -22,6 +28,8 @@ function mockFetch() {
 
 beforeEach(() => {
   localStorage.clear();
+  sessionStorage.clear();
+  clearWidgetCookie();
   Object.defineProperty(window, 'opener', { configurable: true, value: undefined });
 });
 
@@ -235,5 +243,84 @@ describe('StorageState', () => {
     await waitFor(() =>
       expect(screen.getByRole('alert')).toHaveTextContent('Failed to load profile'),
     );
+  });
+});
+
+describe('ClientStoragePartitioning', () => {
+  test('cycles the theme preference and persists it to localStorage', () => {
+    render(<ClientStoragePartitioning />);
+
+    expect(screen.getByTestId('theme-pref-value')).toHaveTextContent('system');
+
+    fireEvent.click(screen.getByRole('button', { name: 'Toggle theme preference' }));
+    expect(screen.getByTestId('theme-pref-value')).toHaveTextContent('dark');
+    expect(localStorage.getItem('labTheme')).toBe('dark');
+
+    fireEvent.click(screen.getByRole('button', { name: 'Toggle theme preference' }));
+    expect(screen.getByTestId('theme-pref-value')).toHaveTextContent('light');
+  });
+
+  test('persists the draft note to sessionStorage as it is typed', () => {
+    render(<ClientStoragePartitioning />);
+
+    fireEvent.change(screen.getByLabelText('Draft note'), {
+      target: { value: 'Remember the widget cookie' },
+    });
+
+    expect(sessionStorage.getItem('labDraftNote')).toBe('Remember the widget cookie');
+  });
+
+  test('shows the widget as locked until the cookie is present, then unlocks on recheck', () => {
+    render(<ClientStoragePartitioning />);
+
+    expect(screen.getByTestId('widget-status')).toHaveTextContent('Widget locked');
+
+    document.cookie = 'widget_partitioned=1; path=/;';
+    fireEvent.click(screen.getByRole('button', { name: 'Re-check cookie' }));
+
+    expect(screen.getByTestId('widget-status')).toHaveTextContent('Widget content unlocked');
+  });
+});
+
+describe('ConsoleRuntimeDiagnostics', () => {
+  test('logs an info, warning, and error message and records each in the action log', () => {
+    const logSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
+    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+
+    render(<ConsoleRuntimeDiagnostics />);
+
+    fireEvent.click(screen.getByRole('button', { name: 'Log info' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Log warning' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Log error' }));
+
+    expect(logSpy).toHaveBeenCalledWith('Info message logged');
+    expect(warnSpy).toHaveBeenCalledWith('Warning message logged');
+    expect(errorSpy).toHaveBeenCalledWith('Error message logged');
+    expect(screen.getByTestId('action-log')).toHaveTextContent('Logged an info message');
+    expect(screen.getByTestId('action-log')).toHaveTextContent('Logged a warning message');
+    expect(screen.getByTestId('action-log')).toHaveTextContent('Logged an error message');
+  });
+
+  test('fetching a missing resource requests the expected path', () => {
+    const fetchMock = mockFetch();
+    fetchMock.mockResolvedValueOnce(jsonResponse({}, 404));
+
+    render(<ConsoleRuntimeDiagnostics />);
+
+    fireEvent.click(screen.getByRole('button', { name: 'Fetch a missing resource' }));
+
+    expect(fetchMock).toHaveBeenCalledWith('/diagnostics-lab/missing-resource');
+    expect(screen.getByTestId('action-log')).toHaveTextContent('Requested a missing resource');
+  });
+
+  test('records the throw action in the log without letting the timer fire during the test', () => {
+    vi.useFakeTimers();
+
+    render(<ConsoleRuntimeDiagnostics />);
+
+    fireEvent.click(screen.getByRole('button', { name: 'Throw uncaught error' }));
+
+    expect(screen.getByTestId('action-log')).toHaveTextContent('Threw an uncaught error');
   });
 });

@@ -81,6 +81,26 @@ const labComponentMap: Record<string, ComponentType> = {
     'ServerSentEvents',
   ),
   'soft-assertions': lazyNamed(() => import('./pages/practice/SoftAssertions'), 'SoftAssertions'),
+  'passkey-authentication': lazyNamed(
+    () => import('./pages/practice/PasskeyAuthentication'),
+    'PasskeyAuthentication',
+  ),
+  'client-storage-partitioning': lazyNamed(
+    () => import('./pages/practice/ClientStoragePartitioning'),
+    'ClientStoragePartitioning',
+  ),
+  'console-runtime-diagnostics': lazyNamed(
+    () => import('./pages/practice/ConsoleRuntimeDiagnostics'),
+    'ConsoleRuntimeDiagnostics',
+  ),
+  'dom-memory-diagnostics': lazyNamed(
+    () => import('./pages/practice/DomMemoryDiagnostics'),
+    'DomMemoryDiagnostics',
+  ),
+  'custom-assertions': lazyNamed(
+    () => import('./pages/practice/CustomAssertions'),
+    'CustomAssertions',
+  ),
 };
 
 // Extra sub-routes for labs with multi-page flows (not derivable from a single slug)
@@ -88,6 +108,13 @@ const extraRoutes: Array<{ path: string; Component: ComponentType }> = [
   {
     path: '/practice/fake-auth/dashboard',
     Component: lazyNamed(() => import('./pages/practice/FakeAuthDashboard'), 'FakeAuthDashboard'),
+  },
+  {
+    path: '/practice/passkey-authentication/dashboard',
+    Component: lazyNamed(
+      () => import('./pages/practice/PasskeyAuthenticationDashboard'),
+      'PasskeyAuthenticationDashboard',
+    ),
   },
   {
     path: '/practice/multi-tab/window',

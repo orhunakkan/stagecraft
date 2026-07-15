@@ -7,6 +7,7 @@ import pinoHttp from 'pino-http';
 import swaggerUi, { type JsonObject } from 'swagger-ui-express';
 import notesRouter from './routes/notes';
 import authRouter from './routes/auth';
+import passkeyRouter from './routes/passkey';
 import tasksRouter from './routes/tasks';
 import productsRouter from './routes/products';
 import swItemsRouter from './routes/swItems';
@@ -148,6 +149,7 @@ app.use(
 
 app.use('/api/notes', notesRouter);
 app.use('/api/auth', authRouter);
+app.use('/api/passkey', passkeyRouter);
 app.use('/api/tasks', tasksRouter);
 app.use('/api/products', productsRouter);
 app.use('/api/sw-items', swItemsRouter);

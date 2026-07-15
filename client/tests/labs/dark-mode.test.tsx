@@ -7,9 +7,13 @@ import { ApiRequestContext } from '../../src/pages/practice/ApiRequestContext';
 import { AriaSnapshots } from '../../src/pages/practice/AriaSnapshots';
 import { AsyncUi } from '../../src/pages/practice/AsyncUi';
 import { BrowserEvents } from '../../src/pages/practice/BrowserEvents';
+import { ClientStoragePartitioning } from '../../src/pages/practice/ClientStoragePartitioning';
 import { ClockTimers } from '../../src/pages/practice/ClockTimers';
 import { ComingSoon } from '../../src/pages/practice/ComingSoon';
+import { ConsoleRuntimeDiagnostics } from '../../src/pages/practice/ConsoleRuntimeDiagnostics';
+import { CustomAssertions } from '../../src/pages/practice/CustomAssertions';
 import { DebuggingReporting } from '../../src/pages/practice/DebuggingReporting';
+import { DomMemoryDiagnostics } from '../../src/pages/practice/DomMemoryDiagnostics';
 import { DragAndDrop } from '../../src/pages/practice/DragAndDrop';
 import { EmulationInput } from '../../src/pages/practice/EmulationInput';
 import { FakeAuth } from '../../src/pages/practice/FakeAuth';
@@ -21,6 +25,7 @@ import { MultiTab } from '../../src/pages/practice/MultiTab';
 import { MultiTabPopup } from '../../src/pages/practice/MultiTabPopup';
 import { MultiTabWindow } from '../../src/pages/practice/MultiTabWindow';
 import { NetworkApi } from '../../src/pages/practice/NetworkApi';
+import { PasskeyAuthentication } from '../../src/pages/practice/PasskeyAuthentication';
 import { ServiceWorkers } from '../../src/pages/practice/ServiceWorkers';
 import { StorageState } from '../../src/pages/practice/StorageState';
 import { TablesFiltering } from '../../src/pages/practice/TablesFiltering';
@@ -211,6 +216,31 @@ describe('NetworkApi tokens', () => {
     const desc = container.querySelector('p');
     expect(desc?.className).toContain('text-muted');
     expect(desc?.className).not.toContain('text-zinc-500');
+  });
+});
+
+describe('PasskeyAuthentication tokens', () => {
+  test('registration card uses bg-surface and border-edge instead of hardcoded colors', () => {
+    const { container } = render(
+      <MemoryRouter>
+        <PasskeyAuthentication />
+      </MemoryRouter>,
+    );
+    const card = container.querySelector('.rounded-xl');
+    expect(card?.className).toContain('bg-surface');
+    expect(card?.className).toContain('border-edge');
+    expect(card?.className).not.toContain('bg-white');
+  });
+
+  test('heading uses text-content instead of text-zinc-900', () => {
+    render(
+      <MemoryRouter>
+        <PasskeyAuthentication />
+      </MemoryRouter>,
+    );
+    const heading = screen.getByRole('heading', { name: 'Passkey for alice' });
+    expect(heading.className).toContain('text-content');
+    expect(heading.className).not.toContain('text-zinc-900');
   });
 });
 
@@ -553,6 +583,40 @@ describe('ClockTimers tokens', () => {
     const card = countdown?.closest('div.rounded-xl');
     expect(card?.className).toContain('bg-surface');
     expect(card?.className).not.toContain('bg-white');
+  });
+});
+
+describe('ClientStoragePartitioning tokens', () => {
+  test('sections use bg-surface and border-edge instead of hardcoded colors', () => {
+    const { container } = wrap(<ClientStoragePartitioning />);
+    const section = container.querySelector('section');
+    expect(section?.className).toContain('bg-surface');
+    expect(section?.className).toContain('border-edge');
+    expect(section?.className).not.toContain('bg-white');
+  });
+
+  test('section headings use text-content instead of text-zinc-900', () => {
+    wrap(<ClientStoragePartitioning />);
+    const heading = screen.getByRole('heading', { name: 'Theme preference' });
+    expect(heading.className).toContain('text-content');
+    expect(heading.className).not.toContain('text-zinc-900');
+  });
+});
+
+describe('ConsoleRuntimeDiagnostics tokens', () => {
+  test('action log panel uses bg-surface and border-edge instead of hardcoded colors', () => {
+    const { container } = wrap(<ConsoleRuntimeDiagnostics />);
+    const panel = container.querySelector('.rounded-xl');
+    expect(panel?.className).toContain('bg-surface');
+    expect(panel?.className).toContain('border-edge');
+    expect(panel?.className).not.toContain('bg-white');
+  });
+
+  test('action buttons use text-muted instead of text-zinc-700', () => {
+    wrap(<ConsoleRuntimeDiagnostics />);
+    const button = screen.getByRole('button', { name: 'Log info' });
+    expect(button.className).toContain('text-muted');
+    expect(button.className).not.toContain('text-zinc-700');
   });
 });
 
@@ -909,6 +973,33 @@ describe('MediaLocale tokens', () => {
   test('section headings use text-content instead of text-zinc-900', () => {
     wrap(<MediaLocale />);
     const heading = screen.getByRole('heading', { name: /Colour Scheme/i });
+    expect(heading.className).toContain('text-content');
+    expect(heading.className).not.toContain('text-zinc-900');
+  });
+});
+
+describe('DomMemoryDiagnostics tokens', () => {
+  test('panels use bg-surface and border-edge instead of hardcoded colors', () => {
+    const { container } = wrap(<DomMemoryDiagnostics />);
+    const panel = container.querySelector('.rounded-xl');
+    expect(panel?.className).toContain('bg-surface');
+    expect(panel?.className).toContain('border-edge');
+    expect(panel?.className).not.toContain('bg-white');
+  });
+});
+
+describe('CustomAssertions tokens', () => {
+  test('order card uses bg-surface and border-edge instead of hardcoded colors', () => {
+    const { container } = wrap(<CustomAssertions />);
+    const card = container.querySelector('.rounded-xl');
+    expect(card?.className).toContain('bg-surface');
+    expect(card?.className).toContain('border-edge');
+    expect(card?.className).not.toContain('bg-white');
+  });
+
+  test('order heading uses text-content instead of text-zinc-900', () => {
+    wrap(<CustomAssertions />);
+    const heading = screen.getByRole('heading', { name: 'Order #A1042' });
     expect(heading.className).toContain('text-content');
     expect(heading.className).not.toContain('text-zinc-900');
   });

@@ -1,5 +1,7 @@
 import { act, cleanup, fireEvent, render, screen } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
+import { CustomAssertions } from '../../src/pages/practice/CustomAssertions';
+import { DomMemoryDiagnostics } from '../../src/pages/practice/DomMemoryDiagnostics';
 import { InitScripts } from '../../src/pages/practice/InitScripts';
 import { ServerSentEvents } from '../../src/pages/practice/ServerSentEvents';
 import { ShadowDom } from '../../src/pages/practice/ShadowDom';
@@ -513,5 +515,49 @@ describe('SoftAssertions', () => {
       'jane@example.com',
     );
     expect(screen.getByRole('listitem', { name: 'Role field' })).toHaveTextContent('Engineer');
+  });
+});
+
+describe('DomMemoryDiagnostics', () => {
+  test('spawns 50 toasts, moves them to the graveyard after they dismiss, and clears it', () => {
+    vi.useFakeTimers();
+    render(<DomMemoryDiagnostics />);
+
+    fireEvent.click(screen.getByRole('button', { name: 'Spawn 50 toasts' }));
+    expect(screen.getByTestId('active-toast-count')).toHaveTextContent('50 active');
+
+    act(() => {
+      vi.advanceTimersByTime(1500);
+    });
+
+    expect(screen.getByTestId('active-toast-count')).toHaveTextContent('0 active');
+    expect(screen.getByTestId('graveyard-count')).toHaveTextContent('50 retained nodes');
+    expect(screen.getAllByTestId('graveyard-item')).toHaveLength(50);
+
+    fireEvent.click(screen.getByRole('button', { name: 'Clear leaked nodes' }));
+    expect(screen.getByTestId('graveyard-count')).toHaveTextContent('0 retained nodes');
+    expect(screen.queryAllByTestId('graveyard-item')).toHaveLength(0);
+  });
+});
+
+describe('CustomAssertions', () => {
+  test('renders the order card and advances status through pending, shipped, delivered', () => {
+    render(<CustomAssertions />);
+    expect(screen.getByTestId('order-price')).toHaveTextContent('$42.50');
+    expect(screen.getByTestId('order-status')).toHaveTextContent('pending');
+
+    const advance = screen.getByRole('button', { name: 'Advance status' });
+    fireEvent.click(advance);
+    expect(screen.getByTestId('order-status')).toHaveTextContent('shipped');
+    fireEvent.click(advance);
+    expect(screen.getByTestId('order-status')).toHaveTextContent('delivered');
+    expect(advance).toBeDisabled();
+  });
+
+  test('selecting a star updates the rating and aria-checked state', () => {
+    render(<CustomAssertions />);
+    fireEvent.click(screen.getByRole('radio', { name: '3 stars' }));
+    expect(screen.getByRole('radio', { name: '3 stars' })).toHaveAttribute('aria-checked', 'true');
+    expect(screen.getByTestId('rating-value')).toHaveTextContent('Rating: 3 / 5');
   });
 });

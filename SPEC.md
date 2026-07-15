@@ -8,10 +8,10 @@ Stagecraft is a web application that provides hands-on Playwright practice labs 
 
 **Success looks like:**
 
-- A developer can navigate to any of the 30 lab routes and interact with a realistic UI
+- A developer can navigate to any of the 35 lab routes and interact with a realistic UI
 - Each lab clearly explains its topic, the Playwright APIs involved, and what the user is expected to test
 - Labs that require API, WebSocket, or auth scenarios have a working Express backend supporting them
-- All 30 labs are production-ready and covered by focused regression tests
+- All 35 labs are production-ready and covered by focused regression tests
 
 **User stories:**
 
@@ -130,7 +130,7 @@ stagecraft/
 
 ## Lab Registry
 
-All 30 labs are registered in `client/src/labs/index.ts`. Each entry carries:
+All 35 labs are registered in `client/src/labs/index.ts`. Each entry carries:
 
 ```ts
 export interface Lab {
@@ -158,7 +158,7 @@ Labs that require a backend (`requiresBackend: true`): `network-api`, `fake-auth
 
 | Status        | Labs                   |
 | ------------- | ---------------------- |
-| `ready`       | All 30 registered labs |
+| `ready`       | All 35 registered labs |
 | `coming-soon` | None                   |
 
 **Lab completion tracking:** Tracked client-side in `localStorage` as a `Set` of completed slugs (`stagecraft:completed`). No user accounts or backend storage required. The home page reads this on mount to render completion badges.
@@ -298,11 +298,11 @@ Learners write their own Playwright tests in a separate project. Stagecraft itse
 The spec is complete when:
 
 - [ ] `npm run dev` starts both client (port 5173) and server (port 3001) cleanly
-- [ ] The home page lists all 30 labs with correct status badges
-- [ ] All 30 ready labs have fully functional interactive UIs
+- [ ] The home page lists all 35 labs with correct status badges
+- [ ] All 35 ready labs have fully functional interactive UIs
 - [ ] Any future `coming-soon` lab renders a placeholder page instead of a 404
 - [ ] `npm run test:run` passes with ≥80% coverage on utility code
-- [ ] `npm run test:e2e` passes for all 30 ready labs
+- [ ] `npm run test:e2e` passes for all 35 ready labs
 - [ ] `npm run typecheck` and `npm run lint` exit with 0 errors
 
 ---

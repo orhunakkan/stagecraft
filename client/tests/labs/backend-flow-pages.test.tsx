@@ -6,6 +6,8 @@ import { FakeAuth } from '../../src/pages/practice/FakeAuth';
 import { FakeAuthDashboard } from '../../src/pages/practice/FakeAuthDashboard';
 import { HarRecording } from '../../src/pages/practice/HarRecording';
 import { NetworkApi } from '../../src/pages/practice/NetworkApi';
+import { PasskeyAuthentication } from '../../src/pages/practice/PasskeyAuthentication';
+import { PasskeyAuthenticationDashboard } from '../../src/pages/practice/PasskeyAuthenticationDashboard';
 import { ScrollLazyLoading } from '../../src/pages/practice/ScrollLazyLoading';
 import { ServiceWorkers } from '../../src/pages/practice/ServiceWorkers';
 
@@ -211,6 +213,138 @@ describe('FakeAuth', () => {
     expect(await screen.findByText(/Welcome back/)).toHaveTextContent('Alice Smith');
     fireEvent.click(screen.getByRole('button', { name: 'Sign out' }));
     expect(await screen.findByText('Login route')).toBeVisible();
+  });
+});
+
+function stubCredentials(overrides: { create?: unknown; get?: unknown } = {}) {
+  Object.defineProperty(navigator, 'credentials', {
+    configurable: true,
+    value: {
+      create: overrides.create ?? vi.fn(),
+      get: overrides.get ?? vi.fn(),
+    },
+  });
+}
+
+function rawIdCredential(id: string): { rawId: ArrayBuffer } {
+  return { rawId: new TextEncoder().encode(id).buffer };
+}
+
+describe('PasskeyAuthentication', () => {
+  test('registers a passkey and signs in, navigating to the dashboard', async () => {
+    const fetchMock = mockFetch();
+    fetchMock
+      .mockResolvedValueOnce(
+        jsonResponse({
+          challenge: 'Y2hhbGxlbmdl',
+          rpId: 'localhost',
+          rpName: 'Stagecraft Labs',
+          userId: 'MQ',
+          userName: 'alice',
+          userDisplayName: 'Alice Chen',
+        }),
+      )
+      .mockResolvedValueOnce(jsonResponse({ ok: true }, 201))
+      .mockResolvedValueOnce(
+        jsonResponse({ challenge: 'Y2hhbGxlbmdl', allowCredentialIds: ['cred-1'] }),
+      )
+      .mockResolvedValueOnce(jsonResponse({ id: 1, username: 'alice', displayName: 'Alice Chen' }));
+
+    stubCredentials({
+      create: vi.fn().mockResolvedValue(rawIdCredential('cred-1')),
+      get: vi.fn().mockResolvedValue(rawIdCredential('cred-1')),
+    });
+
+    renderWithRouter(
+      <Routes>
+        <Route path="/" element={<PasskeyAuthentication />} />
+        <Route path="/practice/passkey-authentication/dashboard" element={<p>Dashboard route</p>} />
+      </Routes>,
+    );
+
+    fireEvent.click(screen.getByRole('button', { name: 'Register passkey' }));
+    expect(await screen.findByText('A passkey is registered for this session.')).toBeVisible();
+
+    fireEvent.click(screen.getByRole('button', { name: 'Sign in with passkey' }));
+    expect(await screen.findByText('Dashboard route')).toBeVisible();
+  });
+
+  test('shows an error when no matching passkey is found', async () => {
+    const fetchMock = mockFetch();
+    fetchMock
+      .mockResolvedValueOnce(jsonResponse({ challenge: 'Y2hhbGxlbmdl', allowCredentialIds: [] }))
+      .mockResolvedValueOnce(jsonResponse({ error: 'No matching passkey found' }, 401));
+
+    stubCredentials({ get: vi.fn().mockResolvedValue(rawIdCredential('cred-unknown')) });
+
+    renderWithRouter(<PasskeyAuthentication />);
+
+    fireEvent.click(screen.getByRole('button', { name: 'Sign in with passkey' }));
+    expect(await screen.findByRole('alert')).toHaveTextContent(
+      'No matching passkey found. Register one first.',
+    );
+  });
+
+  test('shows a generic error when the ceremony throws', async () => {
+    stubCredentials({ create: vi.fn().mockRejectedValue(new Error('NotAllowedError')) });
+    const fetchMock = mockFetch();
+    fetchMock.mockResolvedValueOnce(
+      jsonResponse({
+        challenge: 'Y2hhbGxlbmdl',
+        rpId: 'localhost',
+        rpName: 'Stagecraft Labs',
+        userId: 'MQ',
+        userName: 'alice',
+        userDisplayName: 'Alice Chen',
+      }),
+    );
+
+    renderWithRouter(<PasskeyAuthentication />);
+
+    fireEvent.click(screen.getByRole('button', { name: 'Register passkey' }));
+    expect(await screen.findByRole('alert')).toHaveTextContent(
+      'Passkey registration failed. Make sure a virtual authenticator is attached.',
+    );
+  });
+});
+
+describe('PasskeyAuthenticationDashboard', () => {
+  test('redirects when unauthenticated and signs out an authenticated user', async () => {
+    const fetchMock = mockFetch();
+    fetchMock.mockResolvedValueOnce(jsonResponse({}, 401));
+
+    const { unmount } = renderWithRouter(
+      <Routes>
+        <Route path="/practice/passkey-authentication" element={<p>Registration route</p>} />
+        <Route
+          path="/practice/passkey-authentication/dashboard"
+          element={<PasskeyAuthenticationDashboard />}
+        />
+      </Routes>,
+      ['/practice/passkey-authentication/dashboard'],
+    );
+
+    expect(await screen.findByText('Registration route')).toBeVisible();
+
+    unmount();
+    fetchMock
+      .mockResolvedValueOnce(jsonResponse({ id: 1, username: 'alice', displayName: 'Alice Chen' }))
+      .mockResolvedValueOnce(jsonResponse({ ok: true }));
+
+    renderWithRouter(
+      <Routes>
+        <Route path="/practice/passkey-authentication" element={<p>Registration route</p>} />
+        <Route
+          path="/practice/passkey-authentication/dashboard"
+          element={<PasskeyAuthenticationDashboard />}
+        />
+      </Routes>,
+      ['/practice/passkey-authentication/dashboard'],
+    );
+
+    expect(await screen.findByText(/Welcome back/)).toHaveTextContent('Alice Chen');
+    fireEvent.click(screen.getByRole('button', { name: 'Sign out' }));
+    expect(await screen.findByText('Registration route')).toBeVisible();
   });
 });
 

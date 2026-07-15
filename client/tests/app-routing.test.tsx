@@ -71,6 +71,30 @@ describe('App routing', () => {
     expect(await screen.findByRole('heading', { name: 'Dashboard' })).toBeVisible();
   });
 
+  test('loads the passkey-authentication dashboard extra route', async () => {
+    vi.stubGlobal(
+      'fetch',
+      vi.fn((input: RequestInfo | URL) => {
+        const url = String(input);
+        if (url.endsWith('/api/passkey/me')) {
+          return Promise.resolve(
+            jsonResponse({ id: 1, username: 'alice', displayName: 'Alice Chen' }),
+          );
+        }
+        if (url.includes('/api/feed')) {
+          return Promise.resolve(
+            jsonResponse({ items: [], page: 1, pageSize: 8, total: 0, hasMore: false }),
+          );
+        }
+        return Promise.resolve(jsonResponse([]));
+      }),
+    );
+
+    renderAppAt('/practice/passkey-authentication/dashboard');
+
+    expect(await screen.findByRole('heading', { name: 'Dashboard' })).toBeVisible();
+  });
+
   test('loads the multi-tab window extra route', async () => {
     renderAppAt('/practice/multi-tab/window');
 
