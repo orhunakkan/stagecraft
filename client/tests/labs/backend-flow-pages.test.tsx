@@ -306,6 +306,99 @@ describe('PasskeyAuthentication', () => {
       'Passkey registration failed. Make sure a virtual authenticator is attached.',
     );
   });
+
+  test('shows a generic error when the sign-in ceremony throws', async () => {
+    stubCredentials({ get: vi.fn().mockRejectedValue(new Error('NotAllowedError')) });
+    const fetchMock = mockFetch();
+    fetchMock.mockResolvedValueOnce(
+      jsonResponse({ challenge: 'Y2hhbGxlbmdl', allowCredentialIds: ['cred-1'] }),
+    );
+
+    renderWithRouter(<PasskeyAuthentication />);
+
+    fireEvent.click(screen.getByRole('button', { name: 'Sign in with passkey' }));
+    expect(await screen.findByRole('alert')).toHaveTextContent(
+      'Passkey sign-in failed. Make sure a virtual authenticator is attached.',
+    );
+  });
+
+  test('shows a generic error when registration returns no credential', async () => {
+    stubCredentials({ create: vi.fn().mockResolvedValue(null) });
+    const fetchMock = mockFetch();
+    fetchMock.mockResolvedValueOnce(
+      jsonResponse({
+        challenge: 'Y2hhbGxlbmdl',
+        rpId: 'localhost',
+        rpName: 'Stagecraft Labs',
+        userId: 'MQ',
+        userName: 'alice',
+        userDisplayName: 'Alice Chen',
+      }),
+    );
+
+    renderWithRouter(<PasskeyAuthentication />);
+
+    fireEvent.click(screen.getByRole('button', { name: 'Register passkey' }));
+    expect(await screen.findByRole('alert')).toHaveTextContent(
+      'Passkey registration failed. Make sure a virtual authenticator is attached.',
+    );
+  });
+
+  test('shows a generic error when the registration request fails', async () => {
+    stubCredentials({ create: vi.fn().mockResolvedValue(rawIdCredential('cred-1')) });
+    const fetchMock = mockFetch();
+    fetchMock
+      .mockResolvedValueOnce(
+        jsonResponse({
+          challenge: 'Y2hhbGxlbmdl',
+          rpId: 'localhost',
+          rpName: 'Stagecraft Labs',
+          userId: 'MQ',
+          userName: 'alice',
+          userDisplayName: 'Alice Chen',
+        }),
+      )
+      .mockResolvedValueOnce(jsonResponse({ message: 'Nope' }, 500));
+
+    renderWithRouter(<PasskeyAuthentication />);
+
+    fireEvent.click(screen.getByRole('button', { name: 'Register passkey' }));
+    expect(await screen.findByRole('alert')).toHaveTextContent(
+      'Passkey registration failed. Make sure a virtual authenticator is attached.',
+    );
+  });
+
+  test('shows a generic error when sign-in returns no assertion', async () => {
+    stubCredentials({ get: vi.fn().mockResolvedValue(null) });
+    const fetchMock = mockFetch();
+    fetchMock.mockResolvedValueOnce(
+      jsonResponse({ challenge: 'Y2hhbGxlbmdl', allowCredentialIds: ['cred-1'] }),
+    );
+
+    renderWithRouter(<PasskeyAuthentication />);
+
+    fireEvent.click(screen.getByRole('button', { name: 'Sign in with passkey' }));
+    expect(await screen.findByRole('alert')).toHaveTextContent(
+      'Passkey sign-in failed. Make sure a virtual authenticator is attached.',
+    );
+  });
+
+  test('shows a generic error when the sign-in request fails with a non-401 response', async () => {
+    stubCredentials({ get: vi.fn().mockResolvedValue(rawIdCredential('cred-1')) });
+    const fetchMock = mockFetch();
+    fetchMock
+      .mockResolvedValueOnce(
+        jsonResponse({ challenge: 'Y2hhbGxlbmdl', allowCredentialIds: ['cred-1'] }),
+      )
+      .mockResolvedValueOnce(jsonResponse({ message: 'Nope' }, 500));
+
+    renderWithRouter(<PasskeyAuthentication />);
+
+    fireEvent.click(screen.getByRole('button', { name: 'Sign in with passkey' }));
+    expect(await screen.findByRole('alert')).toHaveTextContent(
+      'Passkey sign-in failed. Make sure a virtual authenticator is attached.',
+    );
+  });
 });
 
 describe('PasskeyAuthenticationDashboard', () => {
