@@ -1,4 +1,4 @@
-import { useLayoutEffect, useState } from 'react';
+import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { Outlet, Link, useLocation, useSearchParams } from 'react-router-dom';
 
 function resolveInitialTheme(searchParams: URLSearchParams): boolean {
@@ -55,6 +55,115 @@ function MoonIcon() {
   );
 }
 
+function GitHubIcon() {
+  return (
+    <svg
+      aria-hidden="true"
+      className="h-4 w-4 flex-shrink-0"
+      viewBox="0 0 24 24"
+      fill="currentColor"
+    >
+      <path d="M12 .5C5.65.5.5 5.65.5 12c0 5.1 3.29 9.42 7.86 10.96.57.1.79-.25.79-.55 0-.27-.01-1.16-.02-2.11-3.2.7-3.87-1.36-3.87-1.36-.53-1.33-1.29-1.69-1.29-1.69-1.05-.72.08-.7.08-.7 1.16.08 1.77 1.19 1.77 1.19 1.03 1.77 2.71 1.26 3.37.96.1-.75.4-1.26.73-1.55-2.55-.29-5.24-1.28-5.24-5.68 0-1.25.45-2.28 1.19-3.08-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.18 1.18a11.1 11.1 0 0 1 5.79 0c2.2-1.49 3.17-1.18 3.17-1.18.63 1.59.23 2.76.11 3.05.74.8 1.19 1.83 1.19 3.08 0 4.41-2.69 5.38-5.25 5.67.41.36.78 1.06.78 2.14 0 1.55-.01 2.79-.01 3.17 0 .3.21.66.79.55A10.52 10.52 0 0 0 23.5 12c0-6.35-5.15-11.5-11.5-11.5z" />
+    </svg>
+  );
+}
+
+function AboutAuthorButton() {
+  const [isOpen, setIsOpen] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!isOpen) return;
+
+    function handlePointerDown(event: MouseEvent) {
+      if (!containerRef.current?.contains(event.target as Node)) {
+        setIsOpen(false);
+      }
+    }
+
+    function handleKeyDown(event: KeyboardEvent) {
+      if (event.key === 'Escape') setIsOpen(false);
+    }
+
+    document.addEventListener('mousedown', handlePointerDown);
+    document.addEventListener('keydown', handleKeyDown);
+    return () => {
+      document.removeEventListener('mousedown', handlePointerDown);
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [isOpen]);
+
+  return (
+    <div className="relative" ref={containerRef}>
+      <button
+        type="button"
+        onClick={() => setIsOpen((open) => !open)}
+        aria-expanded={isOpen}
+        aria-haspopup="dialog"
+        className="rounded-lg px-2.5 py-1.5 text-sm text-muted hover:text-content transition-colors"
+      >
+        About the Author
+      </button>
+
+      {isOpen && (
+        <div
+          role="dialog"
+          aria-label="About the author"
+          className="absolute right-0 top-full z-20 mt-2 w-[34rem] rounded-xl border border-edge bg-surface p-5 shadow-lg"
+        >
+          <div className="flex items-start gap-4">
+            <img
+              src="/profile-picture.jpg"
+              alt="Orhun Akkan"
+              className="h-14 w-14 rounded-full object-cover flex-shrink-0 ring-2 ring-edge"
+            />
+            <div>
+              <p className="font-semibold text-content">Orhun Akkan</p>
+              <p className="text-sm text-muted mb-2">
+                Senior QA Engineer · 8+ years in test automation
+              </p>
+              <p className="text-sm text-muted">
+                Built Stagecraft to provide realistic, hands-on Playwright challenges. Expert in
+                Playwright, Cypress, and Selenium WebDriver — currently a Test Automation Engineer
+                at Northern Trust.
+              </p>
+              <a
+                href="https://www.linkedin.com/in/orhun-akkan"
+                target="_blank"
+                rel="noreferrer"
+                className="mt-3 inline-flex items-center gap-1.5 text-sm text-accent hover:underline"
+              >
+                <svg aria-hidden="true" className="h-4 w-4" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M20.447 20.452H17.02v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.607V9h3.274v1.561h.046c.455-.861 1.566-1.769 3.224-1.769 3.449 0 4.086 2.27 4.086 5.222v6.438zM5.337 7.433a1.9 1.9 0 1 1 0-3.8 1.9 1.9 0 0 1 0 3.8zm1.638 13.019H3.7V9h3.275v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z" />
+                </svg>
+                linkedin.com/in/orhun-akkan
+              </a>
+              <a
+                href="https://github.com/orhunakkan/stagecraft"
+                target="_blank"
+                rel="noreferrer"
+                className="mt-2 flex items-center gap-1.5 text-sm text-accent hover:underline"
+              >
+                <GitHubIcon />
+                github.com/orhunakkan/stagecraft
+              </a>
+              <a
+                href="https://github.com/orhunakkan/playwright-typescript"
+                target="_blank"
+                rel="noreferrer"
+                className="mt-2 flex items-center gap-1.5 text-sm text-accent hover:underline"
+              >
+                <GitHubIcon />
+                github.com/orhunakkan/playwright-typescript
+              </a>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
 export function Shell() {
   const { pathname } = useLocation();
   const [searchParams] = useSearchParams();
@@ -96,6 +205,7 @@ export function Shell() {
                 ← All labs
               </Link>
             )}
+            <AboutAuthorButton />
             <button
               type="button"
               onClick={() => setIsDark((d) => !d)}
