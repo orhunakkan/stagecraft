@@ -59,7 +59,10 @@ export function PasskeyAuthentication() {
             name: options.userName,
             displayName: options.userDisplayName,
           },
-          pubKeyCredParams: [{ type: 'public-key', alg: -7 }],
+          pubKeyCredParams: [
+            { type: 'public-key', alg: -7 }, // ES256
+            { type: 'public-key', alg: -257 }, // RS256
+          ],
           authenticatorSelection: { residentKey: 'required', userVerification: 'required' },
           attestation: 'none',
         },

@@ -35,10 +35,10 @@ function randomChallenge(): string {
 
 const router = Router();
 
-router.get('/register/challenge', (_req, res) => {
+router.get('/register/challenge', (req, res) => {
   res.json({
     challenge: randomChallenge(),
-    rpId: 'localhost',
+    rpId: req.hostname,
     rpName: 'Stagecraft Labs',
     userId: Buffer.from(String(USER.id)).toString('base64url'),
     userName: USER.username,

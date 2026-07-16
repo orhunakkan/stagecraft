@@ -456,7 +456,7 @@ describe('passkey API', () => {
     }>('/api/passkey/register/challenge');
 
     expect(response.status).toBe(200);
-    expect(body.rpId).toBe('localhost');
+    expect(body.rpId).toBe('127.0.0.1');
     expect(body.userName).toBe('alice');
     expect(body.challenge.length).toBeGreaterThan(0);
   });
