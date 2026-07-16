@@ -127,3 +127,90 @@ describe('Shell theme toggle', () => {
     expect(document.documentElement.classList.contains('dark')).toBe(false);
   });
 });
+
+describe('About the Author button', () => {
+  beforeEach(() => {
+    localStorage.clear();
+    document.documentElement.classList.remove('dark');
+    mockMatchMedia(false);
+  });
+
+  afterEach(() => {
+    cleanup();
+    document.documentElement.classList.remove('dark');
+    vi.unstubAllGlobals();
+  });
+
+  test('dialog is not shown until the button is clicked', () => {
+    renderShell();
+    expect(screen.queryByRole('dialog', { name: 'About the author' })).not.toBeInTheDocument();
+  });
+
+  test('clicking the button reveals the author details and links', () => {
+    renderShell();
+    fireEvent.click(screen.getByRole('button', { name: 'About the Author' }));
+
+    const dialog = screen.getByRole('dialog', { name: 'About the author' });
+    expect(dialog).toBeVisible();
+    expect(screen.getByText('Orhun Akkan')).toBeVisible();
+    expect(screen.getByRole('link', { name: /linkedin.com\/in\/orhun-akkan/ })).toHaveAttribute(
+      'href',
+      'https://www.linkedin.com/in/orhun-akkan',
+    );
+    expect(
+      screen.getByRole('link', { name: /github.com\/orhunakkan\/stagecraft/ }),
+    ).toHaveAttribute('href', 'https://github.com/orhunakkan/stagecraft');
+    expect(
+      screen.getByRole('link', { name: /github.com\/orhunakkan\/playwright-typescript/ }),
+    ).toHaveAttribute('href', 'https://github.com/orhunakkan/playwright-typescript');
+  });
+
+  test('clicking the button again closes the dialog', () => {
+    renderShell();
+    const button = screen.getByRole('button', { name: 'About the Author' });
+
+    fireEvent.click(button);
+    expect(screen.getByRole('dialog', { name: 'About the author' })).toBeVisible();
+
+    fireEvent.click(button);
+    expect(screen.queryByRole('dialog', { name: 'About the author' })).not.toBeInTheDocument();
+  });
+
+  test('clicking inside the dialog keeps it open', () => {
+    renderShell();
+    fireEvent.click(screen.getByRole('button', { name: 'About the Author' }));
+
+    fireEvent.mouseDown(screen.getByText('Orhun Akkan'));
+
+    expect(screen.getByRole('dialog', { name: 'About the author' })).toBeVisible();
+  });
+
+  test('clicking outside the dialog closes it', () => {
+    renderShell();
+    fireEvent.click(screen.getByRole('button', { name: 'About the Author' }));
+    expect(screen.getByRole('dialog', { name: 'About the author' })).toBeVisible();
+
+    fireEvent.mouseDown(document.body);
+
+    expect(screen.queryByRole('dialog', { name: 'About the author' })).not.toBeInTheDocument();
+  });
+
+  test('pressing Escape closes the dialog', () => {
+    renderShell();
+    fireEvent.click(screen.getByRole('button', { name: 'About the Author' }));
+    expect(screen.getByRole('dialog', { name: 'About the author' })).toBeVisible();
+
+    fireEvent.keyDown(document, { key: 'Escape' });
+
+    expect(screen.queryByRole('dialog', { name: 'About the author' })).not.toBeInTheDocument();
+  });
+
+  test('pressing a non-Escape key leaves the dialog open', () => {
+    renderShell();
+    fireEvent.click(screen.getByRole('button', { name: 'About the Author' }));
+
+    fireEvent.keyDown(document, { key: 'Enter' });
+
+    expect(screen.getByRole('dialog', { name: 'About the author' })).toBeVisible();
+  });
+});
