@@ -45,4 +45,15 @@ test.describe('Memory & DOM Leak Diagnostics lab', () => {
   test('page has no axe accessibility violations', async ({ page }) => {
     await checkA11y(page);
   });
+
+  test('page has no axe accessibility violations while the graveyard is fully populated', async ({
+    page,
+  }) => {
+    await page.getByRole('button', { name: 'Spawn 50 toasts' }).click();
+    await expect(page.getByTestId('graveyard-count')).toHaveText('50 retained nodes', {
+      timeout: 5000,
+    });
+
+    await checkA11y(page);
+  });
 });
