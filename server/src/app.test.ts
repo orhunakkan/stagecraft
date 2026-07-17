@@ -509,6 +509,31 @@ describe('passkey API', () => {
     expect(otherSession.body.allowCredentialIds).not.toContain('session-only-credential');
   });
 
+  test('updates an existing session credential with its public key', async () => {
+    const register = await json('/api/passkey/register', {
+      method: 'POST',
+      body: JSON.stringify({ credentialId: 'credential-with-public-key', publicKey: 'first-key' }),
+    });
+    const cookie = register.response.headers.get('set-cookie');
+
+    const update = await json('/api/passkey/register', {
+      method: 'POST',
+      headers: { Cookie: cookie ?? '' },
+      body: JSON.stringify({
+        credentialId: 'credential-with-public-key',
+        publicKey: 'updated-key',
+      }),
+    });
+    expect(update.response.status).toBe(201);
+
+    const login = await json('/api/passkey/login', {
+      method: 'POST',
+      headers: { Cookie: cookie ?? '' },
+      body: JSON.stringify({ credentialId: 'credential-with-public-key' }),
+    });
+    expect(login.response.status).toBe(200);
+  });
+
   test('rejects sign-in with an unregistered credential id', async () => {
     const { response, body } = await json<{ error: string }>('/api/passkey/login', {
       method: 'POST',
@@ -527,6 +552,32 @@ describe('passkey API', () => {
 
     expect(response.status).toBe(400);
     expect(body.error).toBe('credentialId is required');
+  });
+
+  test('validates empty credential ids and non-string public keys', async () => {
+    const emptyCredential = await json<{ error: string }>('/api/passkey/register', {
+      method: 'POST',
+      body: JSON.stringify({ credentialId: '' }),
+    });
+    expect(emptyCredential.response.status).toBe(400);
+    expect(emptyCredential.body.error).toBe('credentialId is required');
+
+    const invalidPublicKey = await json<{ error: string }>('/api/passkey/register', {
+      method: 'POST',
+      body: JSON.stringify({ credentialId: 'credential-with-invalid-public-key', publicKey: 7 }),
+    });
+    expect(invalidPublicKey.response.status).toBe(400);
+    expect(invalidPublicKey.body.error).toBe('publicKey must be a string');
+  });
+
+  test('rejects a non-string credential id at sign-in', async () => {
+    const { response, body } = await json<{ error: string }>('/api/passkey/login', {
+      method: 'POST',
+      body: JSON.stringify({ credentialId: 7 }),
+    });
+
+    expect(response.status).toBe(401);
+    expect(body.error).toBe('No matching passkey found');
   });
 
   test('logs out a passkey session', async () => {
