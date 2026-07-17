@@ -467,25 +467,46 @@ describe('passkey API', () => {
       body: JSON.stringify({ credentialId: 'test-credential-id' }),
     });
     expect(register.response.status).toBe(201);
+    const cookie = register.response.headers.get('set-cookie');
 
     const loginChallenge = await json<{ allowCredentialIds: string[] }>(
       '/api/passkey/login/challenge',
+      { headers: { Cookie: cookie ?? '' } },
     );
     expect(loginChallenge.body.allowCredentialIds).toContain('test-credential-id');
 
     const login = await json<{ username: string }>('/api/passkey/login', {
       method: 'POST',
       body: JSON.stringify({ credentialId: 'test-credential-id' }),
+      headers: { Cookie: cookie ?? '' },
     });
     expect(login.response.status).toBe(200);
     expect(login.body.username).toBe('alice');
 
-    const cookie = login.response.headers.get('set-cookie');
     const me = await json<{ username: string }>('/api/passkey/me', {
       headers: { Cookie: cookie ?? '' },
     });
     expect(me.response.status).toBe(200);
     expect(me.body.username).toBe('alice');
+  });
+
+  test('returns a registered credential only to the registering session', async () => {
+    const register = await json('/api/passkey/register', {
+      method: 'POST',
+      body: JSON.stringify({ credentialId: 'session-only-credential' }),
+    });
+    const cookie = register.response.headers.get('set-cookie');
+
+    const registeringSession = await json<{ allowCredentialIds: string[] }>(
+      '/api/passkey/login/challenge',
+      { headers: { Cookie: cookie ?? '' } },
+    );
+    expect(registeringSession.body.allowCredentialIds).toContain('session-only-credential');
+
+    const otherSession = await json<{ allowCredentialIds: string[] }>(
+      '/api/passkey/login/challenge',
+    );
+    expect(otherSession.body.allowCredentialIds).not.toContain('session-only-credential');
   });
 
   test('rejects sign-in with an unregistered credential id', async () => {
@@ -509,15 +530,16 @@ describe('passkey API', () => {
   });
 
   test('logs out a passkey session', async () => {
-    await json('/api/passkey/register', {
+    const register = await json('/api/passkey/register', {
       method: 'POST',
       body: JSON.stringify({ credentialId: 'logout-credential' }),
     });
-    const login = await json('/api/passkey/login', {
+    const cookie = register.response.headers.get('set-cookie');
+    await json('/api/passkey/login', {
       method: 'POST',
       body: JSON.stringify({ credentialId: 'logout-credential' }),
+      headers: { Cookie: cookie ?? '' },
     });
-    const cookie = login.response.headers.get('set-cookie');
 
     const logout = await fetch(`${baseUrl}/api/passkey/logout`, {
       method: 'POST',

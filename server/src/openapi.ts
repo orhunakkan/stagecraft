@@ -156,7 +156,7 @@ export const openApiDocument = {
     '/api/passkey/register': {
       post: {
         tags: ['Passkey'],
-        summary: 'Store a newly created passkey credential id',
+        summary: 'Store a newly created passkey credential in the current session',
         operationId: 'registerPasskey',
         requestBody: {
           required: true,
@@ -622,6 +622,10 @@ export const openApiDocument = {
         required: ['credentialId'],
         properties: {
           credentialId: { type: 'string', example: 'test-credential-id' },
+          publicKey: {
+            type: 'string',
+            description: 'Optional base64url-encoded credential public key from registration.',
+          },
         },
       },
       PasskeyUser: {

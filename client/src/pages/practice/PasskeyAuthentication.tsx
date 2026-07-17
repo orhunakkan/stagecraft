@@ -70,11 +70,18 @@ export function PasskeyAuthentication() {
 
       if (!credential) throw new Error('No credential returned');
 
+      const attestation = credential.response as AuthenticatorAttestationResponse | undefined;
+      const publicKey =
+        typeof attestation?.getPublicKey === 'function' ? attestation.getPublicKey() : null;
+
       const res = await fetch('/api/passkey/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
-        body: JSON.stringify({ credentialId: bufferToBase64url(credential.rawId) }),
+        body: JSON.stringify({
+          credentialId: bufferToBase64url(credential.rawId),
+          ...(publicKey ? { publicKey: bufferToBase64url(publicKey) } : {}),
+        }),
       });
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       setRegistered(true);
