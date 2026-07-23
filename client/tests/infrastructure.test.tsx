@@ -90,12 +90,12 @@ describe('LabCard', () => {
 });
 
 describe('Home', () => {
-  test('renders all 35 ready labs as links to their practice routes', () => {
+  test('renders all 36 ready labs as links to their practice routes', () => {
     renderWithRouter(<Home />);
 
     const readySection = screen.getByLabelText('Ready labs');
     const links = within(readySection).getAllByRole('link');
-    expect(links).toHaveLength(35);
+    expect(links).toHaveLength(36);
 
     for (const lab of labs) {
       const link = within(readySection).getByRole('link', { name: lab.title });
@@ -106,7 +106,7 @@ describe('Home', () => {
   test('shows the ready section count and empty coming-soon section', () => {
     renderWithRouter(<Home />);
 
-    expect(screen.getByText('Ready — 35 labs')).toBeVisible();
+    expect(screen.getByText('Ready — 36 labs')).toBeVisible();
     expect(screen.getByText('Coming soon — 0 labs')).toBeVisible();
 
     const soonSection = screen.getByLabelText('Coming soon labs');

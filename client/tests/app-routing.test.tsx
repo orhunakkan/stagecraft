@@ -30,6 +30,8 @@ beforeEach(() => {
         return Promise.resolve(
           jsonResponse({ items: [], page: 1, pageSize: 8, total: 0, hasMore: false }),
         );
+      if (url.includes('/api/audit-log'))
+        return Promise.resolve(jsonResponse({ error: 'Not authenticated' }, 401));
       return Promise.resolve(jsonResponse([]));
     }),
   );

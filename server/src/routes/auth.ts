@@ -1,4 +1,6 @@
 import { Router, type Request } from 'express';
+import { getAuditLogStore } from '../lib/auditLogStore';
+import { logger } from '../lib/logger';
 
 // Extend express-session with our custom session fields
 declare module 'express-session' {
@@ -7,7 +9,7 @@ declare module 'express-session' {
   }
 }
 
-interface User {
+export interface User {
   id: number;
   username: string;
   password: string;
@@ -23,8 +25,19 @@ const USERS: User[] = [
 
 const router = Router();
 
-function findSessionUser(req: Request): User | undefined {
+export function findSessionUser(req: Request): User | undefined {
   return USERS.find((u) => u.id === req.session.userId);
+}
+
+function recordAuditEvent(username: string, eventType: 'login' | 'logout' | 'failed_login') {
+  return getAuditLogStore()
+    .record(username, eventType)
+    .catch((err: unknown) => {
+      // Only reachable if the audit store itself throws (e.g. Azure SQL unreachable) —
+      // not exercised by the default in-memory store used in tests/CI.
+      /* v8 ignore next */
+      logger.error({ err }, 'audit log write failed');
+    });
 }
 
 function publicUser(user: User) {
@@ -36,7 +49,7 @@ function publicUser(user: User) {
   };
 }
 
-router.post('/login', (req, res) => {
+router.post('/login', async (req, res) => {
   const { username, password } = req.body as { username: unknown; password: unknown };
   if (typeof username !== 'string' || typeof password !== 'string') {
     res.status(400).json({ error: 'username and password are required' });
@@ -44,10 +57,15 @@ router.post('/login', (req, res) => {
   }
   const user = USERS.find((u) => u.username === username && u.password === password);
   if (!user) {
+    const attemptedUsername = username.trim();
+    if (attemptedUsername) {
+      await recordAuditEvent(attemptedUsername, 'failed_login');
+    }
     res.status(401).json({ error: 'Invalid credentials' });
     return;
   }
   req.session.userId = user.id;
+  await recordAuditEvent(user.username, 'login');
   res.json(publicUser(user));
 });
 
@@ -60,7 +78,11 @@ router.get('/me', (req, res) => {
   res.json(publicUser(user));
 });
 
-router.post('/logout', (req, res) => {
+router.post('/logout', async (req, res) => {
+  const user = findSessionUser(req);
+  if (user) {
+    await recordAuditEvent(user.username, 'logout');
+  }
   req.session.destroy(() => {
     res.status(204).send();
   });

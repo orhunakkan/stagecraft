@@ -638,4 +638,21 @@ export const labs: Lab[] = [
     ],
     docsUrl: 'https://playwright.dev/docs/test-assertions#add-custom-matchers-using-expectextend',
   },
+  {
+    slug: 'audit-log-search',
+    title: 'Audit Log & Search',
+    topic: 'Real persistence, server-side pagination, and SQL-injection-safe search',
+    apis: ['request.get', 'request.post', 'expect.poll', 'toHaveLength'],
+    status: 'ready',
+    requiresBackend: true,
+    goal: 'Practice testing against a real, persistent Azure SQL-backed audit trail of fake-auth login/logout events — real server-side pagination, date-range filtering, and asserting that a search box safely neutralizes SQL-injection-style input instead of just happening to work.',
+    guidance: [
+      'Sign in as `alice` (admin) via the Fake Auth lab first — this page requires an admin session, same as `/api/auth/admin/stats`. What does the page show for a non-admin session like `bob`, versus no session at all?',
+      'Hit the "Reseed fixture data" action, then page through results with Next/Prev. Since this data is paginated by a real database query rather than an in-memory array slice, what edge cases would you test at the last page boundary?',
+      'Log out and back in from another tab or context, then search the audit log by your username — how quickly does that real login event become queryable? Contrast this with the in-memory fixtures used elsewhere in this app, which reset on every server restart.',
+      "Try searching for something like `' OR '1'='1' --` or `'; DROP TABLE AuditLog; --`. Assert on what actually comes back — and then run a normal search afterward to prove the data and the app still work. What would a *vulnerable* version of this endpoint have done differently?",
+      'Filter by a date range that should return zero rows, then one that should return many. How do you assert the "no results" empty state versus a real page of data using accessible roles rather than counting DOM nodes directly?',
+    ],
+    docsUrl: 'https://playwright.dev/docs/api-testing',
+  },
 ];

@@ -8,10 +8,10 @@ Stagecraft is a web application that provides hands-on Playwright practice labs 
 
 **Success looks like:**
 
-- A developer can navigate to any of the 35 lab routes and interact with a realistic UI
+- A developer can navigate to any of the 36 lab routes and interact with a realistic UI
 - Each lab clearly explains its topic, the Playwright APIs involved, and what the user is expected to test
 - Labs that require API, WebSocket, or auth scenarios have a working Express backend supporting them
-- All 35 labs are production-ready and covered by focused regression tests
+- All 36 labs are production-ready and covered by focused regression tests
 
 **User stories:**
 
@@ -115,8 +115,11 @@ stagecraft/
 │   │   ├── routes/           # Route files per lab domain
 │   │   │   ├── auth.ts       # /api/auth/* (fake-auth lab)
 │   │   │   ├── network.ts    # /api/items/* (network-api lab)
+│   │   │   ├── auditLog.ts   # /api/audit-log/* (audit-log-search lab)
 │   │   │   └── ...
 │   │   └── lib/              # Shared server utilities
+│   │       ├── db.ts             # Azure SQL connection pool (audit-log-search lab)
+│   │       └── auditLogStore.ts  # AuditLogStore interface + SQL/in-memory implementations
 │   └── tests/                # Vitest unit tests for server logic
 │
 └── e2e/                      # Playwright E2E tests
@@ -130,7 +133,7 @@ stagecraft/
 
 ## Lab Registry
 
-All 35 labs are registered in `client/src/labs/index.ts`. Each entry carries:
+All 36 labs are registered in `client/src/labs/index.ts`. Each entry carries:
 
 ```ts
 export interface Lab {
@@ -146,7 +149,7 @@ export interface Lab {
 }
 ```
 
-Labs that require a backend (`requiresBackend: true`): `network-api`, `fake-auth`, `websocket-interception`, `har-recording`, `api-request-context`, `storage-state`, `scroll-lazy-loading`, `server-sent-events`.
+Labs that require a backend (`requiresBackend: true`): `network-api`, `fake-auth`, `websocket-interception`, `har-recording`, `api-request-context`, `storage-state`, `scroll-lazy-loading`, `server-sent-events`, `audit-log-search`.
 
 **Feed API (scroll-lazy-loading lab):** `GET /api/feed` serves deterministic in-memory feed items with `page`, `pageSize`, `total`, and `hasMore` metadata. It supports infinite-scroll practice without external services or persistent storage.
 
@@ -154,11 +157,13 @@ Labs that require a backend (`requiresBackend: true`): `network-api`, `fake-auth
 
 **WebSocket (websocket-interception lab):** The `ws` library upgrades connections from the same Express HTTP server on the same port (`server.on('upgrade', wsHandler)`). Single port, no CORS config required.
 
+**Audit log & search (audit-log-search lab):** The only lab backed by real, persistent storage — an Azure SQL Database free-tier instance — behind an `AuditLogStore` interface that falls back to an in-memory implementation when `AZURE_SQL_CONNECTION_STRING` is unset (including in CI). Every `fake-auth` login/logout/failed login is recorded; an admin-only page exposes real server-side pagination, date-range filtering, and a search box that must safely neutralize SQL-injection-style input. See [docs/azure-sql.md](docs/azure-sql.md) and Resolved Decisions #5 below.
+
 **Current lab status:**
 
 | Status        | Labs                   |
 | ------------- | ---------------------- |
-| `ready`       | All 35 registered labs |
+| `ready`       | All 36 registered labs |
 | `coming-soon` | None                   |
 
 **Lab completion tracking:** Tracked client-side in `localStorage` as a `Set` of completed slugs (`stagecraft:completed`). No user accounts or backend storage required. The home page reads this on mount to render completion badges.
@@ -176,6 +181,7 @@ The app is structured to be platform-agnostic. Any host that can run a Node.js p
   - `SESSION_SECRET` — `express-session` signing secret (required in production)
   - `CLIENT_ORIGIN` — Allowed CORS origin (default: `http://localhost:5173`)
   - `NODE_ENV` — `development` | `production`
+  - `AZURE_SQL_CONNECTION_STRING` — optional; Azure SQL connection string for the `audit-log-search` lab. Falls back to an in-memory store when unset.
 - **Docker:** A `Dockerfile` at the repo root builds a single image running the Express server (which serves the built client)
 
 ---
@@ -281,7 +287,7 @@ Learners write their own Playwright tests in a separate project. Stagecraft itse
 - Changing the URL structure of existing lab routes
 - Adding a new Express route that changes server port or CORS policy
 - Modifying the `Lab` interface shape (breaks registry consumers)
-- Enabling any persistent storage (DB, file writes) on the server
+- Enabling any persistent storage (DB, file writes) on the server — approved once, as a scoped exception for the `audit-log-search` lab's Azure SQL Database, on 2026-07-23 (see Resolved Decisions #5). This does not blanket-approve persistent storage for any other lab; ask again per lab.
 
 ### Never do
 
@@ -298,11 +304,11 @@ Learners write their own Playwright tests in a separate project. Stagecraft itse
 The spec is complete when:
 
 - [ ] `npm run dev` starts both client (port 5173) and server (port 3001) cleanly
-- [ ] The home page lists all 35 labs with correct status badges
-- [ ] All 35 ready labs have fully functional interactive UIs
+- [ ] The home page lists all 36 labs with correct status badges
+- [ ] All 36 ready labs have fully functional interactive UIs
 - [ ] Any future `coming-soon` lab renders a placeholder page instead of a 404
 - [ ] `npm run test:run` passes with ≥80% coverage on utility code
-- [ ] `npm run test:e2e` passes for all 35 ready labs
+- [ ] `npm run test:e2e` passes for all 36 ready labs
 - [ ] `npm run typecheck` and `npm run lint` exit with 0 errors
 
 ---
@@ -470,13 +476,31 @@ Covered inline in Tasks 4.4 and 4.5 above. Separate task for WebSocket:
   - See Task 4.x "Verify" steps for acceptance criteria
   - Files: `e2e/labs/accessible-locators.spec.ts`, `forms-validation.spec.ts`, `async-ui.spec.ts`, `network-api.spec.ts`, `fake-auth.spec.ts`
 
+### Phase 9 — Audit Log & Search Lab (Real Persistence)
+
+- [ ] **Task 9.1:** Azure SQL-backed `AuditLogStore` with in-memory fallback
+  - Acceptance: `SqlAuditLogStore` and `InMemoryAuditLogStore` both implement `record`/`query`/`reseed`; the store is picked once by `AZURE_SQL_CONNECTION_STRING` presence; all queries against the SQL store are parameterized
+  - Verify: `npm run test:run --workspace=server` passes on the in-memory fallback; guarded `auditLogStore.azureSql.test.ts` passes when a real connection string is set locally
+  - Files: `server/src/lib/auditLogStore.ts`, `server/src/lib/db.ts`
+
+- [ ] **Task 9.2:** `/api/audit-log` routes and fake-auth event recording
+  - Acceptance: `GET /api/audit-log` (paginated/filtered/sorted) and `POST /api/audit-log/reseed` are admin-gated the same way as `/api/auth/admin/stats`; reseed is additionally blocked in production; `auth.ts` records login/logout/failed_login events
+  - Verify: `npm run test:run --workspace=server` — `audit log API` describe block passes, including the SQL-injection-safety cases
+  - Files: `server/src/routes/auditLog.ts`, `server/src/routes/auth.ts`, `server/src/lib/schemas.ts`
+
+- [ ] **Task 9.3:** `/practice/audit-log-search` UI
+  - UI: Search box, date-range filters, sortable pagination, and a reseed action; inline 401/403 states instead of a hard redirect
+  - Verify: E2E spec `audit-log-search.spec.ts` passes, including pagination, filtering, and the injection-safety scenario
+  - Files: `client/src/pages/practice/AuditLogSearch.tsx`, `client/src/labs/index.ts`, `client/src/App.tsx`
+
 ---
 
 ## Resolved Decisions
 
-| #   | Question                       | Decision                              | Rationale                                                                               |
-| --- | ------------------------------ | ------------------------------------- | --------------------------------------------------------------------------------------- |
-| 1   | Auth mechanism for `fake-auth` | `express-session` (cookie-session)    | Complements `storage-state` lab — learners capture the session cookie in `storageState` |
-| 2   | WebSocket server               | Same-port upgrade via `ws`            | Single port, no CORS config, standard Node.js pattern                                   |
-| 3   | Deployment                     | Platform-agnostic (Docker + env vars) | Platform TBD; Express serves static build in production                                 |
-| 4   | Lab completion tracking        | `localStorage` on client              | No accounts needed; persists on device; zero backend complexity                         |
+| #   | Question                                  | Decision                                                                                                                                          | Rationale                                                                                                                                                                                                                                     |
+| --- | ----------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1   | Auth mechanism for `fake-auth`            | `express-session` (cookie-session)                                                                                                                | Complements `storage-state` lab — learners capture the session cookie in `storageState`                                                                                                                                                       |
+| 2   | WebSocket server                          | Same-port upgrade via `ws`                                                                                                                        | Single port, no CORS config, standard Node.js pattern                                                                                                                                                                                         |
+| 3   | Deployment                                | Platform-agnostic (Docker + env vars)                                                                                                             | Platform TBD; Express serves static build in production                                                                                                                                                                                       |
+| 4   | Lab completion tracking                   | `localStorage` on client                                                                                                                          | No accounts needed; persists on device; zero backend complexity                                                                                                                                                                               |
+| 5   | Persistent storage for `audit-log-search` | Azure SQL Database (free tier) behind an `AuditLogStore` interface, with an in-memory fallback selected by `AZURE_SQL_CONNECTION_STRING` presence | First lab needing real cross-restart persistence and SQL-injection-safety testing; the fallback keeps CI hermetic without new secrets or service containers; approved as a scoped, one-lab exception to "no persistent storage" on 2026-07-23 |

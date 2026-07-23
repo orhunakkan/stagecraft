@@ -9,6 +9,9 @@ services:
       # Set SESSION_SECRET in a .env file or via the host environment.
       # Never commit a real secret here.
       SESSION_SECRET: ${SESSION_SECRET:?SESSION_SECRET is required}
+      # Optional — only used by the audit-log-search lab. Unset by default so
+      # docker compose up keeps working on the lab's in-memory fallback store.
+      AZURE_SQL_CONNECTION_STRING: ${AZURE_SQL_CONNECTION_STRING:-}
     restart: unless-stopped
     healthcheck:
       test:

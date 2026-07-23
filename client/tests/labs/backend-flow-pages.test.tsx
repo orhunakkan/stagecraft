@@ -2,6 +2,7 @@ import { act, cleanup, fireEvent, render, screen, waitFor } from '@testing-libra
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { ApiRequestContext } from '../../src/pages/practice/ApiRequestContext';
+import { AuditLogSearch } from '../../src/pages/practice/AuditLogSearch';
 import { FakeAuth } from '../../src/pages/practice/FakeAuth';
 import { FakeAuthDashboard } from '../../src/pages/practice/FakeAuthDashboard';
 import { HarRecording } from '../../src/pages/practice/HarRecording';
@@ -136,6 +137,192 @@ describe('NetworkApi', () => {
     fetchMock.mockResolvedValueOnce(jsonResponse({ message: 'Nope' }, 503));
     render(<NetworkApi />);
     expect(await screen.findByRole('alert')).toHaveTextContent('HTTP 503');
+  });
+});
+
+describe('AuditLogSearch', () => {
+  function auditPage(overrides: Partial<Record<string, unknown>> = {}) {
+    return jsonResponse({
+      items: [{ id: 1, username: 'alice', eventType: 'login', createdAt: '2026-01-01T00:00:00Z' }],
+      page: 1,
+      pageSize: 20,
+      total: 1,
+      hasMore: false,
+      ...overrides,
+    });
+  }
+
+  test('loads and paginates audit log entries', async () => {
+    const fetchMock = mockFetch();
+    fetchMock.mockResolvedValue(
+      auditPage({
+        items: [
+          { id: 1, username: 'alice', eventType: 'login', createdAt: '2026-01-01T00:00:00Z' },
+        ],
+        total: 40,
+        hasMore: true,
+      }),
+    );
+
+    render(<AuditLogSearch />);
+
+    expect(await screen.findByText('alice')).toBeVisible();
+    expect(screen.getByText(/Page 1 of 2/)).toBeVisible();
+
+    fetchMock.mockResolvedValueOnce(
+      auditPage({
+        items: [{ id: 2, username: 'bob', eventType: 'logout', createdAt: '2026-01-02T00:00:00Z' }],
+        page: 2,
+        total: 40,
+        hasMore: true,
+      }),
+    );
+    fireEvent.click(screen.getByRole('button', { name: 'Next' }));
+
+    expect(await screen.findByText('bob')).toBeVisible();
+    expect(screen.getByText(/Page 2 of 2/)).toBeVisible();
+    expect(fetchMock).toHaveBeenLastCalledWith(expect.stringContaining('page=2'));
+
+    fireEvent.click(screen.getByRole('button', { name: 'Prev' }));
+
+    await waitFor(() =>
+      expect(fetchMock).toHaveBeenLastCalledWith(expect.stringContaining('page=1')),
+    );
+  });
+
+  test('changes sort order', async () => {
+    const fetchMock = mockFetch();
+    fetchMock.mockResolvedValue(auditPage());
+
+    render(<AuditLogSearch />);
+    await screen.findByText('alice');
+
+    fireEvent.change(screen.getByLabelText('Sort order'), {
+      target: { value: 'createdAt:asc' },
+    });
+
+    await waitFor(() =>
+      expect(fetchMock).toHaveBeenLastCalledWith(expect.stringContaining('sort=createdAt%3Aasc')),
+    );
+  });
+
+  test('submits username and date-range filters', async () => {
+    const fetchMock = mockFetch();
+    fetchMock.mockResolvedValue(auditPage());
+
+    render(<AuditLogSearch />);
+    await screen.findByText('alice');
+
+    fireEvent.change(screen.getByLabelText('Username contains'), { target: { value: 'carol' } });
+    fireEvent.change(screen.getByLabelText('From date'), { target: { value: '2026-01-01' } });
+    fireEvent.change(screen.getByLabelText('To date'), { target: { value: '2026-01-05' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Search' }));
+
+    await waitFor(() =>
+      expect(fetchMock).toHaveBeenLastCalledWith(
+        expect.stringMatching(/username=carol.*from=2026-01-01.*to=2026-01-05/),
+      ),
+    );
+  });
+
+  test('reseeds fixture data', async () => {
+    const fetchMock = mockFetch();
+    fetchMock
+      .mockResolvedValueOnce(auditPage())
+      .mockResolvedValueOnce(jsonResponse({ ok: true, seeded: 120 }))
+      .mockResolvedValueOnce(auditPage({ total: 120 }));
+
+    render(<AuditLogSearch />);
+    await screen.findByText('alice');
+
+    fireEvent.click(screen.getByRole('button', { name: 'Reseed fixture data' }));
+
+    await waitFor(() =>
+      expect(fetchMock).toHaveBeenCalledWith('/api/audit-log/reseed', { method: 'POST' }),
+    );
+    expect(await screen.findByText(/\(120 total\)/)).toBeVisible();
+  });
+
+  test('shows a generic error when reseed fails unexpectedly', async () => {
+    const fetchMock = mockFetch();
+    fetchMock
+      .mockResolvedValueOnce(auditPage())
+      .mockResolvedValueOnce(jsonResponse({ error: 'Boom' }, 500));
+
+    render(<AuditLogSearch />);
+    await screen.findByText('alice');
+
+    fireEvent.click(screen.getByRole('button', { name: 'Reseed fixture data' }));
+
+    expect(await screen.findByRole('alert')).toHaveTextContent('Error: HTTP 500');
+  });
+
+  test('shows an unauthenticated message when reseed is attempted after the session expires', async () => {
+    const fetchMock = mockFetch();
+    fetchMock
+      .mockResolvedValueOnce(auditPage())
+      .mockResolvedValueOnce(jsonResponse({ error: 'Not authenticated' }, 401));
+
+    render(<AuditLogSearch />);
+    await screen.findByText('alice');
+
+    fireEvent.click(screen.getByRole('button', { name: 'Reseed fixture data' }));
+
+    expect(await screen.findByRole('alert')).toHaveTextContent('must be signed in as an admin');
+  });
+
+  test('shows the server message when reseed is blocked in production', async () => {
+    const fetchMock = mockFetch();
+    fetchMock
+      .mockResolvedValueOnce(auditPage())
+      .mockResolvedValueOnce(
+        jsonResponse({ error: 'Reseeding is not allowed in production' }, 403),
+      );
+
+    render(<AuditLogSearch />);
+    await screen.findByText('alice');
+
+    fireEvent.click(screen.getByRole('button', { name: 'Reseed fixture data' }));
+
+    expect(await screen.findByRole('alert')).toHaveTextContent(
+      'Reseeding is not allowed in production',
+    );
+  });
+
+  test('shows an unauthenticated message', async () => {
+    const fetchMock = mockFetch();
+    fetchMock.mockResolvedValueOnce(jsonResponse({ error: 'Not authenticated' }, 401));
+
+    render(<AuditLogSearch />);
+
+    expect(await screen.findByRole('alert')).toHaveTextContent('must be signed in as an admin');
+  });
+
+  test('shows a forbidden message for a non-admin session', async () => {
+    const fetchMock = mockFetch();
+    fetchMock.mockResolvedValueOnce(jsonResponse({ error: 'Forbidden' }, 403));
+
+    render(<AuditLogSearch />);
+
+    expect(await screen.findByRole('alert')).toHaveTextContent('does not have admin access');
+  });
+
+  test('shows a generic error message on unexpected failures', async () => {
+    const fetchMock = mockFetch();
+    fetchMock.mockResolvedValueOnce(jsonResponse({ error: 'Boom' }, 500));
+
+    render(<AuditLogSearch />);
+
+    expect(await screen.findByRole('alert')).toHaveTextContent('Error: Boom');
+  });
+
+  test('shows an empty state when no entries match', async () => {
+    const fetchMock = mockFetch();
+    fetchMock.mockResolvedValueOnce(auditPage({ items: [], total: 0 }));
+
+    render(<AuditLogSearch />);
+
+    expect(await screen.findByText('No audit log entries match this search.')).toBeVisible();
   });
 });
 

@@ -251,6 +251,30 @@ describe('production startup configuration', () => {
     }
   });
 
+  test('blocks audit log reseed in production', async () => {
+    const { productionBaseUrl, productionServer } = await startProductionApp();
+
+    try {
+      const login = await fetch(`${productionBaseUrl}/api/auth/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-Forwarded-Proto': 'https' },
+        body: JSON.stringify({ username: 'alice', password: 'password123' }),
+      });
+      const cookie = login.headers.get('set-cookie');
+
+      const reseed = await fetch(`${productionBaseUrl}/api/audit-log/reseed`, {
+        method: 'POST',
+        headers: { Cookie: cookie ?? '', 'X-Forwarded-Proto': 'https' },
+      });
+      const body = (await reseed.json()) as { error: string };
+
+      expect(reseed.status).toBe(403);
+      expect(body.error).toBe('Reseeding is not allowed in production');
+    } finally {
+      await closeServer(productionServer);
+    }
+  });
+
   test('does not serve the SPA shell for API or non-GET requests', async () => {
     const { productionBaseUrl, productionServer } = await startProductionApp();
 
@@ -420,6 +444,22 @@ describe('auth API', () => {
 
     expect(response.status).toBe(401);
     expect(body.error).toBe('Invalid credentials');
+  });
+
+  test('rejects invalid credentials with a blank attempted username without recording an audit event', async () => {
+    const { response, body } = await json<{ error: string }>('/api/auth/login', {
+      method: 'POST',
+      body: JSON.stringify({ username: '   ', password: 'wrongpassword' }),
+    });
+
+    expect(response.status).toBe(401);
+    expect(body.error).toBe('Invalid credentials');
+  });
+
+  test('logging out without an active session still succeeds', async () => {
+    const response = await fetch(`${baseUrl}/api/auth/logout`, { method: 'POST' });
+
+    expect(response.status).toBe(204);
   });
 
   test('returns a generic JSON error for malformed request bodies', async () => {
@@ -868,6 +908,221 @@ describe('activity feed API', () => {
     expect(body.pageSize).toBe(8);
     expect(body.hasMore).toBe(true);
     expect(body.items[0]).toMatchObject({ id: 17 });
+  });
+});
+
+describe('audit log API', () => {
+  async function loginAs(username: string, password: string): Promise<string> {
+    const login = await json<{ username: string }>('/api/auth/login', {
+      method: 'POST',
+      body: JSON.stringify({ username, password }),
+    });
+    const cookie = login.response.headers.get('set-cookie');
+    if (!cookie) {
+      throw new Error(`Login as ${username} did not set a session cookie`);
+    }
+    return cookie;
+  }
+
+  async function reseedAsAdmin(cookie: string): Promise<void> {
+    const { response } = await json('/api/audit-log/reseed', {
+      method: 'POST',
+      headers: { Cookie: cookie },
+    });
+    expect(response.status).toBe(200);
+  }
+
+  test('requires authentication', async () => {
+    const { response, body } = await json<{ error: string }>('/api/audit-log');
+
+    expect(response.status).toBe(401);
+    expect(body.error).toBe('Not authenticated');
+  });
+
+  test('blocks non-admin sessions', async () => {
+    const cookie = await loginAs('bob', 'letmein');
+
+    const { response, body } = await json<{ error: string }>('/api/audit-log', {
+      headers: { Cookie: cookie },
+    });
+
+    expect(response.status).toBe(403);
+    expect(body.error).toBe('Forbidden');
+  });
+
+  test('reseeds deterministic fixture data and paginates it', async () => {
+    const cookie = await loginAs('alice', 'password123');
+    await reseedAsAdmin(cookie);
+
+    const { response, body } = await json<{
+      items: Array<{ id: number; username: string; eventType: string; createdAt: string }>;
+      page: number;
+      pageSize: number;
+      total: number;
+      hasMore: boolean;
+    }>('/api/audit-log?page=1&pageSize=20', {
+      headers: { Cookie: cookie },
+    });
+
+    expect(response.status).toBe(200);
+    expect(body.page).toBe(1);
+    expect(body.pageSize).toBe(20);
+    expect(body.total).toBe(120);
+    expect(body.items).toHaveLength(20);
+    expect(body.hasMore).toBe(true);
+  });
+
+  test('filters by username substring case-insensitively', async () => {
+    const cookie = await loginAs('alice', 'password123');
+    await reseedAsAdmin(cookie);
+
+    const { response, body } = await json<{
+      items: Array<{ username: string }>;
+      total: number;
+    }>('/api/audit-log?username=ALI&pageSize=100', {
+      headers: { Cookie: cookie },
+    });
+
+    expect(response.status).toBe(200);
+    expect(body.total).toBe(24);
+    expect(body.items.every((item) => item.username === 'alice')).toBe(true);
+  });
+
+  test('filters by date range', async () => {
+    const cookie = await loginAs('alice', 'password123');
+    await reseedAsAdmin(cookie);
+
+    const { response, body } = await json<{ total: number }>(
+      '/api/audit-log?from=2026-01-10&to=2026-01-15&pageSize=100',
+      { headers: { Cookie: cookie } },
+    );
+
+    expect(response.status).toBe(200);
+    expect(body.total).toBeGreaterThan(0);
+    expect(body.total).toBeLessThan(120);
+  });
+
+  test('sorts ascending when requested', async () => {
+    const cookie = await loginAs('alice', 'password123');
+    await reseedAsAdmin(cookie);
+
+    const { response, body } = await json<{ items: Array<{ createdAt: string }> }>(
+      '/api/audit-log?sort=createdAt:asc&pageSize=5',
+      { headers: { Cookie: cookie } },
+    );
+
+    expect(response.status).toBe(200);
+    const timestamps = body.items.map((item) => Date.parse(item.createdAt));
+    expect(timestamps).toEqual([...timestamps].sort((a, b) => a - b));
+  });
+
+  test('rejects a date range where from is later than to', async () => {
+    const cookie = await loginAs('alice', 'password123');
+
+    const { response, body } = await json<{ error: string }>(
+      '/api/audit-log?from=2026-06-01&to=2026-01-01',
+      { headers: { Cookie: cookie } },
+    );
+
+    expect(response.status).toBe(400);
+    expect(body.error).toBe('from must not be later than to');
+  });
+
+  test('treats SQL-injection-style search input as a literal, harmless substring', async () => {
+    const cookie = await loginAs('alice', 'password123');
+    await reseedAsAdmin(cookie);
+
+    const injectionAttempts = ["' OR '1'='1' --", "'; DROP TABLE AuditLog; --"];
+
+    for (const attempt of injectionAttempts) {
+      const { response, body } = await json<{ items: unknown[]; total: number }>(
+        `/api/audit-log?username=${encodeURIComponent(attempt)}&pageSize=100`,
+        { headers: { Cookie: cookie } },
+      );
+
+      expect(response.status).toBe(200);
+      expect(body.total).toBe(0);
+      expect(body.items).toHaveLength(0);
+    }
+
+    // The store must still work normally afterward — no data was disturbed.
+    const followUp = await json<{ total: number }>('/api/audit-log?pageSize=100', {
+      headers: { Cookie: cookie },
+    });
+    expect(followUp.response.status).toBe(200);
+    expect(followUp.body.total).toBe(120);
+  });
+
+  test('records a real login event that is immediately queryable', async () => {
+    const cookie = await loginAs('alice', 'password123');
+    await reseedAsAdmin(cookie);
+
+    await loginAs('bob', 'letmein');
+
+    const { response, body } = await json<{
+      items: Array<{ username: string; eventType: string }>;
+    }>('/api/audit-log?username=bob&sort=createdAt:desc&pageSize=10', {
+      headers: { Cookie: cookie },
+    });
+
+    expect(response.status).toBe(200);
+    expect(body.items[0]).toMatchObject({ username: 'bob', eventType: 'login' });
+  });
+
+  test('records a logout event', async () => {
+    const cookie = await loginAs('alice', 'password123');
+    await reseedAsAdmin(cookie);
+
+    const bobCookie = await loginAs('bob', 'letmein');
+    await fetch(`${baseUrl}/api/auth/logout`, {
+      method: 'POST',
+      headers: { Cookie: bobCookie },
+    });
+
+    const { body } = await json<{ items: Array<{ username: string; eventType: string }> }>(
+      '/api/audit-log?username=bob&sort=createdAt:desc&pageSize=10',
+      { headers: { Cookie: cookie } },
+    );
+
+    expect(body.items[0]).toMatchObject({ username: 'bob', eventType: 'logout' });
+  });
+
+  test('records a failed login attempt', async () => {
+    const cookie = await loginAs('alice', 'password123');
+    await reseedAsAdmin(cookie);
+
+    await json('/api/auth/login', {
+      method: 'POST',
+      body: JSON.stringify({ username: 'mallory', password: 'wrongpassword' }),
+    });
+
+    const { body } = await json<{ items: Array<{ username: string; eventType: string }> }>(
+      '/api/audit-log?username=mallory&pageSize=10',
+      { headers: { Cookie: cookie } },
+    );
+
+    expect(body.items[0]).toMatchObject({ username: 'mallory', eventType: 'failed_login' });
+  });
+
+  test('requires authentication for reseed', async () => {
+    const { response, body } = await json<{ error: string }>('/api/audit-log/reseed', {
+      method: 'POST',
+    });
+
+    expect(response.status).toBe(401);
+    expect(body.error).toBe('Not authenticated');
+  });
+
+  test('rejects reseed for a non-admin session', async () => {
+    const cookie = await loginAs('bob', 'letmein');
+
+    const { response, body } = await json<{ error: string }>('/api/audit-log/reseed', {
+      method: 'POST',
+      headers: { Cookie: cookie },
+    });
+
+    expect(response.status).toBe(403);
+    expect(body.error).toBe('Forbidden');
   });
 });
 

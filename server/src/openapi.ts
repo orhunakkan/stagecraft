@@ -17,6 +17,7 @@ export const openApiDocument = {
     { name: 'Service Workers' },
     { name: 'Feed' },
     { name: 'SSE' },
+    { name: 'Audit Log' },
   ],
   paths: {
     '/health': {
@@ -498,6 +499,89 @@ export const openApiDocument = {
         },
       },
     },
+    '/api/audit-log': {
+      get: {
+        tags: ['Audit Log'],
+        summary: 'Search the persisted login/logout audit trail (admin only)',
+        operationId: 'getAuditLog',
+        security: [{ cookieAuth: [] }],
+        parameters: [
+          {
+            name: 'page',
+            in: 'query',
+            description: '1-based page number.',
+            schema: { type: 'integer', minimum: 1, default: 1 },
+          },
+          {
+            name: 'pageSize',
+            in: 'query',
+            description: 'Number of items per page (1–100).',
+            schema: { type: 'integer', minimum: 1, maximum: 100, default: 20 },
+          },
+          {
+            name: 'username',
+            in: 'query',
+            description: 'Case-insensitive substring match against username.',
+            schema: { type: 'string' },
+          },
+          {
+            name: 'from',
+            in: 'query',
+            description: 'ISO 8601 lower bound (inclusive) on createdAt.',
+            schema: { type: 'string', format: 'date-time' },
+          },
+          {
+            name: 'to',
+            in: 'query',
+            description: 'ISO 8601 upper bound (inclusive) on createdAt.',
+            schema: { type: 'string', format: 'date-time' },
+          },
+          {
+            name: 'sort',
+            in: 'query',
+            schema: {
+              type: 'string',
+              enum: ['createdAt:asc', 'createdAt:desc'],
+              default: 'createdAt:desc',
+            },
+          },
+        ],
+        responses: {
+          '200': {
+            description: 'A page of audit log entries.',
+            content: {
+              'application/json': {
+                schema: { $ref: '#/components/schemas/AuditLogPage' },
+              },
+            },
+          },
+          '400': { $ref: '#/components/responses/BadRequest' },
+          '401': { $ref: '#/components/responses/Unauthorized' },
+          '403': { $ref: '#/components/responses/Forbidden' },
+        },
+      },
+    },
+    '/api/audit-log/reseed': {
+      post: {
+        tags: ['Audit Log'],
+        summary:
+          'Truncate and reseed the audit log with deterministic fixture data (admin only, non-production)',
+        operationId: 'reseedAuditLog',
+        security: [{ cookieAuth: [] }],
+        responses: {
+          '200': {
+            description: 'Reseed completed.',
+            content: {
+              'application/json': {
+                schema: { $ref: '#/components/schemas/AuditLogReseedResponse' },
+              },
+            },
+          },
+          '401': { $ref: '#/components/responses/Unauthorized' },
+          '403': { $ref: '#/components/responses/Forbidden' },
+        },
+      },
+    },
   },
   components: {
     securitySchemes: {
@@ -720,6 +804,42 @@ export const openApiDocument = {
           pageSize: { type: 'integer', example: 8 },
           total: { type: 'integer', example: 42 },
           hasMore: { type: 'boolean', example: true },
+        },
+      },
+      AuditLogEntry: {
+        type: 'object',
+        required: ['id', 'username', 'eventType', 'createdAt'],
+        properties: {
+          id: { type: 'integer', example: 1 },
+          username: { type: 'string', example: 'alice' },
+          eventType: {
+            type: 'string',
+            enum: ['login', 'logout', 'failed_login'],
+            example: 'login',
+          },
+          createdAt: { type: 'string', format: 'date-time', example: '2026-05-01T08:00:00Z' },
+        },
+      },
+      AuditLogPage: {
+        type: 'object',
+        required: ['items', 'page', 'pageSize', 'total', 'hasMore'],
+        properties: {
+          items: {
+            type: 'array',
+            items: { $ref: '#/components/schemas/AuditLogEntry' },
+          },
+          page: { type: 'integer', example: 1 },
+          pageSize: { type: 'integer', example: 20 },
+          total: { type: 'integer', example: 120 },
+          hasMore: { type: 'boolean', example: true },
+        },
+      },
+      AuditLogReseedResponse: {
+        type: 'object',
+        required: ['ok', 'seeded'],
+        properties: {
+          ok: { type: 'boolean', example: true },
+          seeded: { type: 'integer', example: 120 },
         },
       },
     },
