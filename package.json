@@ -30,6 +30,9 @@
     "typecheck": "tsc --noEmit && npm run typecheck --workspace=client && npm run typecheck --workspace=server",
     "prepare": "husky || true"
   },
+  "overrides": {
+    "shell-quote": "^1.10.0"
+  },
   "lint-staged": {
     "*.{ts,tsx}": [
       "prettier --write",
