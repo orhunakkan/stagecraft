@@ -1,3 +1,4 @@
+import { performance } from 'node:perf_hooks';
 import sql from 'mssql';
 import { logger } from './logger';
 
@@ -14,8 +15,26 @@ function delay(ms: number): Promise<void> {
   });
 }
 
+/**
+ * Extracts only a coarse error classification. mssql error messages/stacks
+ * can echo back connection details (host, login name), so the raw error is
+ * never logged — only its `code`/`name` are safe to record.
+ */
+function sanitizeSqlError(error: unknown): { code: string; name: string } {
+  const code =
+    typeof error === 'object' && error !== null && 'code' in error && typeof error.code === 'string'
+      ? error.code
+      : 'UNKNOWN';
+  const name =
+    typeof error === 'object' && error !== null && 'name' in error && typeof error.name === 'string'
+      ? error.name
+      : 'Error';
+  return { code, name };
+}
+
 async function connectWithRetry(connectionString: string): Promise<sql.ConnectionPool> {
   let lastError: unknown;
+  const operationStart = performance.now();
 
   for (let attempt = 0; attempt < CONNECT_RETRY_DELAYS_MS.length; attempt += 1) {
     try {
@@ -26,8 +45,14 @@ async function connectWithRetry(connectionString: string): Promise<sql.Connectio
       return await pool.connect();
     } catch (error) {
       lastError = error;
+      const { code, name } = sanitizeSqlError(error);
       logger.error(
-        { err: error, attempt: attempt + 1 },
+        {
+          attempt: attempt + 1,
+          elapsedMs: Math.round(performance.now() - operationStart),
+          sqlErrorCode: code,
+          sqlErrorName: name,
+        },
         'Azure SQL connection attempt failed, retrying',
       );
       await delay(CONNECT_RETRY_DELAYS_MS[attempt] ?? 10_000);
@@ -102,6 +127,10 @@ export async function initBookCatalogStore(): Promise<void> {
     await ensureBookCatalogSchema(pool);
     logger.info('Azure SQL book catalog schema is ready');
   } catch (error) {
-    logger.error({ err: error }, 'Failed to initialize Azure SQL book catalog store at startup');
+    const { code, name } = sanitizeSqlError(error);
+    logger.error(
+      { sqlErrorCode: code, sqlErrorName: name },
+      'Failed to initialize Azure SQL book catalog store at startup',
+    );
   }
 }
