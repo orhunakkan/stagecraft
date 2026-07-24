@@ -57,6 +57,11 @@ export default tseslint.config(
       'jsx-a11y/no-noninteractive-element-interactions': 'off',
       'jsx-a11y/no-static-element-interactions': 'off',
       'jsx-a11y/no-noninteractive-tabindex': 'off',
+      // no-onchange/accessible-emoji were dropped from jsx-a11y's own recommended
+      // config in later releases; they only resurface here because of the pinned
+      // 6.4.1 downgrade (needed to drop a vulnerable transitive minimatch).
+      'jsx-a11y/no-onchange': 'off',
+      'jsx-a11y/accessible-emoji': 'off',
     },
   },
 );
