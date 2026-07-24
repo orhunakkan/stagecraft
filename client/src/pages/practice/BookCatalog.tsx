@@ -106,7 +106,7 @@ function QueryPanel<T>({
 }: QueryPanelProps<T>) {
   const [search, setSearch] = useState('');
   const [filterValues, setFilterValues] = useState<Record<string, string>>({});
-  const [sort, setSort] = useState(sortOptions[0]?.value ?? '');
+  const [sort, setSort] = useState(sortOptions[0]!.value);
   const [direction, setDirection] = useState<Direction>('asc');
   const [page, setPage] = useState(1);
   const [data, setData] = useState<PageResponse<T> | null>(null);

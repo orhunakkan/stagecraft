@@ -349,23 +349,22 @@ export class InMemoryBookCatalogStore implements BookCatalogStore {
   }
 
   listCatalog(params: CatalogQuery): Promise<Page<CatalogRow>> {
+    // Every seeded book references a valid author id (see buildSeedBookRows), so the
+    // lookup below always succeeds — no need for a defensive undefined branch.
     const authorsById = new Map(this.authors.map((a) => [a.id, a]));
     const joined = this.books
       .map((b) => {
-        const author = authorsById.get(b.authorId);
-        return author
-          ? ({
-              id: b.id,
-              title: b.title,
-              genre: b.genre,
-              publishedYear: b.publishedYear,
-              rating: b.rating,
-              authorName: author.name,
-              authorCountry: author.country,
-            } satisfies CatalogRow)
-          : undefined;
+        const author = authorsById.get(b.authorId)!;
+        return {
+          id: b.id,
+          title: b.title,
+          genre: b.genre,
+          publishedYear: b.publishedYear,
+          rating: b.rating,
+          authorName: author.name,
+          authorCountry: author.country,
+        } satisfies CatalogRow;
       })
-      .filter((row): row is CatalogRow => row !== undefined)
       .filter(
         (row) =>
           (!params.genre || row.genre === params.genre) &&

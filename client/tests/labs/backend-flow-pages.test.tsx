@@ -292,6 +292,92 @@ describe('BookCatalog', () => {
 
     expect(await screen.findByText('No authors match this query.')).toBeVisible();
   });
+
+  test('includes a selected filter value only after clicking Run Query', async () => {
+    const fetchMock = mockFetch();
+    fetchMock.mockResolvedValue(authorsPage());
+
+    render(<BookCatalog />);
+    await screen.findByText('Jane Austen');
+
+    fireEvent.change(screen.getByLabelText('Country'), { target: { value: 'Japan' } });
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+
+    fireEvent.click(screen.getByRole('button', { name: 'Run Query' }));
+
+    await waitFor(() =>
+      expect(fetchMock).toHaveBeenLastCalledWith(expect.stringContaining('country=Japan')),
+    );
+  });
+
+  test('toggles sort direction and sends it on the next Run Query', async () => {
+    const fetchMock = mockFetch();
+    fetchMock.mockResolvedValue(authorsPage());
+
+    render(<BookCatalog />);
+    await screen.findByText('Jane Austen');
+
+    expect(screen.getByRole('button', { name: 'Ascending ↑' })).toBeVisible();
+    fireEvent.click(screen.getByRole('button', { name: 'Ascending ↑' }));
+    expect(screen.getByRole('button', { name: 'Descending ↓' })).toBeVisible();
+
+    fireEvent.click(screen.getByRole('button', { name: 'Run Query' }));
+
+    await waitFor(() =>
+      expect(fetchMock).toHaveBeenLastCalledWith(expect.stringContaining('direction=desc')),
+    );
+  });
+
+  test('switching to the Catalog tab mounts the JOIN panel', async () => {
+    const fetchMock = mockFetch();
+    fetchMock.mockResolvedValue(authorsPage());
+
+    render(<BookCatalog />);
+    await screen.findByText('Jane Austen');
+
+    fetchMock.mockResolvedValueOnce(
+      jsonResponse({
+        items: [
+          {
+            id: 1,
+            title: 'Pride and Prejudice',
+            genre: 'Classic',
+            publishedYear: 1813,
+            rating: 4.7,
+            authorName: 'Jane Austen',
+            authorCountry: 'United Kingdom',
+          },
+        ],
+        page: 1,
+        pageSize: 10,
+        total: 1,
+        hasMore: false,
+        sql: 'SELECT b.Id, b.Title FROM Books b JOIN Authors a ON b.AuthorId = a.Id',
+      }),
+    );
+    fireEvent.click(screen.getByRole('tab', { name: 'Catalog (JOIN)' }));
+
+    expect(await screen.findByRole('table', { name: 'catalog entries' })).toBeVisible();
+    expect(fetchMock).toHaveBeenLastCalledWith(
+      expect.stringContaining('/api/book-catalog/catalog'),
+    );
+  });
+
+  test('shows an error and re-enables the button when reset fails', async () => {
+    vi.spyOn(window, 'confirm').mockReturnValue(true);
+    const fetchMock = mockFetch();
+    fetchMock
+      .mockResolvedValueOnce(authorsPage())
+      .mockResolvedValueOnce(jsonResponse({ error: 'Boom' }, 500));
+
+    render(<BookCatalog />);
+    await screen.findByText('Jane Austen');
+
+    fireEvent.click(screen.getByRole('button', { name: 'Reset catalog data' }));
+
+    expect(await screen.findByRole('alert')).toHaveTextContent('Error: HTTP 500');
+    expect(screen.getByRole('button', { name: 'Reset catalog data' })).toBeEnabled();
+  });
 });
 
 describe('FakeAuth', () => {

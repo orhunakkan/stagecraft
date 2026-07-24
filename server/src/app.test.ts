@@ -992,6 +992,58 @@ describe('book catalog API', () => {
     expect(body.items.some((item) => item.authorName === 'Jane Austen')).toBe(true);
   });
 
+  test('sorts authors by birth year in descending order', async () => {
+    await reseed();
+
+    const { response, body } = await json<{ items: Array<{ birthYear: number }> }>(
+      '/api/book-catalog/authors?sort=birthYear&direction=desc&pageSize=100',
+    );
+
+    expect(response.status).toBe(200);
+    const years = body.items.map((item) => item.birthYear);
+    expect(years).toEqual([...years].sort((a, b) => b - a));
+  });
+
+  test('sorts books by published year', async () => {
+    await reseed();
+
+    const { response, body } = await json<{ items: Array<{ publishedYear: number }> }>(
+      '/api/book-catalog/books?sort=publishedYear&direction=asc&pageSize=100',
+    );
+
+    expect(response.status).toBe(200);
+    const years = body.items.map((item) => item.publishedYear);
+    expect(years).toEqual([...years].sort((a, b) => a - b));
+  });
+
+  test('sorts the catalog join by published year and by rating, descending', async () => {
+    await reseed();
+
+    const byYear = await json<{ items: Array<{ publishedYear: number }> }>(
+      '/api/book-catalog/catalog?sort=publishedYear&direction=desc&pageSize=100',
+    );
+    expect(byYear.response.status).toBe(200);
+    const years = byYear.body.items.map((item) => item.publishedYear);
+    expect(years).toEqual([...years].sort((a, b) => b - a));
+
+    const byRating = await json<{ items: Array<{ rating: number }> }>(
+      '/api/book-catalog/catalog?sort=rating&direction=desc&pageSize=100',
+    );
+    expect(byRating.response.status).toBe(200);
+    const ratings = byRating.body.items.map((item) => item.rating);
+    expect(ratings).toEqual([...ratings].sort((a, b) => b - a));
+  });
+
+  test('rejects an invalid query for authors and for the catalog join', async () => {
+    const authors = await json<{ error: string }>('/api/book-catalog/authors?sort=not-a-column');
+    expect(authors.response.status).toBe(400);
+    expect(authors.body.error).toBeTruthy();
+
+    const catalog = await json<{ error: string }>('/api/book-catalog/catalog?sort=not-a-column');
+    expect(catalog.response.status).toBe(400);
+    expect(catalog.body.error).toBeTruthy();
+  });
+
   test('treats SQL-injection-style search input as a literal, harmless substring', async () => {
     await reseed();
 
