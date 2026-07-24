@@ -565,7 +565,7 @@ export const openApiDocument = {
       post: {
         tags: ['Audit Log'],
         summary:
-          'Truncate and reseed the audit log with deterministic fixture data (admin only, non-production)',
+          'Truncate and reseed the audit log with deterministic fixture data (admin only; blocked in production unless AUDIT_LOG_ALLOW_RESEED=true)',
         operationId: 'reseedAuditLog',
         security: [{ cookieAuth: [] }],
         responses: {

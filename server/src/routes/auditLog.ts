@@ -43,7 +43,8 @@ router.post('/reseed', async (req, res) => {
     res.status(403).json({ error: 'Forbidden' });
     return;
   }
-  if (process.env.NODE_ENV === 'production') {
+  const reseedAllowedInProduction = process.env.AUDIT_LOG_ALLOW_RESEED === 'true';
+  if (process.env.NODE_ENV === 'production' && !reseedAllowedInProduction) {
     res.status(403).json({ error: 'Reseeding is not allowed in production' });
     return;
   }

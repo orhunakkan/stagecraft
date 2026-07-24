@@ -322,13 +322,14 @@ A Husky pre-commit hook runs lint-staged, which formats staged files with Pretti
 
 Local development works with defaults. Production and Docker runs should provide explicit environment variables.
 
-| Variable                      | Default                 | Required          | Description                                                                                                                                                     |
-| ----------------------------- | ----------------------- | ----------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `PORT`                        | `3001`                  | No                | Express listen port.                                                                                                                                            |
-| `CLIENT_ORIGIN`               | `http://localhost:5173` | No                | CORS origin allowed by the API in development.                                                                                                                  |
-| `SESSION_SECRET`              | Development fallback    | Yes in production | Secret used to sign session cookies.                                                                                                                            |
-| `NODE_ENV`                    | unset                   | No                | Use `production` to serve the built client from Express.                                                                                                        |
-| `AZURE_SQL_CONNECTION_STRING` | unset                   | No                | Connection string for the `audit-log-search` lab's Azure SQL Database. Falls back to an in-memory store when unset. See [docs/azure-sql.md](docs/azure-sql.md). |
+| Variable                      | Default                 | Required          | Description                                                                                                                                                                                 |
+| ----------------------------- | ----------------------- | ----------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `PORT`                        | `3001`                  | No                | Express listen port.                                                                                                                                                                        |
+| `CLIENT_ORIGIN`               | `http://localhost:5173` | No                | CORS origin allowed by the API in development.                                                                                                                                              |
+| `SESSION_SECRET`              | Development fallback    | Yes in production | Secret used to sign session cookies.                                                                                                                                                        |
+| `NODE_ENV`                    | unset                   | No                | Use `production` to serve the built client from Express.                                                                                                                                    |
+| `AZURE_SQL_CONNECTION_STRING` | unset                   | No                | Connection string for the `audit-log-search` lab's Azure SQL Database. Falls back to an in-memory store when unset. See [docs/azure-sql.md](docs/azure-sql.md).                             |
+| `AUDIT_LOG_ALLOW_RESEED`      | unset                   | No                | Set to `true` to allow the `audit-log-search` lab's reseed action when `NODE_ENV=production`. Set on the deployed practice site so admins and E2E automation can reseed fixture data there. |
 
 PowerShell example:
 

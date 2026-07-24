@@ -275,6 +275,32 @@ describe('production startup configuration', () => {
     }
   });
 
+  test('allows audit log reseed in production when AUDIT_LOG_ALLOW_RESEED is set', async () => {
+    process.env.AUDIT_LOG_ALLOW_RESEED = 'true';
+    const { productionBaseUrl, productionServer } = await startProductionApp();
+
+    try {
+      const login = await fetch(`${productionBaseUrl}/api/auth/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-Forwarded-Proto': 'https' },
+        body: JSON.stringify({ username: 'alice', password: 'password123' }),
+      });
+      const cookie = login.headers.get('set-cookie');
+
+      const reseed = await fetch(`${productionBaseUrl}/api/audit-log/reseed`, {
+        method: 'POST',
+        headers: { Cookie: cookie ?? '', 'X-Forwarded-Proto': 'https' },
+      });
+      const body = (await reseed.json()) as { ok: true; seeded: number };
+
+      expect(reseed.status).toBe(200);
+      expect(body.ok).toBe(true);
+      expect(body.seeded).toBeGreaterThan(0);
+    } finally {
+      await closeServer(productionServer);
+    }
+  });
+
   test('does not serve the SPA shell for API or non-GET requests', async () => {
     const { productionBaseUrl, productionServer } = await startProductionApp();
 

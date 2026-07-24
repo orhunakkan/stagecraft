@@ -12,6 +12,9 @@ services:
       # Optional — only used by the audit-log-search lab. Unset by default so
       # docker compose up keeps working on the lab's in-memory fallback store.
       AZURE_SQL_CONNECTION_STRING: ${AZURE_SQL_CONNECTION_STRING:-}
+      # This container is the practice site's automation target, not a real production
+      # deployment, so the audit-log-search lab's reseed action stays enabled here.
+      AUDIT_LOG_ALLOW_RESEED: 'true'
     restart: unless-stopped
     healthcheck:
       test:

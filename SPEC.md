@@ -484,7 +484,7 @@ Covered inline in Tasks 4.4 and 4.5 above. Separate task for WebSocket:
   - Files: `server/src/lib/auditLogStore.ts`, `server/src/lib/db.ts`
 
 - [ ] **Task 9.2:** `/api/audit-log` routes and fake-auth event recording
-  - Acceptance: `GET /api/audit-log` (paginated/filtered/sorted) and `POST /api/audit-log/reseed` are admin-gated the same way as `/api/auth/admin/stats`; reseed is additionally blocked in production; `auth.ts` records login/logout/failed_login events
+  - Acceptance: `GET /api/audit-log` (paginated/filtered/sorted) and `POST /api/audit-log/reseed` are admin-gated the same way as `/api/auth/admin/stats`; reseed is additionally blocked in production unless `AUDIT_LOG_ALLOW_RESEED=true` (set on the deployed practice site so it stays reseedable); `auth.ts` records login/logout/failed_login events
   - Verify: `npm run test:run --workspace=server` — `audit log API` describe block passes, including the SQL-injection-safety cases
   - Files: `server/src/routes/auditLog.ts`, `server/src/routes/auth.ts`, `server/src/lib/schemas.ts`
 
