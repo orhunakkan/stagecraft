@@ -2,7 +2,7 @@ import { act, cleanup, fireEvent, render, screen, waitFor } from '@testing-libra
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { ApiRequestContext } from '../../src/pages/practice/ApiRequestContext';
-import { AuditLogSearch } from '../../src/pages/practice/AuditLogSearch';
+import { BookCatalog } from '../../src/pages/practice/BookCatalog';
 import { FakeAuth } from '../../src/pages/practice/FakeAuth';
 import { FakeAuthDashboard } from '../../src/pages/practice/FakeAuthDashboard';
 import { HarRecording } from '../../src/pages/practice/HarRecording';
@@ -140,47 +140,67 @@ describe('NetworkApi', () => {
   });
 });
 
-describe('AuditLogSearch', () => {
-  function auditPage(overrides: Partial<Record<string, unknown>> = {}) {
+describe('BookCatalog', () => {
+  function authorsPage(overrides: Partial<Record<string, unknown>> = {}) {
     return jsonResponse({
-      items: [{ id: 1, username: 'alice', eventType: 'login', createdAt: '2026-01-01T00:00:00Z' }],
+      items: [{ id: 1, name: 'Jane Austen', country: 'United Kingdom', birthYear: 1775 }],
       page: 1,
-      pageSize: 20,
+      pageSize: 10,
       total: 1,
       hasMore: false,
+      sql: 'SELECT Id, Name, Country, BirthYear FROM Authors ORDER BY Name ASC',
       ...overrides,
     });
   }
 
-  test('loads and paginates audit log entries', async () => {
+  function booksPage(overrides: Partial<Record<string, unknown>> = {}) {
+    return jsonResponse({
+      items: [
+        {
+          id: 1,
+          title: 'Pride and Prejudice',
+          authorId: 1,
+          genre: 'Classic',
+          publishedYear: 1813,
+          rating: 4.7,
+        },
+      ],
+      page: 1,
+      pageSize: 10,
+      total: 1,
+      hasMore: false,
+      sql: 'SELECT Id, Title, AuthorId, Genre, PublishedYear, Rating FROM Books ORDER BY Title ASC',
+      ...overrides,
+    });
+  }
+
+  test('loads and paginates authors on mount', async () => {
     const fetchMock = mockFetch();
     fetchMock.mockResolvedValue(
-      auditPage({
-        items: [
-          { id: 1, username: 'alice', eventType: 'login', createdAt: '2026-01-01T00:00:00Z' },
-        ],
-        total: 40,
+      authorsPage({
+        items: [{ id: 1, name: 'Jane Austen', country: 'United Kingdom', birthYear: 1775 }],
+        total: 20,
         hasMore: true,
       }),
     );
 
-    render(<AuditLogSearch />);
+    render(<BookCatalog />);
 
-    expect(await screen.findByText('alice')).toBeVisible();
+    expect(await screen.findByText('Jane Austen')).toBeVisible();
     expect(screen.getByText(/Page 1 of 2/)).toBeVisible();
+    expect(screen.getByText(/SELECT Id, Name, Country, BirthYear FROM Authors/)).toBeVisible();
 
     fetchMock.mockResolvedValueOnce(
-      auditPage({
-        items: [{ id: 2, username: 'bob', eventType: 'logout', createdAt: '2026-01-02T00:00:00Z' }],
+      authorsPage({
+        items: [{ id: 2, name: 'George Orwell', country: 'United Kingdom', birthYear: 1903 }],
         page: 2,
-        total: 40,
+        total: 20,
         hasMore: true,
       }),
     );
     fireEvent.click(screen.getByRole('button', { name: 'Next' }));
 
-    expect(await screen.findByText('bob')).toBeVisible();
-    expect(screen.getByText(/Page 2 of 2/)).toBeVisible();
+    expect(await screen.findByText('George Orwell')).toBeVisible();
     expect(fetchMock).toHaveBeenLastCalledWith(expect.stringContaining('page=2'));
 
     fireEvent.click(screen.getByRole('button', { name: 'Prev' }));
@@ -190,139 +210,87 @@ describe('AuditLogSearch', () => {
     );
   });
 
-  test('changes sort order', async () => {
+  test('runs a new query with a search value only after clicking Run Query', async () => {
     const fetchMock = mockFetch();
-    fetchMock.mockResolvedValue(auditPage());
+    fetchMock.mockResolvedValue(authorsPage());
 
-    render(<AuditLogSearch />);
-    await screen.findByText('alice');
+    render(<BookCatalog />);
+    await screen.findByText('Jane Austen');
 
-    fireEvent.change(screen.getByLabelText('Sort order'), {
-      target: { value: 'createdAt:asc' },
+    fireEvent.change(screen.getByLabelText('Name contains'), { target: { value: 'orwell' } });
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+
+    fireEvent.click(screen.getByRole('button', { name: 'Run Query' }));
+
+    await waitFor(() =>
+      expect(fetchMock).toHaveBeenLastCalledWith(expect.stringContaining('search=orwell')),
+    );
+  });
+
+  test('switching to the Books tab mounts a fresh panel against /api/book-catalog/books', async () => {
+    const fetchMock = mockFetch();
+    fetchMock.mockResolvedValue(authorsPage());
+
+    render(<BookCatalog />);
+    await screen.findByText('Jane Austen');
+
+    fetchMock.mockResolvedValueOnce(booksPage());
+    fireEvent.click(screen.getByRole('tab', { name: 'Books' }));
+
+    expect(await screen.findByText('Pride and Prejudice')).toBeVisible();
+    expect(fetchMock).toHaveBeenLastCalledWith(expect.stringContaining('/api/book-catalog/books'));
+  });
+
+  test('resets catalog data after confirming the dialog', async () => {
+    vi.spyOn(window, 'confirm').mockReturnValue(true);
+    const fetchMock = mockFetch();
+    fetchMock
+      .mockResolvedValueOnce(authorsPage())
+      .mockResolvedValueOnce(jsonResponse({ ok: true, seededAuthors: 12, seededBooks: 30 }))
+      .mockResolvedValueOnce(authorsPage({ total: 12 }));
+
+    render(<BookCatalog />);
+    await screen.findByText('Jane Austen');
+
+    fireEvent.click(screen.getByRole('button', { name: 'Reset catalog data' }));
+
+    await waitFor(() =>
+      expect(fetchMock).toHaveBeenCalledWith('/api/book-catalog/reseed', { method: 'POST' }),
+    );
+    expect(await screen.findByText(/\(12 total\)/)).toBeVisible();
+  });
+
+  test('does not reseed when the confirmation dialog is dismissed', async () => {
+    vi.spyOn(window, 'confirm').mockReturnValue(false);
+    const fetchMock = mockFetch();
+    fetchMock.mockResolvedValue(authorsPage());
+
+    render(<BookCatalog />);
+    await screen.findByText('Jane Austen');
+
+    fireEvent.click(screen.getByRole('button', { name: 'Reset catalog data' }));
+
+    await waitFor(() => {
+      expect(fetchMock).not.toHaveBeenCalledWith('/api/book-catalog/reseed', { method: 'POST' });
     });
-
-    await waitFor(() =>
-      expect(fetchMock).toHaveBeenLastCalledWith(expect.stringContaining('sort=createdAt%3Aasc')),
-    );
-  });
-
-  test('submits username and date-range filters', async () => {
-    const fetchMock = mockFetch();
-    fetchMock.mockResolvedValue(auditPage());
-
-    render(<AuditLogSearch />);
-    await screen.findByText('alice');
-
-    fireEvent.change(screen.getByLabelText('Username contains'), { target: { value: 'carol' } });
-    fireEvent.change(screen.getByLabelText('From date'), { target: { value: '2026-01-01' } });
-    fireEvent.change(screen.getByLabelText('To date'), { target: { value: '2026-01-05' } });
-    fireEvent.click(screen.getByRole('button', { name: 'Search' }));
-
-    await waitFor(() =>
-      expect(fetchMock).toHaveBeenLastCalledWith(
-        expect.stringMatching(/username=carol.*from=2026-01-01.*to=2026-01-05/),
-      ),
-    );
-  });
-
-  test('reseeds fixture data', async () => {
-    const fetchMock = mockFetch();
-    fetchMock
-      .mockResolvedValueOnce(auditPage())
-      .mockResolvedValueOnce(jsonResponse({ ok: true, seeded: 120 }))
-      .mockResolvedValueOnce(auditPage({ total: 120 }));
-
-    render(<AuditLogSearch />);
-    await screen.findByText('alice');
-
-    fireEvent.click(screen.getByRole('button', { name: 'Reseed fixture data' }));
-
-    await waitFor(() =>
-      expect(fetchMock).toHaveBeenCalledWith('/api/audit-log/reseed', { method: 'POST' }),
-    );
-    expect(await screen.findByText(/\(120 total\)/)).toBeVisible();
-  });
-
-  test('shows a generic error when reseed fails unexpectedly', async () => {
-    const fetchMock = mockFetch();
-    fetchMock
-      .mockResolvedValueOnce(auditPage())
-      .mockResolvedValueOnce(jsonResponse({ error: 'Boom' }, 500));
-
-    render(<AuditLogSearch />);
-    await screen.findByText('alice');
-
-    fireEvent.click(screen.getByRole('button', { name: 'Reseed fixture data' }));
-
-    expect(await screen.findByRole('alert')).toHaveTextContent('Error: HTTP 500');
-  });
-
-  test('shows an unauthenticated message when reseed is attempted after the session expires', async () => {
-    const fetchMock = mockFetch();
-    fetchMock
-      .mockResolvedValueOnce(auditPage())
-      .mockResolvedValueOnce(jsonResponse({ error: 'Not authenticated' }, 401));
-
-    render(<AuditLogSearch />);
-    await screen.findByText('alice');
-
-    fireEvent.click(screen.getByRole('button', { name: 'Reseed fixture data' }));
-
-    expect(await screen.findByRole('alert')).toHaveTextContent('must be signed in as an admin');
-  });
-
-  test('shows the server message when reseed is blocked in production', async () => {
-    const fetchMock = mockFetch();
-    fetchMock
-      .mockResolvedValueOnce(auditPage())
-      .mockResolvedValueOnce(
-        jsonResponse({ error: 'Reseeding is not allowed in production' }, 403),
-      );
-
-    render(<AuditLogSearch />);
-    await screen.findByText('alice');
-
-    fireEvent.click(screen.getByRole('button', { name: 'Reseed fixture data' }));
-
-    expect(await screen.findByRole('alert')).toHaveTextContent(
-      'Reseeding is not allowed in production',
-    );
-  });
-
-  test('shows an unauthenticated message', async () => {
-    const fetchMock = mockFetch();
-    fetchMock.mockResolvedValueOnce(jsonResponse({ error: 'Not authenticated' }, 401));
-
-    render(<AuditLogSearch />);
-
-    expect(await screen.findByRole('alert')).toHaveTextContent('must be signed in as an admin');
-  });
-
-  test('shows a forbidden message for a non-admin session', async () => {
-    const fetchMock = mockFetch();
-    fetchMock.mockResolvedValueOnce(jsonResponse({ error: 'Forbidden' }, 403));
-
-    render(<AuditLogSearch />);
-
-    expect(await screen.findByRole('alert')).toHaveTextContent('does not have admin access');
   });
 
   test('shows a generic error message on unexpected failures', async () => {
     const fetchMock = mockFetch();
     fetchMock.mockResolvedValueOnce(jsonResponse({ error: 'Boom' }, 500));
 
-    render(<AuditLogSearch />);
+    render(<BookCatalog />);
 
-    expect(await screen.findByRole('alert')).toHaveTextContent('Error: Boom');
+    expect(await screen.findByRole('alert')).toHaveTextContent('Error: HTTP 500');
   });
 
-  test('shows an empty state when no entries match', async () => {
+  test('shows an empty state when no rows match', async () => {
     const fetchMock = mockFetch();
-    fetchMock.mockResolvedValueOnce(auditPage({ items: [], total: 0 }));
+    fetchMock.mockResolvedValueOnce(authorsPage({ items: [], total: 0 }));
 
-    render(<AuditLogSearch />);
+    render(<BookCatalog />);
 
-    expect(await screen.findByText('No audit log entries match this search.')).toBeVisible();
+    expect(await screen.findByText('No authors match this query.')).toBeVisible();
   });
 });
 

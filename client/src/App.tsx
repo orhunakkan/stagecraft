@@ -101,7 +101,7 @@ const labComponentMap: Record<string, ComponentType> = {
     () => import('./pages/practice/CustomAssertions'),
     'CustomAssertions',
   ),
-  'audit-log-search': lazyNamed(() => import('./pages/practice/AuditLogSearch'), 'AuditLogSearch'),
+  'book-catalog': lazyNamed(() => import('./pages/practice/BookCatalog'), 'BookCatalog'),
 };
 
 // Extra sub-routes for labs with multi-page flows (not derivable from a single slug)

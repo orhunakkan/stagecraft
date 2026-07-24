@@ -28,19 +28,39 @@ export const CreateNoteSchema = z.object({
   text: nonBlankString('text is required'),
 });
 
-export const AuditLogQuerySchema = z
-  .object({
-    page: z.coerce.number().int().min(1).optional().default(1),
-    pageSize: z.coerce.number().int().min(1).max(100).optional().default(20),
-    username: z
-      .string()
-      .transform((s) => s.trim())
-      .optional(),
-    from: z.union([z.iso.datetime({ offset: true }), z.iso.date()]).optional(),
-    to: z.union([z.iso.datetime({ offset: true }), z.iso.date()]).optional(),
-    sort: z.enum(['createdAt:asc', 'createdAt:desc']).optional().default('createdAt:desc'),
-  })
-  .refine((data) => !data.from || !data.to || data.from <= data.to, {
-    message: 'from must not be later than to',
-    path: ['from'],
-  });
+const PageParams = {
+  page: z.coerce.number().int().min(1).optional().default(1),
+  pageSize: z.coerce.number().int().min(1).max(100).optional().default(10),
+};
+
+const SortDirectionParam = z.enum(['asc', 'desc']).optional().default('asc');
+
+export const AuthorQuerySchema = z.object({
+  ...PageParams,
+  search: z
+    .string()
+    .transform((s) => s.trim())
+    .optional(),
+  country: z.string().optional(),
+  sort: z.enum(['name', 'birthYear']).optional().default('name'),
+  direction: SortDirectionParam,
+});
+
+export const BookQuerySchema = z.object({
+  ...PageParams,
+  search: z
+    .string()
+    .transform((s) => s.trim())
+    .optional(),
+  genre: z.string().optional(),
+  sort: z.enum(['title', 'publishedYear', 'rating']).optional().default('title'),
+  direction: SortDirectionParam,
+});
+
+export const CatalogQuerySchema = z.object({
+  ...PageParams,
+  genre: z.string().optional(),
+  country: z.string().optional(),
+  sort: z.enum(['title', 'publishedYear', 'rating']).optional().default('title'),
+  direction: SortDirectionParam,
+});

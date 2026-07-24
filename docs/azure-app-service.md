@@ -83,11 +83,10 @@ az webapp config appsettings set `
   --settings `
     NODE_ENV=production `
     SESSION_SECRET="$sessionSecret" `
-    CLIENT_ORIGIN="https://$app.azurewebsites.net" `
-    AUDIT_LOG_ALLOW_RESEED=true
+    CLIENT_ORIGIN="https://$app.azurewebsites.net"
 ```
 
-`AUDIT_LOG_ALLOW_RESEED=true` keeps the `audit-log-search` lab's reseed action available on this deployment. This site is the Playwright practice target (see `SPEC.md`'s Resolved Decisions table, #5) rather than a real production data service, so signed-in admins and E2E automation need to be able to reseed fixture data here even though `NODE_ENV=production`.
+See [docs/azure-sql.md](azure-sql.md) for setting `AZURE_SQL_CONNECTION_STRING` as an additional app setting, which the `book-catalog` lab requires to run against a real database on this deployment rather than its in-memory fallback.
 
 Enable WebSockets:
 

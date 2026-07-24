@@ -13,7 +13,7 @@ import productsRouter from './routes/products';
 import swItemsRouter from './routes/swItems';
 import feedRouter from './routes/feed';
 import sseRouter from './routes/sse';
-import auditLogRouter from './routes/auditLog';
+import bookCatalogRouter from './routes/bookCatalog';
 import { openApiDocument } from './openapi';
 import { logger } from './lib/logger';
 
@@ -156,7 +156,7 @@ app.use('/api/products', productsRouter);
 app.use('/api/sw-items', swItemsRouter);
 app.use('/api/feed', feedRouter);
 app.use('/api/sse', sseRouter);
-app.use('/api/audit-log', auditLogRouter);
+app.use('/api/book-catalog', bookCatalogRouter);
 
 app.use('/api', (_req, res) => {
   res.status(404).json({ error: 'API route not found' });

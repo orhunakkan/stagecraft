@@ -22,7 +22,7 @@ The app intentionally does not ship answer tests for learners. Its job is to pro
 - [Configuration](#configuration)
 - [Production Build and Docker](#production-build-and-docker)
 - [Azure App Service Free Hosting](#azure-app-service-free-hosting)
-- [Azure SQL Database (Audit Log & Search lab)](#azure-sql-database-audit-log--search-lab)
+- [Azure SQL Database (Book Catalog lab)](#azure-sql-database-book-catalog-lab)
 - [Development Guidelines](#development-guidelines)
 - [Troubleshooting](#troubleshooting)
 
@@ -183,50 +183,50 @@ In production, the client is built to `client/dist`, the server is built to `ser
 - The fake-auth session cookie is httpOnly; Playwright can still persist it through `storageState` for the auth-state lab.
 - WebSockets are attached to the same HTTP server as Express and are available at `/ws`.
 - The scroll and lazy-loading lab uses a deterministic, in-memory `/api/feed` endpoint so infinite-scroll tests can exercise real pagination without external services.
-- Backend data is in-memory and resets when the server restarts, **except** the `audit-log-search` lab, which persists to a real Azure SQL Database when configured. See [Azure SQL Database (Audit Log & Search lab)](#azure-sql-database-audit-log--search-lab).
+- Backend data is in-memory and resets when the server restarts, **except** the `book-catalog` lab, which persists to a real Azure SQL Database when configured. See [Azure SQL Database (Book Catalog lab)](#azure-sql-database-book-catalog-lab).
 
 ## Labs
 
 All labs are registered in `client/src/labs/index.ts`. Each registry entry defines the route slug, display title, topic, relevant Playwright APIs, status, and whether the lab needs the backend.
 
-| Slug                          | Lab                                     | Backend | Focus                                                                |
-| ----------------------------- | --------------------------------------- | ------- | -------------------------------------------------------------------- |
-| `accessible-locators`         | Accessible Locators                     | No      | Roles, labels, headings, alt text, accessible names.                 |
-| `forms-validation`            | Forms & Validation                      | No      | Form controls, validation messages, disabled submit states.          |
-| `tables-filtering`            | Tables & Filtering                      | No      | Search, sort, filter, pagination, row actions.                       |
-| `async-ui`                    | Async UI                                | No      | Loading states, retries, delayed UI changes.                         |
-| `network-api`                 | Network & API                           | Yes     | API-backed UI and network synchronization.                           |
-| `fake-auth`                   | Fake Auth                               | Yes     | Login, protected routes, logout, session state.                      |
-| `browser-events`              | Browser Events                          | No      | Dialogs, files, downloads, browser events.                           |
-| `frames-contexts`             | Frames & Contexts                       | No      | Iframes and browser context concepts.                                |
-| `emulation-input`             | Emulation & Input                       | No      | Keyboard, mouse, viewport, device emulation.                         |
-| `debugging-reporting`         | Debugging & Reporting                   | No      | Trace viewer, screenshots, retries, timeouts.                        |
-| `websocket-interception`      | WebSocket Interception                  | Yes     | WebSocket messages and interception.                                 |
-| `aria-snapshots`              | ARIA Snapshots                          | No      | Accessibility tree regression assertions.                            |
-| `clock-timers`                | Clock & Timers                          | No      | Controlling time with Playwright clock APIs.                         |
-| `api-request-context`         | API Request Context                     | Yes     | Using Playwright's HTTP client fixture.                              |
-| `storage-state`               | Storage State                           | Yes     | Auth serialization and multi-user contexts.                          |
-| `visual-regression`           | Visual Regression                       | No      | Screenshots and visual diffing.                                      |
-| `drag-and-drop`               | Drag & Drop                             | No      | Drag actions, drop zones, DataTransfer.                              |
-| `har-recording`               | HAR Recording                           | Yes     | HAR recording, replay, and network stubs.                            |
-| `multi-tab`                   | Multi-Tab                               | No      | Popups, multiple pages, shared same-origin state.                    |
-| `service-workers`             | Service Workers                         | No      | Service worker interception and offline testing.                     |
-| `geolocation-permissions`     | Geolocation & Permissions               | No      | Permission grants, geolocation, clipboard interactions.              |
-| `locator-handlers`            | Locator Handlers                        | No      | Auto-dismiss overlays with locator handlers.                         |
-| `media-locale`                | Media & Locale Emulation                | No      | CSS media features, locale, and timezone emulation.                  |
-| `scroll-lazy-loading`         | Scroll & Lazy Loading                   | Yes     | Infinite scroll, viewport assertions, paginated data.                |
-| `accessibility-scanning`      | Accessibility Scanning                  | No      | Axe scans, scoped scans, WCAG tag filtering.                         |
-| `shadow-dom`                  | Shadow DOM & Web Components             | No      | Piercing shadow roots, custom elements, declarative shadow DOM.      |
-| `touch-gestures`              | Touch & Mobile Gestures                 | No      | tap, touchscreen, hasTouch, swipe, device descriptors.               |
-| `init-scripts`                | Init Scripts & Seeding                  | No      | page.addInitScript, context.addInitScript, pre-load injection.       |
-| `server-sent-events`          | Server-Sent Events                      | Yes     | SSE streaming, route interception, progressive DOM updates.          |
-| `soft-assertions`             | Soft Assertions & Test Steps            | No      | expect.soft, expect.poll, toPass, test.step, annotations.            |
-| `passkey-authentication`      | Passkey Authentication                  | Yes     | WebAuthn passkeys with a CDP virtual authenticator.                  |
-| `client-storage-partitioning` | Web Storage & Partitioned Cookies       | No      | localStorage/sessionStorage scope and CHIPS partitioned cookies.     |
-| `console-runtime-diagnostics` | Console & Runtime Diagnostics           | No      | Console messages, uncaught errors, and requests during a test.       |
-| `dom-memory-diagnostics`      | Memory & DOM Leak Diagnostics           | No      | Detecting retained DOM nodes with page.requestGC.                    |
-| `custom-assertions`           | Custom Assertions & Matcher Composition | No      | expect.extend, mergeExpects, mergeTests.                             |
-| `audit-log-search`            | Audit Log & Search                      | Yes     | Real persistence, server-side pagination, SQL-injection-safe search. |
+| Slug                          | Lab                                     | Backend | Focus                                                                 |
+| ----------------------------- | --------------------------------------- | ------- | --------------------------------------------------------------------- |
+| `accessible-locators`         | Accessible Locators                     | No      | Roles, labels, headings, alt text, accessible names.                  |
+| `forms-validation`            | Forms & Validation                      | No      | Form controls, validation messages, disabled submit states.           |
+| `tables-filtering`            | Tables & Filtering                      | No      | Search, sort, filter, pagination, row actions.                        |
+| `async-ui`                    | Async UI                                | No      | Loading states, retries, delayed UI changes.                          |
+| `network-api`                 | Network & API                           | Yes     | API-backed UI and network synchronization.                            |
+| `fake-auth`                   | Fake Auth                               | Yes     | Login, protected routes, logout, session state.                       |
+| `browser-events`              | Browser Events                          | No      | Dialogs, files, downloads, browser events.                            |
+| `frames-contexts`             | Frames & Contexts                       | No      | Iframes and browser context concepts.                                 |
+| `emulation-input`             | Emulation & Input                       | No      | Keyboard, mouse, viewport, device emulation.                          |
+| `debugging-reporting`         | Debugging & Reporting                   | No      | Trace viewer, screenshots, retries, timeouts.                         |
+| `websocket-interception`      | WebSocket Interception                  | Yes     | WebSocket messages and interception.                                  |
+| `aria-snapshots`              | ARIA Snapshots                          | No      | Accessibility tree regression assertions.                             |
+| `clock-timers`                | Clock & Timers                          | No      | Controlling time with Playwright clock APIs.                          |
+| `api-request-context`         | API Request Context                     | Yes     | Using Playwright's HTTP client fixture.                               |
+| `storage-state`               | Storage State                           | Yes     | Auth serialization and multi-user contexts.                           |
+| `visual-regression`           | Visual Regression                       | No      | Screenshots and visual diffing.                                       |
+| `drag-and-drop`               | Drag & Drop                             | No      | Drag actions, drop zones, DataTransfer.                               |
+| `har-recording`               | HAR Recording                           | Yes     | HAR recording, replay, and network stubs.                             |
+| `multi-tab`                   | Multi-Tab                               | No      | Popups, multiple pages, shared same-origin state.                     |
+| `service-workers`             | Service Workers                         | No      | Service worker interception and offline testing.                      |
+| `geolocation-permissions`     | Geolocation & Permissions               | No      | Permission grants, geolocation, clipboard interactions.               |
+| `locator-handlers`            | Locator Handlers                        | No      | Auto-dismiss overlays with locator handlers.                          |
+| `media-locale`                | Media & Locale Emulation                | No      | CSS media features, locale, and timezone emulation.                   |
+| `scroll-lazy-loading`         | Scroll & Lazy Loading                   | Yes     | Infinite scroll, viewport assertions, paginated data.                 |
+| `accessibility-scanning`      | Accessibility Scanning                  | No      | Axe scans, scoped scans, WCAG tag filtering.                          |
+| `shadow-dom`                  | Shadow DOM & Web Components             | No      | Piercing shadow roots, custom elements, declarative shadow DOM.       |
+| `touch-gestures`              | Touch & Mobile Gestures                 | No      | tap, touchscreen, hasTouch, swipe, device descriptors.                |
+| `init-scripts`                | Init Scripts & Seeding                  | No      | page.addInitScript, context.addInitScript, pre-load injection.        |
+| `server-sent-events`          | Server-Sent Events                      | Yes     | SSE streaming, route interception, progressive DOM updates.           |
+| `soft-assertions`             | Soft Assertions & Test Steps            | No      | expect.soft, expect.poll, toPass, test.step, annotations.             |
+| `passkey-authentication`      | Passkey Authentication                  | Yes     | WebAuthn passkeys with a CDP virtual authenticator.                   |
+| `client-storage-partitioning` | Web Storage & Partitioned Cookies       | No      | localStorage/sessionStorage scope and CHIPS partitioned cookies.      |
+| `console-runtime-diagnostics` | Console & Runtime Diagnostics           | No      | Console messages, uncaught errors, and requests during a test.        |
+| `dom-memory-diagnostics`      | Memory & DOM Leak Diagnostics           | No      | Detecting retained DOM nodes with page.requestGC.                     |
+| `custom-assertions`           | Custom Assertions & Matcher Composition | No      | expect.extend, mergeExpects, mergeTests.                              |
+| `book-catalog`                | Book Catalog                            | Yes     | Real SELECT and JOIN queries against a persistent Azure SQL database. |
 
 ## Backend Fixtures
 
@@ -322,14 +322,13 @@ A Husky pre-commit hook runs lint-staged, which formats staged files with Pretti
 
 Local development works with defaults. Production and Docker runs should provide explicit environment variables.
 
-| Variable                      | Default                 | Required          | Description                                                                                                                                                                                 |
-| ----------------------------- | ----------------------- | ----------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `PORT`                        | `3001`                  | No                | Express listen port.                                                                                                                                                                        |
-| `CLIENT_ORIGIN`               | `http://localhost:5173` | No                | CORS origin allowed by the API in development.                                                                                                                                              |
-| `SESSION_SECRET`              | Development fallback    | Yes in production | Secret used to sign session cookies.                                                                                                                                                        |
-| `NODE_ENV`                    | unset                   | No                | Use `production` to serve the built client from Express.                                                                                                                                    |
-| `AZURE_SQL_CONNECTION_STRING` | unset                   | No                | Connection string for the `audit-log-search` lab's Azure SQL Database. Falls back to an in-memory store when unset. See [docs/azure-sql.md](docs/azure-sql.md).                             |
-| `AUDIT_LOG_ALLOW_RESEED`      | unset                   | No                | Set to `true` to allow the `audit-log-search` lab's reseed action when `NODE_ENV=production`. Set on the deployed practice site so admins and E2E automation can reseed fixture data there. |
+| Variable                      | Default                 | Required          | Description                                                                                                                                                 |
+| ----------------------------- | ----------------------- | ----------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `PORT`                        | `3001`                  | No                | Express listen port.                                                                                                                                        |
+| `CLIENT_ORIGIN`               | `http://localhost:5173` | No                | CORS origin allowed by the API in development.                                                                                                              |
+| `SESSION_SECRET`              | Development fallback    | Yes in production | Secret used to sign session cookies.                                                                                                                        |
+| `NODE_ENV`                    | unset                   | No                | Use `production` to serve the built client from Express.                                                                                                    |
+| `AZURE_SQL_CONNECTION_STRING` | unset                   | No                | Connection string for the `book-catalog` lab's Azure SQL Database. Falls back to an in-memory store when unset. See [docs/azure-sql.md](docs/azure-sql.md). |
 
 PowerShell example:
 
@@ -395,9 +394,9 @@ When you are ready to create Azure resources, use the detailed checklist in [doc
 
 A GitHub Actions workflow can also deploy to Azure automatically on every push to `main` (after the quality gates, Playwright E2E tests, and Docker build pass) using Azure OIDC federated credentials. See [docs/azure-app-service.md](docs/azure-app-service.md) for the required repository secrets and setup.
 
-## Azure SQL Database (Audit Log & Search lab)
+## Azure SQL Database (Book Catalog lab)
 
-The `audit-log-search` lab is the only part of Stagecraft backed by a real, persistent datastore — every other lab uses in-memory fixtures on purpose. It uses a free-tier Azure SQL Database (one free database per subscription, confirmed via `az sql db create --help`'s `--use-free-limit` flag).
+The `book-catalog` lab is the only part of Stagecraft backed by a real, persistent datastore — every other lab uses in-memory fixtures on purpose. It uses a free-tier Azure SQL Database (one free database per subscription, confirmed via `az sql db create --help`'s `--use-free-limit` flag).
 
 This is optional: without `AZURE_SQL_CONNECTION_STRING` set, the lab automatically falls back to an in-memory store with identical seed data and query behavior, and CI never touches Azure SQL at all.
 

@@ -1,8 +1,8 @@
-# Azure SQL Database (Audit Log & Search lab)
+# Azure SQL Database (Book Catalog lab)
 
-The `audit-log-search` lab is the only part of Stagecraft that talks to a real, persistent datastore — every other lab uses in-memory fixtures on purpose (see `SPEC.md`'s Resolved Decisions table, #5). This guide provisions the free-tier Azure SQL Database that lab's `SqlAuditLogStore` uses.
+The `book-catalog` lab is the only part of Stagecraft that talks to a real, persistent datastore — every other lab uses in-memory fixtures on purpose (see `SPEC.md`'s Resolved Decisions table, #5). This guide provisions the free-tier Azure SQL Database that lab's `SqlBookCatalogStore` uses.
 
-Setting this up is **optional**. Without `AZURE_SQL_CONNECTION_STRING` configured, the lab automatically falls back to an in-memory store with identical seed data and query behavior — the rest of the app, and CI, never require Azure SQL at all.
+Local development and CI never need this configured — without `AZURE_SQL_CONNECTION_STRING` set, the lab automatically falls back to an in-memory store with identical seed data and query behavior. The **deployed practice site**, however, always runs with this configured, so the lab demonstrates real SELECT and JOIN queries against a real database rather than silently substituting fixtures.
 
 ## Create Azure Resources
 
@@ -12,7 +12,7 @@ Choose names first:
 $resourceGroup = "rg-stagecraft-free"
 $location = "centralus"
 $sqlServer = "<globally-unique-sql-server-name>"
-$sqlDatabase = "stagecraft-audit-log"
+$sqlDatabase = "stagecraft-book-catalog"
 $sqlAdminUser = "stagecraft_admin"
 ```
 
@@ -49,6 +49,8 @@ az sql db create `
 ```
 
 `--use-free-limit` is allowed on exactly one database per subscription — this was confirmed against `az sql db create --help` before building this lab. `AutoPause` means the database simply stops accepting new compute once the monthly free limit is used, rather than silently billing overage; pick `BillOverUsage` instead if you'd rather the database stay always-on.
+
+> If you already provisioned this server/database for the previous `audit-log-search` lab, reuse it as-is — the `book-catalog` lab uses the same connection string and only adds its own `Authors`/`Books` tables. The old `AuditLog` table is left in place, unused; nothing here drops it automatically, so remove it by hand later if you'd like to tidy up.
 
 ## Configure the Firewall
 
@@ -94,7 +96,7 @@ Add the connection string to your local `.env` (never commit this file):
 AZURE_SQL_CONNECTION_STRING=<paste the connection string here>
 ```
 
-Start the server as usual (`npm run dev:server` or `npm run dev`). On boot, `initAuditLogStore()` connects and creates the `AuditLog` table and its indexes if they don't already exist — this is idempotent, so it's safe across restarts. Watch the server log for `Azure SQL audit log schema is ready`.
+Start the server as usual (`npm run dev:server` or `npm run dev`). On boot, `initBookCatalogStore()` connects and creates the `Authors` and `Books` tables and their indexes if they don't already exist — this is idempotent, so it's safe across restarts. Watch the server log for `Azure SQL book catalog schema is ready`.
 
 ## Deployed Configuration
 
@@ -111,8 +113,9 @@ This is a manual, one-time `az` step — there is no GitHub Actions secret for i
 
 ## Verify After Deployment
 
-- Sign in to `/practice/fake-auth` as `alice`, then visit `/practice/audit-log-search` — a fresh `login` row should appear immediately.
-- `az webapp restart --resource-group $resourceGroup --name $app`, then reload the audit log page — the rows should still be there. This is the property the rest of Stagecraft's in-memory fixtures can't demonstrate.
+- Visit `/practice/book-catalog` — no sign-in required. The Authors tab should load 12 seeded rows on the "All Authors" query.
+- Click "Run Query" on the Catalog tab and confirm the "Query executed" text shows a real `JOIN` against `Authors`.
+- `az webapp restart --resource-group $resourceGroup --name $app`, then reload the page — the same seeded rows should still be there. This is the property the rest of Stagecraft's in-memory fixtures can't demonstrate.
 
 ## Cost Notes
 

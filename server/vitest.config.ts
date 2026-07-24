@@ -9,7 +9,7 @@ export default defineConfig({
       reporter: ['text', 'html'],
       include: ['src/**/*.ts'],
       // db.ts only wraps a live Azure SQL connection — exercised by the
-      // guarded, skip-by-default auditLogStore.azureSql.test.ts, not by the
+      // guarded, skip-by-default bookCatalogStore.azureSql.test.ts, not by the
       // default in-memory-store test run. See SPEC.md Resolved Decisions #5.
       exclude: ['src/index.ts', 'src/lib/db.ts'],
       thresholds: {

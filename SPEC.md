@@ -115,11 +115,11 @@ stagecraft/
 │   │   ├── routes/           # Route files per lab domain
 │   │   │   ├── auth.ts       # /api/auth/* (fake-auth lab)
 │   │   │   ├── network.ts    # /api/items/* (network-api lab)
-│   │   │   ├── auditLog.ts   # /api/audit-log/* (audit-log-search lab)
+│   │   │   ├── bookCatalog.ts # /api/book-catalog/* (book-catalog lab)
 │   │   │   └── ...
 │   │   └── lib/              # Shared server utilities
-│   │       ├── db.ts             # Azure SQL connection pool (audit-log-search lab)
-│   │       └── auditLogStore.ts  # AuditLogStore interface + SQL/in-memory implementations
+│   │       ├── db.ts               # Azure SQL connection pool (book-catalog lab)
+│   │       └── bookCatalogStore.ts # BookCatalogStore interface + SQL/in-memory implementations
 │   └── tests/                # Vitest unit tests for server logic
 │
 └── e2e/                      # Playwright E2E tests
@@ -149,7 +149,7 @@ export interface Lab {
 }
 ```
 
-Labs that require a backend (`requiresBackend: true`): `network-api`, `fake-auth`, `websocket-interception`, `har-recording`, `api-request-context`, `storage-state`, `scroll-lazy-loading`, `server-sent-events`, `audit-log-search`.
+Labs that require a backend (`requiresBackend: true`): `network-api`, `fake-auth`, `websocket-interception`, `har-recording`, `api-request-context`, `storage-state`, `scroll-lazy-loading`, `server-sent-events`, `book-catalog`.
 
 **Feed API (scroll-lazy-loading lab):** `GET /api/feed` serves deterministic in-memory feed items with `page`, `pageSize`, `total`, and `hasMore` metadata. It supports infinite-scroll practice without external services or persistent storage.
 
@@ -157,7 +157,7 @@ Labs that require a backend (`requiresBackend: true`): `network-api`, `fake-auth
 
 **WebSocket (websocket-interception lab):** The `ws` library upgrades connections from the same Express HTTP server on the same port (`server.on('upgrade', wsHandler)`). Single port, no CORS config required.
 
-**Audit log & search (audit-log-search lab):** The only lab backed by real, persistent storage — an Azure SQL Database free-tier instance — behind an `AuditLogStore` interface that falls back to an in-memory implementation when `AZURE_SQL_CONNECTION_STRING` is unset (including in CI). Every `fake-auth` login/logout/failed login is recorded; an admin-only page exposes real server-side pagination, date-range filtering, and a search box that must safely neutralize SQL-injection-style input. See [docs/azure-sql.md](docs/azure-sql.md) and Resolved Decisions #5 below.
+**Book catalog (book-catalog lab):** The only lab backed by real, persistent storage — an Azure SQL Database free-tier instance — behind a `BookCatalogStore` interface that falls back to an in-memory implementation when `AZURE_SQL_CONNECTION_STRING` is unset (including in CI); the deployed practice site always has it configured, so the live lab always runs against the real database. Fully self-contained (no dependency on any other lab): a public page runs a small set of named, parameterized queries — two plain `SELECT`s (Authors, Books) and two `JOIN` variants (Catalog) — with server-side pagination, sorting, and a search box that must safely neutralize SQL-injection-style input. The UI displays the literal SQL executed for each query. See [docs/azure-sql.md](docs/azure-sql.md) and Resolved Decisions #5 below.
 
 **Current lab status:**
 
@@ -181,7 +181,7 @@ The app is structured to be platform-agnostic. Any host that can run a Node.js p
   - `SESSION_SECRET` — `express-session` signing secret (required in production)
   - `CLIENT_ORIGIN` — Allowed CORS origin (default: `http://localhost:5173`)
   - `NODE_ENV` — `development` | `production`
-  - `AZURE_SQL_CONNECTION_STRING` — optional; Azure SQL connection string for the `audit-log-search` lab. Falls back to an in-memory store when unset.
+  - `AZURE_SQL_CONNECTION_STRING` — optional for local dev/CI; Azure SQL connection string for the `book-catalog` lab. Falls back to an in-memory store when unset; the deployed practice site always has this configured.
 - **Docker:** A `Dockerfile` at the repo root builds a single image running the Express server (which serves the built client)
 
 ---
@@ -287,7 +287,7 @@ Learners write their own Playwright tests in a separate project. Stagecraft itse
 - Changing the URL structure of existing lab routes
 - Adding a new Express route that changes server port or CORS policy
 - Modifying the `Lab` interface shape (breaks registry consumers)
-- Enabling any persistent storage (DB, file writes) on the server — approved once, as a scoped exception for the `audit-log-search` lab's Azure SQL Database, on 2026-07-23 (see Resolved Decisions #5). This does not blanket-approve persistent storage for any other lab; ask again per lab.
+- Enabling any persistent storage (DB, file writes) on the server — approved once, as a scoped exception for the `book-catalog` lab's Azure SQL Database, on 2026-07-23 (see Resolved Decisions #5). This does not blanket-approve persistent storage for any other lab; ask again per lab.
 
 ### Never do
 
@@ -476,31 +476,31 @@ Covered inline in Tasks 4.4 and 4.5 above. Separate task for WebSocket:
   - See Task 4.x "Verify" steps for acceptance criteria
   - Files: `e2e/labs/accessible-locators.spec.ts`, `forms-validation.spec.ts`, `async-ui.spec.ts`, `network-api.spec.ts`, `fake-auth.spec.ts`
 
-### Phase 9 — Audit Log & Search Lab (Real Persistence)
+### Phase 9 — Book Catalog Lab (Real Persistence)
 
-- [ ] **Task 9.1:** Azure SQL-backed `AuditLogStore` with in-memory fallback
-  - Acceptance: `SqlAuditLogStore` and `InMemoryAuditLogStore` both implement `record`/`query`/`reseed`; the store is picked once by `AZURE_SQL_CONNECTION_STRING` presence; all queries against the SQL store are parameterized
-  - Verify: `npm run test:run --workspace=server` passes on the in-memory fallback; guarded `auditLogStore.azureSql.test.ts` passes when a real connection string is set locally
-  - Files: `server/src/lib/auditLogStore.ts`, `server/src/lib/db.ts`
+- [ ] **Task 9.1:** Azure SQL-backed `BookCatalogStore` with in-memory fallback
+  - Acceptance: `SqlBookCatalogStore` and `InMemoryBookCatalogStore` both implement `listAuthors`/`listBooks`/`listCatalog`/`reseed`; the store is picked once by `AZURE_SQL_CONNECTION_STRING` presence; all queries against the SQL store are parameterized, and each result page includes the literal SQL text executed for UI display
+  - Verify: `npm run test:run --workspace=server` passes on the in-memory fallback; guarded `bookCatalogStore.azureSql.test.ts` passes when a real connection string is set locally
+  - Files: `server/src/lib/bookCatalogStore.ts`, `server/src/lib/db.ts`
 
-- [ ] **Task 9.2:** `/api/audit-log` routes and fake-auth event recording
-  - Acceptance: `GET /api/audit-log` (paginated/filtered/sorted) and `POST /api/audit-log/reseed` are admin-gated the same way as `/api/auth/admin/stats`; reseed is additionally blocked in production unless `AUDIT_LOG_ALLOW_RESEED=true` (set on the deployed practice site so it stays reseedable); `auth.ts` records login/logout/failed_login events
-  - Verify: `npm run test:run --workspace=server` — `audit log API` describe block passes, including the SQL-injection-safety cases
-  - Files: `server/src/routes/auditLog.ts`, `server/src/routes/auth.ts`, `server/src/lib/schemas.ts`
+- [ ] **Task 9.2:** `/api/book-catalog` routes (fully public, no auth dependency)
+  - Acceptance: `GET /api/book-catalog/authors`, `/books`, and `/catalog` (paginated/filtered/sorted) and `POST /api/book-catalog/reseed` require no session — this lab has no dependency on `fake-auth` or any other lab
+  - Verify: `npm run test:run --workspace=server` — `book catalog API` describe block passes, including the SQL-injection-safety case
+  - Files: `server/src/routes/bookCatalog.ts`, `server/src/lib/schemas.ts`
 
-- [ ] **Task 9.3:** `/practice/audit-log-search` UI
-  - UI: Search box, date-range filters, sortable pagination, and a reseed action; inline 401/403 states instead of a hard redirect
-  - Verify: E2E spec `audit-log-search.spec.ts` passes, including pagination, filtering, and the injection-safety scenario
-  - Files: `client/src/pages/practice/AuditLogSearch.tsx`, `client/src/labs/index.ts`, `client/src/App.tsx`
+- [ ] **Task 9.3:** `/practice/book-catalog` UI
+  - UI: Three tabs (Authors, Books, Catalog) each with search/filter/sort controls, an explicit "Run Query" action, visible SQL text, pagination, and a "Reset catalog data" action behind a confirm dialog
+  - Verify: E2E spec `book-catalog.spec.ts` passes, including pagination, filtering, the injection-safety scenario, and the reset confirm-dialog flow
+  - Files: `client/src/pages/practice/BookCatalog.tsx`, `client/src/labs/index.ts`, `client/src/App.tsx`
 
 ---
 
 ## Resolved Decisions
 
-| #   | Question                                  | Decision                                                                                                                                          | Rationale                                                                                                                                                                                                                                     |
-| --- | ----------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 1   | Auth mechanism for `fake-auth`            | `express-session` (cookie-session)                                                                                                                | Complements `storage-state` lab — learners capture the session cookie in `storageState`                                                                                                                                                       |
-| 2   | WebSocket server                          | Same-port upgrade via `ws`                                                                                                                        | Single port, no CORS config, standard Node.js pattern                                                                                                                                                                                         |
-| 3   | Deployment                                | Platform-agnostic (Docker + env vars)                                                                                                             | Platform TBD; Express serves static build in production                                                                                                                                                                                       |
-| 4   | Lab completion tracking                   | `localStorage` on client                                                                                                                          | No accounts needed; persists on device; zero backend complexity                                                                                                                                                                               |
-| 5   | Persistent storage for `audit-log-search` | Azure SQL Database (free tier) behind an `AuditLogStore` interface, with an in-memory fallback selected by `AZURE_SQL_CONNECTION_STRING` presence | First lab needing real cross-restart persistence and SQL-injection-safety testing; the fallback keeps CI hermetic without new secrets or service containers; approved as a scoped, one-lab exception to "no persistent storage" on 2026-07-23 |
+| #   | Question                              | Decision                                                                                                                                            | Rationale                                                                                                                                                                                                                                     |
+| --- | ------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1   | Auth mechanism for `fake-auth`        | `express-session` (cookie-session)                                                                                                                  | Complements `storage-state` lab — learners capture the session cookie in `storageState`                                                                                                                                                       |
+| 2   | WebSocket server                      | Same-port upgrade via `ws`                                                                                                                          | Single port, no CORS config, standard Node.js pattern                                                                                                                                                                                         |
+| 3   | Deployment                            | Platform-agnostic (Docker + env vars)                                                                                                               | Platform TBD; Express serves static build in production                                                                                                                                                                                       |
+| 4   | Lab completion tracking               | `localStorage` on client                                                                                                                            | No accounts needed; persists on device; zero backend complexity                                                                                                                                                                               |
+| 5   | Persistent storage for `book-catalog` | Azure SQL Database (free tier) behind a `BookCatalogStore` interface, with an in-memory fallback selected by `AZURE_SQL_CONNECTION_STRING` presence | First lab needing real cross-restart persistence and SQL-injection-safety testing; the fallback keeps CI hermetic without new secrets or service containers; approved as a scoped, one-lab exception to "no persistent storage" on 2026-07-23 |

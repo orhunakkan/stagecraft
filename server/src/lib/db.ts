@@ -54,19 +54,34 @@ export function getPool(): Promise<sql.ConnectionPool> {
   return poolPromise;
 }
 
-/** Idempotent — safe to call before every operation, not just at boot. */
-export async function ensureAuditLogSchema(pool: sql.ConnectionPool): Promise<void> {
+/**
+ * Idempotent — safe to call before every operation, not just at boot. Books
+ * references Authors via a FK, so Authors must be created first.
+ */
+export async function ensureBookCatalogSchema(pool: sql.ConnectionPool): Promise<void> {
   await pool.request().batch(`
-    IF NOT EXISTS (SELECT 1 FROM sys.tables WHERE name = 'AuditLog')
+    IF NOT EXISTS (SELECT 1 FROM sys.tables WHERE name = 'Authors')
     BEGIN
-      CREATE TABLE AuditLog (
+      CREATE TABLE Authors (
         Id INT IDENTITY(1,1) PRIMARY KEY,
-        Username NVARCHAR(64) NOT NULL,
-        EventType NVARCHAR(20) NOT NULL CHECK (EventType IN ('login', 'logout', 'failed_login')),
-        CreatedAt DATETIME2 NOT NULL
+        Name NVARCHAR(100) NOT NULL,
+        Country NVARCHAR(60) NOT NULL,
+        BirthYear INT NOT NULL
       );
-      CREATE INDEX IX_AuditLog_CreatedAt ON AuditLog (CreatedAt DESC);
-      CREATE INDEX IX_AuditLog_Username ON AuditLog (Username);
+      CREATE INDEX IX_Authors_Country ON Authors (Country);
+    END
+    IF NOT EXISTS (SELECT 1 FROM sys.tables WHERE name = 'Books')
+    BEGIN
+      CREATE TABLE Books (
+        Id INT IDENTITY(1,1) PRIMARY KEY,
+        Title NVARCHAR(200) NOT NULL,
+        AuthorId INT NOT NULL REFERENCES Authors(Id),
+        Genre NVARCHAR(40) NOT NULL,
+        PublishedYear INT NOT NULL,
+        Rating DECIMAL(3,1) NOT NULL
+      );
+      CREATE INDEX IX_Books_AuthorId ON Books (AuthorId);
+      CREATE INDEX IX_Books_Genre ON Books (Genre);
     END
   `);
 }
@@ -74,19 +89,19 @@ export async function ensureAuditLogSchema(pool: sql.ConnectionPool): Promise<vo
 /**
  * Fire-and-forget startup hook, called from index.ts. Never throws: the other
  * 35 labs must keep working even if Azure SQL is unreachable at boot. Each
- * SqlAuditLogStore operation also lazily re-runs ensureAuditLogSchema, so a
+ * SqlBookCatalogStore operation also lazily re-runs ensureBookCatalogSchema, so a
  * failure here just delays readiness rather than requiring a restart.
  */
-export async function initAuditLogStore(): Promise<void> {
+export async function initBookCatalogStore(): Promise<void> {
   if (!process.env.AZURE_SQL_CONNECTION_STRING) {
     return;
   }
 
   try {
     const pool = await getPool();
-    await ensureAuditLogSchema(pool);
-    logger.info('Azure SQL audit log schema is ready');
+    await ensureBookCatalogSchema(pool);
+    logger.info('Azure SQL book catalog schema is ready');
   } catch (error) {
-    logger.error({ err: error }, 'Failed to initialize Azure SQL audit log store at startup');
+    logger.error({ err: error }, 'Failed to initialize Azure SQL book catalog store at startup');
   }
 }

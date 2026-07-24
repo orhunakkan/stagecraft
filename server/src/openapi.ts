@@ -17,7 +17,7 @@ export const openApiDocument = {
     { name: 'Service Workers' },
     { name: 'Feed' },
     { name: 'SSE' },
-    { name: 'Audit Log' },
+    { name: 'Book Catalog' },
   ],
   paths: {
     '/health': {
@@ -499,12 +499,11 @@ export const openApiDocument = {
         },
       },
     },
-    '/api/audit-log': {
+    '/api/book-catalog/authors': {
       get: {
-        tags: ['Audit Log'],
-        summary: 'Search the persisted login/logout audit trail (admin only)',
-        operationId: 'getAuditLog',
-        security: [{ cookieAuth: [] }],
+        tags: ['Book Catalog'],
+        summary: 'Run a SELECT query against the Authors table',
+        operationId: 'getBookCatalogAuthors',
         parameters: [
           {
             name: 'page',
@@ -516,69 +515,175 @@ export const openApiDocument = {
             name: 'pageSize',
             in: 'query',
             description: 'Number of items per page (1–100).',
-            schema: { type: 'integer', minimum: 1, maximum: 100, default: 20 },
+            schema: { type: 'integer', minimum: 1, maximum: 100, default: 10 },
           },
           {
-            name: 'username',
+            name: 'search',
             in: 'query',
-            description: 'Case-insensitive substring match against username.',
+            description: 'Case-insensitive substring match against author name.',
             schema: { type: 'string' },
           },
           {
-            name: 'from',
+            name: 'country',
             in: 'query',
-            description: 'ISO 8601 lower bound (inclusive) on createdAt.',
-            schema: { type: 'string', format: 'date-time' },
+            description: 'Exact match against author country.',
+            schema: { type: 'string' },
           },
           {
-            name: 'to',
+            name: 'sort',
             in: 'query',
-            description: 'ISO 8601 upper bound (inclusive) on createdAt.',
-            schema: { type: 'string', format: 'date-time' },
+            schema: { type: 'string', enum: ['name', 'birthYear'], default: 'name' },
+          },
+          {
+            name: 'direction',
+            in: 'query',
+            schema: { type: 'string', enum: ['asc', 'desc'], default: 'asc' },
+          },
+        ],
+        responses: {
+          '200': {
+            description: 'A page of authors, plus the literal SQL that was executed.',
+            content: {
+              'application/json': {
+                schema: { $ref: '#/components/schemas/AuthorPage' },
+              },
+            },
+          },
+          '400': { $ref: '#/components/responses/BadRequest' },
+        },
+      },
+    },
+    '/api/book-catalog/books': {
+      get: {
+        tags: ['Book Catalog'],
+        summary: 'Run a SELECT query against the Books table',
+        operationId: 'getBookCatalogBooks',
+        parameters: [
+          {
+            name: 'page',
+            in: 'query',
+            description: '1-based page number.',
+            schema: { type: 'integer', minimum: 1, default: 1 },
+          },
+          {
+            name: 'pageSize',
+            in: 'query',
+            description: 'Number of items per page (1–100).',
+            schema: { type: 'integer', minimum: 1, maximum: 100, default: 10 },
+          },
+          {
+            name: 'search',
+            in: 'query',
+            description: 'Case-insensitive substring match against book title.',
+            schema: { type: 'string' },
+          },
+          {
+            name: 'genre',
+            in: 'query',
+            description: 'Exact match against book genre.',
+            schema: { type: 'string' },
           },
           {
             name: 'sort',
             in: 'query',
             schema: {
               type: 'string',
-              enum: ['createdAt:asc', 'createdAt:desc'],
-              default: 'createdAt:desc',
+              enum: ['title', 'publishedYear', 'rating'],
+              default: 'title',
             },
+          },
+          {
+            name: 'direction',
+            in: 'query',
+            schema: { type: 'string', enum: ['asc', 'desc'], default: 'asc' },
           },
         ],
         responses: {
           '200': {
-            description: 'A page of audit log entries.',
+            description: 'A page of books, plus the literal SQL that was executed.',
             content: {
               'application/json': {
-                schema: { $ref: '#/components/schemas/AuditLogPage' },
+                schema: { $ref: '#/components/schemas/BookPage' },
               },
             },
           },
           '400': { $ref: '#/components/responses/BadRequest' },
-          '401': { $ref: '#/components/responses/Unauthorized' },
-          '403': { $ref: '#/components/responses/Forbidden' },
         },
       },
     },
-    '/api/audit-log/reseed': {
+    '/api/book-catalog/catalog': {
+      get: {
+        tags: ['Book Catalog'],
+        summary: 'Run a JOIN query between Books and Authors',
+        operationId: 'getBookCatalogCatalog',
+        parameters: [
+          {
+            name: 'page',
+            in: 'query',
+            description: '1-based page number.',
+            schema: { type: 'integer', minimum: 1, default: 1 },
+          },
+          {
+            name: 'pageSize',
+            in: 'query',
+            description: 'Number of items per page (1–100).',
+            schema: { type: 'integer', minimum: 1, maximum: 100, default: 10 },
+          },
+          {
+            name: 'genre',
+            in: 'query',
+            description: 'Exact match against book genre.',
+            schema: { type: 'string' },
+          },
+          {
+            name: 'country',
+            in: 'query',
+            description: 'Exact match against the joined author country.',
+            schema: { type: 'string' },
+          },
+          {
+            name: 'sort',
+            in: 'query',
+            schema: {
+              type: 'string',
+              enum: ['title', 'publishedYear', 'rating'],
+              default: 'title',
+            },
+          },
+          {
+            name: 'direction',
+            in: 'query',
+            schema: { type: 'string', enum: ['asc', 'desc'], default: 'asc' },
+          },
+        ],
+        responses: {
+          '200': {
+            description:
+              'A page of books joined with their author, plus the literal SQL that was executed.',
+            content: {
+              'application/json': {
+                schema: { $ref: '#/components/schemas/CatalogPage' },
+              },
+            },
+          },
+          '400': { $ref: '#/components/responses/BadRequest' },
+        },
+      },
+    },
+    '/api/book-catalog/reseed': {
       post: {
-        tags: ['Audit Log'],
-        summary:
-          'Truncate and reseed the audit log with deterministic fixture data (admin only; blocked in production unless AUDIT_LOG_ALLOW_RESEED=true)',
-        operationId: 'reseedAuditLog',
-        security: [{ cookieAuth: [] }],
+        tags: ['Book Catalog'],
+        summary: 'Reset Authors and Books to their deterministic fixture data',
+        operationId: 'reseedBookCatalog',
         responses: {
           '200': {
             description: 'Reseed completed.',
             content: {
               'application/json': {
-                schema: { $ref: '#/components/schemas/AuditLogReseedResponse' },
+                schema: { $ref: '#/components/schemas/BookCatalogReseedResponse' },
               },
             },
           },
-          '401': { $ref: '#/components/responses/Unauthorized' },
-          '403': { $ref: '#/components/responses/Forbidden' },
         },
       },
     },
@@ -806,40 +911,112 @@ export const openApiDocument = {
           hasMore: { type: 'boolean', example: true },
         },
       },
-      AuditLogEntry: {
+      Author: {
         type: 'object',
-        required: ['id', 'username', 'eventType', 'createdAt'],
+        required: ['id', 'name', 'country', 'birthYear'],
         properties: {
           id: { type: 'integer', example: 1 },
-          username: { type: 'string', example: 'alice' },
-          eventType: {
-            type: 'string',
-            enum: ['login', 'logout', 'failed_login'],
-            example: 'login',
-          },
-          createdAt: { type: 'string', format: 'date-time', example: '2026-05-01T08:00:00Z' },
+          name: { type: 'string', example: 'Jane Austen' },
+          country: { type: 'string', example: 'United Kingdom' },
+          birthYear: { type: 'integer', example: 1775 },
         },
       },
-      AuditLogPage: {
+      Book: {
         type: 'object',
-        required: ['items', 'page', 'pageSize', 'total', 'hasMore'],
+        required: ['id', 'title', 'authorId', 'genre', 'publishedYear', 'rating'],
+        properties: {
+          id: { type: 'integer', example: 1 },
+          title: { type: 'string', example: 'Pride and Prejudice' },
+          authorId: { type: 'integer', example: 1 },
+          genre: { type: 'string', example: 'Classic' },
+          publishedYear: { type: 'integer', example: 1813 },
+          rating: { type: 'number', example: 4.7 },
+        },
+      },
+      CatalogEntry: {
+        type: 'object',
+        required: [
+          'id',
+          'title',
+          'genre',
+          'publishedYear',
+          'rating',
+          'authorName',
+          'authorCountry',
+        ],
+        properties: {
+          id: { type: 'integer', example: 1 },
+          title: { type: 'string', example: 'Pride and Prejudice' },
+          genre: { type: 'string', example: 'Classic' },
+          publishedYear: { type: 'integer', example: 1813 },
+          rating: { type: 'number', example: 4.7 },
+          authorName: { type: 'string', example: 'Jane Austen' },
+          authorCountry: { type: 'string', example: 'United Kingdom' },
+        },
+      },
+      AuthorPage: {
+        type: 'object',
+        required: ['items', 'page', 'pageSize', 'total', 'hasMore', 'sql'],
         properties: {
           items: {
             type: 'array',
-            items: { $ref: '#/components/schemas/AuditLogEntry' },
+            items: { $ref: '#/components/schemas/Author' },
           },
           page: { type: 'integer', example: 1 },
-          pageSize: { type: 'integer', example: 20 },
-          total: { type: 'integer', example: 120 },
+          pageSize: { type: 'integer', example: 10 },
+          total: { type: 'integer', example: 12 },
           hasMore: { type: 'boolean', example: true },
+          sql: {
+            type: 'string',
+            example: 'SELECT Id, Name, Country, BirthYear FROM Authors ORDER BY Name ASC',
+          },
         },
       },
-      AuditLogReseedResponse: {
+      BookPage: {
         type: 'object',
-        required: ['ok', 'seeded'],
+        required: ['items', 'page', 'pageSize', 'total', 'hasMore', 'sql'],
+        properties: {
+          items: {
+            type: 'array',
+            items: { $ref: '#/components/schemas/Book' },
+          },
+          page: { type: 'integer', example: 1 },
+          pageSize: { type: 'integer', example: 10 },
+          total: { type: 'integer', example: 30 },
+          hasMore: { type: 'boolean', example: true },
+          sql: {
+            type: 'string',
+            example:
+              'SELECT Id, Title, AuthorId, Genre, PublishedYear, Rating FROM Books ORDER BY Title ASC',
+          },
+        },
+      },
+      CatalogPage: {
+        type: 'object',
+        required: ['items', 'page', 'pageSize', 'total', 'hasMore', 'sql'],
+        properties: {
+          items: {
+            type: 'array',
+            items: { $ref: '#/components/schemas/CatalogEntry' },
+          },
+          page: { type: 'integer', example: 1 },
+          pageSize: { type: 'integer', example: 10 },
+          total: { type: 'integer', example: 30 },
+          hasMore: { type: 'boolean', example: true },
+          sql: {
+            type: 'string',
+            example:
+              'SELECT b.Id, b.Title, b.Genre, b.PublishedYear, b.Rating, a.Name AS AuthorName, a.Country AS AuthorCountry FROM Books b JOIN Authors a ON b.AuthorId = a.Id ORDER BY Title ASC',
+          },
+        },
+      },
+      BookCatalogReseedResponse: {
+        type: 'object',
+        required: ['ok', 'seededAuthors', 'seededBooks'],
         properties: {
           ok: { type: 'boolean', example: true },
-          seeded: { type: 'integer', example: 120 },
+          seededAuthors: { type: 'integer', example: 12 },
+          seededBooks: { type: 'integer', example: 30 },
         },
       },
     },

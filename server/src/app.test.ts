@@ -251,56 +251,6 @@ describe('production startup configuration', () => {
     }
   });
 
-  test('blocks audit log reseed in production', async () => {
-    const { productionBaseUrl, productionServer } = await startProductionApp();
-
-    try {
-      const login = await fetch(`${productionBaseUrl}/api/auth/login`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'X-Forwarded-Proto': 'https' },
-        body: JSON.stringify({ username: 'alice', password: 'password123' }),
-      });
-      const cookie = login.headers.get('set-cookie');
-
-      const reseed = await fetch(`${productionBaseUrl}/api/audit-log/reseed`, {
-        method: 'POST',
-        headers: { Cookie: cookie ?? '', 'X-Forwarded-Proto': 'https' },
-      });
-      const body = (await reseed.json()) as { error: string };
-
-      expect(reseed.status).toBe(403);
-      expect(body.error).toBe('Reseeding is not allowed in production');
-    } finally {
-      await closeServer(productionServer);
-    }
-  });
-
-  test('allows audit log reseed in production when AUDIT_LOG_ALLOW_RESEED is set', async () => {
-    process.env.AUDIT_LOG_ALLOW_RESEED = 'true';
-    const { productionBaseUrl, productionServer } = await startProductionApp();
-
-    try {
-      const login = await fetch(`${productionBaseUrl}/api/auth/login`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'X-Forwarded-Proto': 'https' },
-        body: JSON.stringify({ username: 'alice', password: 'password123' }),
-      });
-      const cookie = login.headers.get('set-cookie');
-
-      const reseed = await fetch(`${productionBaseUrl}/api/audit-log/reseed`, {
-        method: 'POST',
-        headers: { Cookie: cookie ?? '', 'X-Forwarded-Proto': 'https' },
-      });
-      const body = (await reseed.json()) as { ok: true; seeded: number };
-
-      expect(reseed.status).toBe(200);
-      expect(body.ok).toBe(true);
-      expect(body.seeded).toBeGreaterThan(0);
-    } finally {
-      await closeServer(productionServer);
-    }
-  });
-
   test('does not serve the SPA shell for API or non-GET requests', async () => {
     const { productionBaseUrl, productionServer } = await startProductionApp();
 
@@ -466,16 +416,6 @@ describe('auth API', () => {
     const { response, body } = await json<{ error: string }>('/api/auth/login', {
       method: 'POST',
       body: JSON.stringify({ username: 'alice', password: 'wrongpassword' }),
-    });
-
-    expect(response.status).toBe(401);
-    expect(body.error).toBe('Invalid credentials');
-  });
-
-  test('rejects invalid credentials with a blank attempted username without recording an audit event', async () => {
-    const { response, body } = await json<{ error: string }>('/api/auth/login', {
-      method: 'POST',
-      body: JSON.stringify({ username: '   ', password: 'wrongpassword' }),
     });
 
     expect(response.status).toBe(401);
@@ -937,133 +877,129 @@ describe('activity feed API', () => {
   });
 });
 
-describe('audit log API', () => {
-  async function loginAs(username: string, password: string): Promise<string> {
-    const login = await json<{ username: string }>('/api/auth/login', {
-      method: 'POST',
-      body: JSON.stringify({ username, password }),
-    });
-    const cookie = login.response.headers.get('set-cookie');
-    if (!cookie) {
-      throw new Error(`Login as ${username} did not set a session cookie`);
-    }
-    return cookie;
-  }
-
-  async function reseedAsAdmin(cookie: string): Promise<void> {
-    const { response } = await json('/api/audit-log/reseed', {
-      method: 'POST',
-      headers: { Cookie: cookie },
-    });
+describe('book catalog API', () => {
+  async function reseed(): Promise<void> {
+    const { response } = await json('/api/book-catalog/reseed', { method: 'POST' });
     expect(response.status).toBe(200);
   }
 
-  test('requires authentication', async () => {
-    const { response, body } = await json<{ error: string }>('/api/audit-log');
-
-    expect(response.status).toBe(401);
-    expect(body.error).toBe('Not authenticated');
+  test('requires no authentication', async () => {
+    const { response } = await json('/api/book-catalog/authors');
+    expect(response.status).toBe(200);
   });
 
-  test('blocks non-admin sessions', async () => {
-    const cookie = await loginAs('bob', 'letmein');
-
-    const { response, body } = await json<{ error: string }>('/api/audit-log', {
-      headers: { Cookie: cookie },
-    });
-
-    expect(response.status).toBe(403);
-    expect(body.error).toBe('Forbidden');
-  });
-
-  test('reseeds deterministic fixture data and paginates it', async () => {
-    const cookie = await loginAs('alice', 'password123');
-    await reseedAsAdmin(cookie);
+  test('reseeds deterministic fixture data and paginates authors', async () => {
+    await reseed();
 
     const { response, body } = await json<{
-      items: Array<{ id: number; username: string; eventType: string; createdAt: string }>;
+      items: Array<{ id: number; name: string; country: string; birthYear: number }>;
       page: number;
       pageSize: number;
       total: number;
       hasMore: boolean;
-    }>('/api/audit-log?page=1&pageSize=20', {
-      headers: { Cookie: cookie },
-    });
+      sql: string;
+    }>('/api/book-catalog/authors?page=1&pageSize=5');
 
     expect(response.status).toBe(200);
     expect(body.page).toBe(1);
-    expect(body.pageSize).toBe(20);
-    expect(body.total).toBe(120);
-    expect(body.items).toHaveLength(20);
+    expect(body.pageSize).toBe(5);
+    expect(body.total).toBe(12);
+    expect(body.items).toHaveLength(5);
     expect(body.hasMore).toBe(true);
+    expect(body.sql).toContain('SELECT');
+    expect(body.sql).toContain('FROM Authors');
   });
 
-  test('filters by username substring case-insensitively', async () => {
-    const cookie = await loginAs('alice', 'password123');
-    await reseedAsAdmin(cookie);
+  test('filters authors by name substring case-insensitively', async () => {
+    await reseed();
 
-    const { response, body } = await json<{
-      items: Array<{ username: string }>;
-      total: number;
-    }>('/api/audit-log?username=ALI&pageSize=100', {
-      headers: { Cookie: cookie },
-    });
+    const { response, body } = await json<{ items: Array<{ name: string }>; total: number }>(
+      '/api/book-catalog/authors?search=austen&pageSize=100',
+    );
 
     expect(response.status).toBe(200);
-    expect(body.total).toBe(24);
-    expect(body.items.every((item) => item.username === 'alice')).toBe(true);
+    expect(body.total).toBe(1);
+    expect(body.items[0]?.name).toBe('Jane Austen');
   });
 
-  test('filters by date range', async () => {
-    const cookie = await loginAs('alice', 'password123');
-    await reseedAsAdmin(cookie);
+  test('filters authors by country', async () => {
+    await reseed();
 
-    const { response, body } = await json<{ total: number }>(
-      '/api/audit-log?from=2026-01-10&to=2026-01-15&pageSize=100',
-      { headers: { Cookie: cookie } },
+    const { response, body } = await json<{ items: Array<{ country: string }>; total: number }>(
+      '/api/book-catalog/authors?country=Japan&pageSize=100',
     );
+
+    expect(response.status).toBe(200);
+    expect(body.items.every((item) => item.country === 'Japan')).toBe(true);
+    expect(body.total).toBeGreaterThan(0);
+  });
+
+  test('paginates and filters books by genre', async () => {
+    await reseed();
+
+    const { response, body } = await json<{
+      items: Array<{ genre: string }>;
+      total: number;
+      sql: string;
+    }>('/api/book-catalog/books?genre=Sci-Fi&pageSize=100');
+
+    expect(response.status).toBe(200);
+    expect(body.items.every((item) => item.genre === 'Sci-Fi')).toBe(true);
+    expect(body.total).toBeGreaterThan(0);
+    expect(body.sql).toContain('FROM Books');
+  });
+
+  test('sorts books ascending and descending', async () => {
+    await reseed();
+
+    const asc = await json<{ items: Array<{ rating: number }> }>(
+      '/api/book-catalog/books?sort=rating&direction=asc&pageSize=100',
+    );
+    const ratingsAsc = asc.body.items.map((item) => item.rating);
+    expect(ratingsAsc).toEqual([...ratingsAsc].sort((a, b) => a - b));
+
+    const desc = await json<{ items: Array<{ rating: number }> }>(
+      '/api/book-catalog/books?sort=rating&direction=desc&pageSize=100',
+    );
+    const ratingsDesc = desc.body.items.map((item) => item.rating);
+    expect(ratingsDesc).toEqual([...ratingsDesc].sort((a, b) => b - a));
+  });
+
+  test('joins books with their author and filters on the joined country', async () => {
+    await reseed();
+
+    const { response, body } = await json<{
+      items: Array<{ authorName: string; authorCountry: string }>;
+      total: number;
+      sql: string;
+    }>('/api/book-catalog/catalog?country=Nigeria&pageSize=100');
 
     expect(response.status).toBe(200);
     expect(body.total).toBeGreaterThan(0);
-    expect(body.total).toBeLessThan(120);
+    expect(body.items.every((item) => item.authorCountry === 'Nigeria')).toBe(true);
+    expect(body.sql).toContain('JOIN Authors');
   });
 
-  test('sorts ascending when requested', async () => {
-    const cookie = await loginAs('alice', 'password123');
-    await reseedAsAdmin(cookie);
+  test('joins books with their author and filters by genre', async () => {
+    await reseed();
 
-    const { response, body } = await json<{ items: Array<{ createdAt: string }> }>(
-      '/api/audit-log?sort=createdAt:asc&pageSize=5',
-      { headers: { Cookie: cookie } },
+    const { response, body } = await json<{ items: Array<{ genre: string; authorName: string }> }>(
+      '/api/book-catalog/catalog?genre=Classic&pageSize=100',
     );
 
     expect(response.status).toBe(200);
-    const timestamps = body.items.map((item) => Date.parse(item.createdAt));
-    expect(timestamps).toEqual([...timestamps].sort((a, b) => a - b));
-  });
-
-  test('rejects a date range where from is later than to', async () => {
-    const cookie = await loginAs('alice', 'password123');
-
-    const { response, body } = await json<{ error: string }>(
-      '/api/audit-log?from=2026-06-01&to=2026-01-01',
-      { headers: { Cookie: cookie } },
-    );
-
-    expect(response.status).toBe(400);
-    expect(body.error).toBe('from must not be later than to');
+    expect(body.items.every((item) => item.genre === 'Classic')).toBe(true);
+    expect(body.items.some((item) => item.authorName === 'Jane Austen')).toBe(true);
   });
 
   test('treats SQL-injection-style search input as a literal, harmless substring', async () => {
-    const cookie = await loginAs('alice', 'password123');
-    await reseedAsAdmin(cookie);
+    await reseed();
 
-    const injectionAttempts = ["' OR '1'='1' --", "'; DROP TABLE AuditLog; --"];
+    const injectionAttempts = ["' OR '1'='1' --", "'; DROP TABLE Books; --"];
 
     for (const attempt of injectionAttempts) {
       const { response, body } = await json<{ items: unknown[]; total: number }>(
-        `/api/audit-log?username=${encodeURIComponent(attempt)}&pageSize=100`,
-        { headers: { Cookie: cookie } },
+        `/api/book-catalog/books?search=${encodeURIComponent(attempt)}&pageSize=100`,
       );
 
       expect(response.status).toBe(200);
@@ -1072,83 +1008,18 @@ describe('audit log API', () => {
     }
 
     // The store must still work normally afterward — no data was disturbed.
-    const followUp = await json<{ total: number }>('/api/audit-log?pageSize=100', {
-      headers: { Cookie: cookie },
-    });
+    const followUp = await json<{ total: number }>('/api/book-catalog/books?pageSize=100');
     expect(followUp.response.status).toBe(200);
-    expect(followUp.body.total).toBe(120);
+    expect(followUp.body.total).toBe(30);
   });
 
-  test('records a real login event that is immediately queryable', async () => {
-    const cookie = await loginAs('alice', 'password123');
-    await reseedAsAdmin(cookie);
-
-    await loginAs('bob', 'letmein');
-
-    const { response, body } = await json<{
-      items: Array<{ username: string; eventType: string }>;
-    }>('/api/audit-log?username=bob&sort=createdAt:desc&pageSize=10', {
-      headers: { Cookie: cookie },
-    });
-
-    expect(response.status).toBe(200);
-    expect(body.items[0]).toMatchObject({ username: 'bob', eventType: 'login' });
-  });
-
-  test('records a logout event', async () => {
-    const cookie = await loginAs('alice', 'password123');
-    await reseedAsAdmin(cookie);
-
-    const bobCookie = await loginAs('bob', 'letmein');
-    await fetch(`${baseUrl}/api/auth/logout`, {
-      method: 'POST',
-      headers: { Cookie: bobCookie },
-    });
-
-    const { body } = await json<{ items: Array<{ username: string; eventType: string }> }>(
-      '/api/audit-log?username=bob&sort=createdAt:desc&pageSize=10',
-      { headers: { Cookie: cookie } },
+  test('rejects an invalid sort value', async () => {
+    const { response, body } = await json<{ error: string }>(
+      '/api/book-catalog/books?sort=not-a-column',
     );
 
-    expect(body.items[0]).toMatchObject({ username: 'bob', eventType: 'logout' });
-  });
-
-  test('records a failed login attempt', async () => {
-    const cookie = await loginAs('alice', 'password123');
-    await reseedAsAdmin(cookie);
-
-    await json('/api/auth/login', {
-      method: 'POST',
-      body: JSON.stringify({ username: 'mallory', password: 'wrongpassword' }),
-    });
-
-    const { body } = await json<{ items: Array<{ username: string; eventType: string }> }>(
-      '/api/audit-log?username=mallory&pageSize=10',
-      { headers: { Cookie: cookie } },
-    );
-
-    expect(body.items[0]).toMatchObject({ username: 'mallory', eventType: 'failed_login' });
-  });
-
-  test('requires authentication for reseed', async () => {
-    const { response, body } = await json<{ error: string }>('/api/audit-log/reseed', {
-      method: 'POST',
-    });
-
-    expect(response.status).toBe(401);
-    expect(body.error).toBe('Not authenticated');
-  });
-
-  test('rejects reseed for a non-admin session', async () => {
-    const cookie = await loginAs('bob', 'letmein');
-
-    const { response, body } = await json<{ error: string }>('/api/audit-log/reseed', {
-      method: 'POST',
-      headers: { Cookie: cookie },
-    });
-
-    expect(response.status).toBe(403);
-    expect(body.error).toBe('Forbidden');
+    expect(response.status).toBe(400);
+    expect(body.error).toBeTruthy();
   });
 });
 
