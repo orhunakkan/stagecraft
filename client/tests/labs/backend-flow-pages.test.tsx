@@ -1,6 +1,6 @@
 import { act, cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
-import { MemoryRouter, Route, Routes } from 'react-router-dom';
+import { MemoryRouter, Route, Routes } from 'react-router';
 import { ApiRequestContext } from '../../src/pages/practice/ApiRequestContext';
 import { BookCatalog } from '../../src/pages/practice/BookCatalog';
 import { FakeAuth } from '../../src/pages/practice/FakeAuth';

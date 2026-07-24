@@ -1,4 +1,4 @@
-import { useParams, Navigate } from 'react-router-dom';
+import { useParams, Navigate } from 'react-router';
 import { labs } from '../labs';
 import { ComingSoon } from './practice/ComingSoon';
 

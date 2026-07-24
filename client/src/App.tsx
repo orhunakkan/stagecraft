@@ -1,5 +1,5 @@
 import { lazy, Suspense, type ComponentType } from 'react';
-import { Routes, Route } from 'react-router-dom';
+import { Routes, Route } from 'react-router';
 import { Shell } from './layouts/Shell';
 import { Home } from './pages/Home';
 import { LabFallback } from './pages/LabFallback';

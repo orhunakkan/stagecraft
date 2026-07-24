@@ -6,7 +6,7 @@
  */
 import { cleanup, fireEvent, render, screen } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, test } from 'vitest';
-import { MemoryRouter } from 'react-router-dom';
+import { MemoryRouter } from 'react-router';
 import { LabCard } from '../../src/components/LabCard';
 import { LabHeader } from '../../src/components/LabHeader';
 import { Home } from '../../src/pages/Home';

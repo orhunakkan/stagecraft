@@ -1,6 +1,6 @@
 import { cleanup, render, screen, waitFor } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
-import { MemoryRouter, Route, Routes } from 'react-router-dom';
+import { MemoryRouter, Route, Routes } from 'react-router';
 import { ErrorBoundary } from '../../src/components/ErrorBoundary';
 import { AccessibleLocators } from '../../src/pages/practice/AccessibleLocators';
 import { ApiRequestContext } from '../../src/pages/practice/ApiRequestContext';

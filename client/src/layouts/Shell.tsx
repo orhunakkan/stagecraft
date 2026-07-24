@@ -1,5 +1,5 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
-import { Outlet, Link, useLocation, useSearchParams } from 'react-router-dom';
+import { Outlet, Link, useLocation, useSearchParams } from 'react-router';
 
 function resolveInitialTheme(searchParams: URLSearchParams): boolean {
   const param = searchParams.get('theme');

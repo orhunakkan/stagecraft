@@ -7,7 +7,7 @@ import {
   screen,
   within,
 } from '@testing-library/react';
-import { MemoryRouter } from 'react-router-dom';
+import { MemoryRouter } from 'react-router';
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 import { AsyncUi } from '../../src/pages/practice/AsyncUi';
 import { ClockTimers } from '../../src/pages/practice/ClockTimers';
