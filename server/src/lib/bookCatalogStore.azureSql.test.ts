@@ -16,6 +16,25 @@ describe.skipIf(!connectionString)('SqlBookCatalogStore (live Azure SQL)', () =>
     await pool.close();
   });
 
+  test('recovers automatically after the cached pool goes stale', async () => {
+    await store.reseed();
+
+    // Simulates Azure SQL auto-pause: the cached pool is still memoized by
+    // getPool() but no longer usable. getReadyPool() should detect the
+    // failed schema check, invalidate the stale pool, and reconnect.
+    const staleConnectionPool = await getPool();
+    await staleConnectionPool.close();
+
+    const result = await store.listAuthors({
+      page: 1,
+      pageSize: 5,
+      sort: 'name',
+      direction: 'asc',
+    });
+
+    expect(result.total).toBe(12);
+  });
+
   test('creates the schema and reseeds deterministic fixture data', async () => {
     const result = await store.reseed();
 

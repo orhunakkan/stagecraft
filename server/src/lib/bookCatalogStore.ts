@@ -5,7 +5,7 @@
 // Resolved Decisions table (#5) for the rationale. Do not treat this as a
 // pattern to copy for future labs without the same tradeoff.
 import sql from 'mssql';
-import { ensureBookCatalogSchema, getPool } from './db';
+import { getReadyPool } from './db';
 
 export type SortDirection = 'asc' | 'desc';
 export type AuthorSort = 'name' | 'birthYear';
@@ -416,9 +416,7 @@ export class InMemoryBookCatalogStore implements BookCatalogStore {
 /* v8 ignore start */
 export class SqlBookCatalogStore implements BookCatalogStore {
   private async ready(): Promise<sql.ConnectionPool> {
-    const pool = await getPool();
-    await ensureBookCatalogSchema(pool);
-    return pool;
+    return getReadyPool();
   }
 
   async listAuthors(params: AuthorQuery): Promise<Page<AuthorRow>> {

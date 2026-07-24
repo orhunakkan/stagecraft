@@ -80,6 +80,31 @@ export function getPool(): Promise<sql.ConnectionPool> {
 }
 
 /**
+ * Returns a schema-verified pool, retrying once against a fresh connection
+ * if the cached pool has gone stale (e.g. Azure SQL auto-paused since the
+ * last request). getPool() only re-runs connectWithRetry on the very first
+ * connection, so without this, a later stale pool would be handed out
+ * forever and every request would hang against a dead connection.
+ */
+export async function getReadyPool(): Promise<sql.ConnectionPool> {
+  const pool = await getPool();
+  try {
+    await ensureBookCatalogSchema(pool);
+    return pool;
+  } catch (error) {
+    const { code, name } = sanitizeSqlError(error);
+    logger.error(
+      { sqlErrorCode: code, sqlErrorName: name },
+      'Book catalog pool appears stale, invalidating and retrying with a fresh connection',
+    );
+    poolPromise = undefined;
+    const freshPool = await getPool();
+    await ensureBookCatalogSchema(freshPool);
+    return freshPool;
+  }
+}
+
+/**
  * Idempotent — safe to call before every operation, not just at boot. Books
  * references Authors via a FK, so Authors must be created first.
  */
