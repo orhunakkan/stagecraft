@@ -21,7 +21,7 @@ export function Home() {
         <h2 className="mb-4 text-xs font-semibold uppercase tracking-widest text-muted">
           Ready — {readyLabs.length} labs
         </h2>
-        <div className="grid gap-3 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
+        <div className="grid gap-3 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6">
           {readyLabs.map((lab) => (
             <LabCard key={lab.slug} lab={lab} completed={isCompleted(lab.slug)} />
           ))}
@@ -32,7 +32,7 @@ export function Home() {
         <h2 className="mb-4 text-xs font-semibold uppercase tracking-widest text-muted">
           Coming soon — {comingSoonLabs.length} labs
         </h2>
-        <div className="grid gap-3 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
+        <div className="grid gap-3 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6">
           {comingSoonLabs.map((lab) => (
             <LabCard key={lab.slug} lab={lab} />
           ))}
