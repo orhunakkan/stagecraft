@@ -12,7 +12,7 @@ Choose names first:
 $resourceGroup = "rg-stagecraft-free"
 $location = "centralus"
 $sqlServer = "<globally-unique-sql-server-name>"
-$sqlDatabase = "stagecraft-book-catalog"
+$sqlDatabase = "stagecraft-database"
 $sqlAdminUser = "stagecraft_admin"
 ```
 
@@ -50,7 +50,7 @@ az sql db create `
 
 `--use-free-limit` is allowed on exactly one database per subscription — this was confirmed against `az sql db create --help` before building this lab. `AutoPause` means the database simply stops accepting new compute once the monthly free limit is used, rather than silently billing overage; pick `BillOverUsage` instead if you'd rather the database stay always-on.
 
-> If you already provisioned this server/database for the previous `audit-log-search` lab, reuse it as-is — the `book-catalog` lab uses the same connection string and only adds its own `Authors`/`Books` tables. The old `AuditLog` table is left in place, unused; nothing here drops it automatically, so remove it by hand later if you'd like to tidy up.
+> If you already provisioned this server/database for the previous `audit-log-search` lab (originally named `stagecraft-audit-log`), reuse it as-is — the `book-catalog` lab uses the same connection string and only adds its own `Authors`/`Books` tables. Rename the database with `az sql db rename --name stagecraft-audit-log --new-name stagecraft-database` to match the name above; this is metadata-only and doesn't touch data, but you must update `Initial Catalog=` in every connection string (local `.env` and the App Service setting) to match afterward. The old `AuditLog` table is left in place, unused; nothing here drops it automatically, so remove it by hand later if you'd like to tidy up.
 
 ## Configure the Firewall
 
